@@ -5,6 +5,12 @@ addpath('images');
 % main begins
 % drawPendulumSimulation;
 
+% Simulation parameters
+dt = 0.05;       % Time step
+T = 10;          % Total time
+time = 0:dt:T;   % Time vector
+speed = 1;
+
 
 % Parameters
 % Initialize the figure and set up key press functionality
