@@ -1,4 +1,4 @@
-function planeplot_ttr_test(position, attitude,tilt_angle)
+function planeplot_ttr(position, attitude,tilt_angle)
 %  position(x,y,z),实时位置；
 %  attitude（roll，pitch，yaw）实时姿态；
 %  tilt_angle(a,b),顺序为右，左，向倾转为正；尾部固定。为c；
@@ -31,7 +31,7 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     ];
     
     %% 增加尺寸定义
-    scale = 50;
+    scale = 30;
     points = scale * points;
 
     
@@ -148,8 +148,8 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     rotor_b_points_rotated = (R_z * rotor_b_points_rotated')'; % b
 
     %% 绘制所有部分在一张图中
-    figure;
-    hold on;
+    % figure;
+    % hold on;
 
     % 绘制 Rotor A
     for i = 1:size(rotor_a_faces_local, 1)
@@ -212,18 +212,18 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     text(0, 0, 0, '原点', 'FontSize', 8, 'Color', 'r', 'HorizontalAlignment', 'center');
 
 
-    %% Labeling and settings for the combined figure
-    xlabel('X (m)');
-    ylabel('Y (m)');
-    zlabel('Z (m)');
-    title('Complete Aircraft Mesh with Pitch Rotation for Rotor A and B');
-    axis equal;
-    grid on;
-    xlim([-50, 50]);
-    ylim([-50, 50]);
-    zlim([-30, 30]);
-    view(3);
-    hold off;
+    % %% Labeling and settings for the combined figure
+    % xlabel('X (m)');
+    % ylabel('Y (m)');
+    % zlabel('Z (m)');
+    % title('Complete Aircraft Mesh with Pitch Rotation for Rotor A and B');
+    % axis equal;
+    % grid on;
+    % xlim([-50, 50]);
+    % ylim([-50, 50]);
+    % zlim([-30, 30]);
+    % view(3);
+    % hold off;
 end
 
 

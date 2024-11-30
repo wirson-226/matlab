@@ -1,4 +1,4 @@
-function planeplot_ttr(position, attitude,tilt_angle)
+function planeplot_ttr_test(position, attitude,tilt_angle,omega)
 %  position(x,y,z),实时位置；
 %  attitude（roll，pitch，yaw）实时姿态；
 %  tilt_angle(a,b),顺序为右，左，向倾转为正；尾部固定。为c；
@@ -81,10 +81,12 @@ function planeplot_ttr(position, attitude,tilt_angle)
     rotor_a_faces_local = changem(rotor_a_faces, 1:numel(rotor_a_indices), rotor_a_indices);
     rotor_b_faces_local = changem(rotor_b_faces, 1:numel(rotor_b_indices), rotor_b_indices);
 
-    %% 添加绕 Y 轴的俯仰旋转---前面有对齐坐标轴步骤
+    %% 添加绕 Y 轴的俯仰旋转---前面有对齐坐标轴步骤 todo---模块化
     % 定义 Rotor A 和 Rotor B 的俯仰角（单位：弧度）
     pitch_a = deg2rad(tilt_angle(1)); % Rotor A 的俯仰角
     pitch_b = deg2rad(tilt_angle(2)); % Rotor B 的俯仰角
+    psi_a = deg2rad(omega(1));
+    psi_b = deg2rad(omega(2));
 
     % 绕 Y 轴的旋转矩阵
     R_pitch_a = [cos(pitch_a), 0, sin(pitch_a);
@@ -94,9 +96,19 @@ function planeplot_ttr(position, attitude,tilt_angle)
                  0, 1, 0;
                  -sin(pitch_b), 0, cos(pitch_b)];
 
+    R_yaw_a = [cos(psi_a), -sin(psi_a), 0;
+           sin(psi_a), cos(psi_a), 0;
+           0, 0, 1];  
+    R_yaw_b = [cos(psi_b), -sin(psi_b), 0;
+           sin(psi_b), cos(psi_b), 0;
+           0, 0, 1];  
+
     % 对 Rotor A 和 Rotor B 的顶点进行俯仰旋转
-    rotor_a_points_rotated = (R_pitch_a * rotor_a_points')'; % 转置操作
-    rotor_b_points_rotated = (R_pitch_b * rotor_b_points')';
+    rotor_a_points_rotated = (R_yaw_a * rotor_a_points')'; % 转置操作
+    rotor_b_points_rotated = (R_yaw_b * rotor_b_points')';
+    rotor_a_points_rotated = (R_pitch_a * rotor_a_points_rotated')'; % 转置操作
+    rotor_b_points_rotated = (R_pitch_b * rotor_b_points_rotated')';
+
 
 
 
