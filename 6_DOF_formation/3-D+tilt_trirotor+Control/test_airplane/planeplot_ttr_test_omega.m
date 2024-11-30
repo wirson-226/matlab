@@ -1,4 +1,4 @@
-function planeplot_ttr_test(position, attitude,tilt_angle,omega)
+function planeplot_ttr_test_omega(position, attitude,tilt_angle,omega)
 %  position(x,y,z),实时位置；
 %  attitude（roll，pitch，yaw）实时姿态；
 %  tilt_angle(a,b),顺序为右，左，向倾转为正；尾部固定。为c；

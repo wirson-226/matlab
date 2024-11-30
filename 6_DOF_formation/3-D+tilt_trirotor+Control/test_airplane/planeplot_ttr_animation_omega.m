@@ -1,4 +1,4 @@
-function planeplot_ttr_animation()
+function planeplot_ttr_animation_omega()
     % 动画总时间和时间步
     total_time = 6; % 总时间 (秒)
     dt = 0.1; % 时间步 (秒)
