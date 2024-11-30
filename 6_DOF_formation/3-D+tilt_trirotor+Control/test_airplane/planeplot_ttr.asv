@@ -2,7 +2,7 @@ function planeplot_ttr(position, attitude,tilt_angle)
 %  position(x,y,z),实时位置；
 %  attitude（roll，pitch，yaw）实时姿态；
 %  tilt_angle(a,b),顺序为右，左，向倾转为正；尾部固定。为c；
-mav_position = position(
+%  tips shift + enter 同时修改变量名；ctrl + h 替换；ctrl + r 注释；f5 运行；
 
     % Define your points (38 points)
     a = 0.009;  % m
@@ -30,9 +30,51 @@ mav_position = position(
     ];
     
     %% 增加尺寸定义
-    scale = 20;
+    scale = 50;
     points = scale * points;
-    points = translation()
+    % 对每个点进行姿态旋转
+    % 定义飞行器的姿态角（单位：弧度）
+    phi = attitude(1,1);   % 滚转角
+    theta = attitude(1,1); % 俯仰角
+    psi = attitude(1,1);   % 偏航角
+    
+    % 定义绕 X 轴的旋转矩阵 (滚转)
+    R_x = [1, 0, 0;
+           0, cos(phi), -sin(phi);
+           0, sin(phi), cos(phi)];
+    
+    % 定义绕 Y 轴的旋转矩阵 (俯仰)
+    R_y = [cos(theta), 0, sin(theta);
+           0, 1, 0;
+           -sin(theta), 0, cos(theta)];
+    
+    % 定义绕 Z 轴的旋转矩阵 (偏航)
+    R_z = [cos(psi), -sin(psi), 0;
+           sin(psi), cos(psi), 0;
+           0, 0, 1];
+    
+    % 组合姿态旋转矩阵
+    R = R_z * R_y * R_x;
+    
+    % 对每个点进行姿态旋转
+    rotated_points = (R * points')';  % 转置后进行矩阵乘法，再转置回来
+    
+    % 更新 `points` 为旋转后的结果
+    points = rotated_points;
+    % points = rotation(points,attitude);
+    % points = translation(points,position);
+
+    % convert North-East Down to East-North-Up for rendering
+    % 定义旋转矩阵，绕X轴反转Z坐标
+    R_z = [1, 0, 0; 
+           0, 1, 0; 
+           0, 0, -1];
+    
+    % 对每个点进行旋转
+    rotated_points_z = (R_z * points')';  % 转置后进行矩阵乘法，再转置回来
+    
+    % 更新 `points` 为旋转后的结果
+    points = rotated_points_z;
     
     % Define the mesh (faces as triplets of point indices)
     mesh = [
@@ -68,14 +110,16 @@ mav_position = position(
         p3 = points(mesh(i, 3), :);
         
         % Select color based on face number (you can customize the logic)
-        if i <= 13
-            color = colors(1, :);  % Base/arm faces
-        elseif i <= 28
-            color = colors(2, :);  % Rotor A faces red
-        elseif i <= 40
-            color = colors(3, :);  % Rotor B faces green
+        if i <= 14
+            color = colors(1, :);  % Base/arm faces(15-40为三个电机)
+        elseif i <= 22
+            color = colors(2, :);  % Rotor A faces red（15-22）a
+        elseif i <= 30
+            color = colors(3, :);  % Rotor B faces green（23-30）b
+        elseif i <= 38
+            color = colors(4, :);  % Rotor C faces green（31-38）c
         else
-            color = colors(4, :);  % Rotor C faces yellow
+            color = colors(1, :);  % connections
         end
         
         % Plot the triangle (face) with the selected color
@@ -103,3 +147,40 @@ mav_position = position(
     hold off;
 
 end
+
+
+% function translation(points,position)
+% % 位置偏移
+%     points(:,1) = points(:,1) + position(1);  
+%     points(:,2) = points(:,2) + position(2);
+%     points(:,3) = points(:,3) + position(3);
+% 
+% end
+
+% function R = euler_2_rotation(phi, theta, psi)
+% % 姿态旋转
+% % 定义飞行器的姿态角（单位：弧度）
+% % phi    % 滚转角
+% % theta  % 俯仰角
+% % psi    % 偏航角
+% 
+% % 定义绕 X 轴的旋转矩阵 (滚转)
+% R_x = [1, 0, 0;
+%        0, cos(phi), -sin(phi);
+%        0, sin(phi), cos(phi)];
+% 
+% % 定义绕 Y 轴的旋转矩阵 (俯仰)
+% R_y = [cos(theta), 0, sin(theta);
+%        0, 1, 0;
+%        -sin(theta), 0, cos(theta)];
+% 
+% % 定义绕 Z 轴的旋转矩阵 (偏航)
+% R_z = [cos(psi), -sin(psi), 0;
+%        sin(psi), cos(psi), 0;
+%        0, 0, 1];
+% 
+% % 组合姿态旋转矩阵
+% R = R_z * R_y * R_x;
+% 
+% 
+% end

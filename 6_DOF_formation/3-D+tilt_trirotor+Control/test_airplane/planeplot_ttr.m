@@ -32,6 +32,35 @@ function planeplot_ttr(position, attitude,tilt_angle)
     %% 增加尺寸定义
     scale = 50;
     points = scale * points;
+    % 对每个点进行姿态旋转
+    % 定义飞行器的姿态角（单位：弧度）
+    phi = attitude(1,1);   % 滚转角
+    theta = attitude(1,2); % 俯仰角
+    psi = attitude(1,3);   % 偏航角
+    
+    % 定义绕 X 轴的旋转矩阵 (滚转)
+    R_x = [1, 0, 0;
+           0, cos(phi), -sin(phi);
+           0, sin(phi), cos(phi)];
+    
+    % 定义绕 Y 轴的旋转矩阵 (俯仰)
+    R_y = [cos(theta), 0, sin(theta);
+           0, 1, 0;
+           -sin(theta), 0, cos(theta)];
+    
+    % 定义绕 Z 轴的旋转矩阵 (偏航)
+    R_z = [cos(psi), -sin(psi), 0;
+           sin(psi), cos(psi), 0;
+           0, 0, 1];
+    
+    % 组合姿态旋转矩阵
+    R = R_z * R_y * R_x;
+    
+    % 对每个点进行姿态旋转
+    rotated_points = (R * points')';  % 转置后进行矩阵乘法，再转置回来
+    
+    % 更新 `points` 为旋转后的结果
+    points = rotated_points;
     % points = rotation(points,attitude);
     % points = translation(points,position);
 
@@ -42,10 +71,10 @@ function planeplot_ttr(position, attitude,tilt_angle)
            0, 0, -1];
     
     % 对每个点进行旋转
-    rotated_points = (R_z * points')';  % 转置后进行矩阵乘法，再转置回来
+    rotated_points_z = (R_z * points')';  % 转置后进行矩阵乘法，再转置回来
     
     % 更新 `points` 为旋转后的结果
-    points = rotated_points;
+    points = rotated_points_z;
     
     % Define the mesh (faces as triplets of point indices)
     mesh = [
@@ -120,16 +149,38 @@ function planeplot_ttr(position, attitude,tilt_angle)
 end
 
 
-function translation(points,position)
-% 位置偏移
-    points(:,1) = points(:,1) + position(1);  
-    points(:,2) = points(:,2) + position(2);
-    points(:,3) = points(:,3) + position(3);
+% function translation(points,position)
+% % 位置偏移
+%     points(:,1) = points(:,1) + position(1);  
+%     points(:,2) = points(:,2) + position(2);
+%     points(:,3) = points(:,3) + position(3);
+% 
+% end
 
-end
-
-function rotation(points,attitude)
-% 姿态旋转
-    R = eul2rotm(attitude(1,:)); % 姿态旋转矩阵
-    points = R*points;  
-end
+% function R = euler_2_rotation(phi, theta, psi)
+% % 姿态旋转
+% % 定义飞行器的姿态角（单位：弧度）
+% % phi    % 滚转角
+% % theta  % 俯仰角
+% % psi    % 偏航角
+% 
+% % 定义绕 X 轴的旋转矩阵 (滚转)
+% R_x = [1, 0, 0;
+%        0, cos(phi), -sin(phi);
+%        0, sin(phi), cos(phi)];
+% 
+% % 定义绕 Y 轴的旋转矩阵 (俯仰)
+% R_y = [cos(theta), 0, sin(theta);
+%        0, 1, 0;
+%        -sin(theta), 0, cos(theta)];
+% 
+% % 定义绕 Z 轴的旋转矩阵 (偏航)
+% R_z = [cos(psi), -sin(psi), 0;
+%        sin(psi), cos(psi), 0;
+%        0, 0, 1];
+% 
+% % 组合姿态旋转矩阵
+% R = R_z * R_y * R_x;
+% 
+% 
+% end

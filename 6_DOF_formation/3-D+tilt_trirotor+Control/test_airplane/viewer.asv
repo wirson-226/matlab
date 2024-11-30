@@ -1,6 +1,6 @@
 % 设置飞行器的位置和姿态
 position = [0, 0, 0];    % 飞机位置
-attitude = [0, 0, pi];    % 飞机姿态：roll pitch yaw, 弧度rad;rad = deg * pi / 180
+attitude = [0, 0, pi];    % 飞机姿态：roll pitch yaw, 弧度rad = deg * pi / 180
 tilt_angle = [0, 0];     % 电机倾转角
 % wingspan = 15;              % 翼展 15 米
 % length = 20;                % 机身长度 20 米
