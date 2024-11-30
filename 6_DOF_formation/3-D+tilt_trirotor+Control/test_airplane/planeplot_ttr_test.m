@@ -101,27 +101,18 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
 
 
 
-    %% 对每个点进行姿态旋转
+    % 对每个点进行姿态旋转
     % 定义飞行器的姿态角（单位：弧度）
     phi = attitude(1,1);   % 滚转角
     theta = attitude(1,2); % 俯仰角
     psi = attitude(1,3);   % 偏航角    
-    % 定义绕 X 轴的旋转矩阵 (滚转)
-    R_x = [1, 0, 0;
-           0, cos(phi), -sin(phi);
-           0, sin(phi), cos(phi)];    
-    % 定义绕 Y 轴的旋转矩阵 (俯仰)
-    R_y = [cos(theta), 0, sin(theta);
-           0, 1, 0;
-           -sin(theta), 0, cos(theta)];    
-    % 定义绕 Z 轴的旋转矩阵 (偏航)
-    R_z = [cos(psi), -sin(psi), 0;
-           sin(psi), cos(psi), 0;
-           0, 0, 1];    
-    % 组合姿态旋转矩阵
-    R = R_z * R_y * R_x;    
+    
+    % 使用自定义函数获取旋转矩阵
+    R = rotation_matrix(phi, theta, psi);
+    
     % 对每个点进行姿态旋转
-    rotated_points = (R * points')';  % 转置后进行矩阵乘法，再转置回来    
+    rotated_points = (R * points')';  % 转置后进行矩阵乘法，再转置回来
+   
     % 更新 `points` 为旋转后的结果
     points = rotated_points;
     rotor_a_points_rotated = (R * rotor_a_points_rotated')'; % a
@@ -230,4 +221,29 @@ end
 function new_indices = changem(indices, new_vals, old_vals)
     [~, loc] = ismember(indices, old_vals);
     new_indices = new_vals(loc);
+end
+
+function R = rotation_matrix(roll, pitch, yaw)
+    % 输入：
+    % roll (phi)   - 滚转角，绕 X 轴旋转
+    % pitch (theta) - 俯仰角，绕 Y 轴旋转
+    % yaw (psi)    - 偏航角，绕 Z 轴旋转
+    
+    % 定义绕 X 轴的旋转矩阵 (滚转)
+    R_x = [1, 0, 0;
+           0, cos(roll), -sin(roll);
+           0, sin(roll), cos(roll)];    
+    
+    % 定义绕 Y 轴的旋转矩阵 (俯仰)
+    R_y = [cos(pitch), 0, sin(pitch);
+           0, 1, 0;
+           -sin(pitch), 0, cos(pitch)];    
+    
+    % 定义绕 Z 轴的旋转矩阵 (偏航)
+    R_z = [cos(yaw), -sin(yaw), 0;
+           sin(yaw), cos(yaw), 0;
+           0, 0, 1];    
+    
+    % 组合姿态旋转矩阵
+    R = R_z * R_y * R_x;  
 end
