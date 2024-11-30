@@ -124,19 +124,18 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     rotated_points = (R * points')';  % 转置后进行矩阵乘法，再转置回来    
     % 更新 `points` 为旋转后的结果
     points = rotated_points;
-    rotor_a_points_rotated = (R * rotor_a_points_rotated')'; % a
-    rotor_b_points_rotated = (R * rotor_b_points_rotated')'; % b
+    rotor_a_points_rotated = (R * rotor_a_points')'; % a
+    rotor_b_points_rotated = (R * rotor_a_points')'; % b
 
 
     %% 对每个点进行平移 
     points = points + position;
-    rotor_a_points_rotated = rotor_a_points_rotated + position;% a
-    rotor_b_points_rotated = rotor_b_points_rotated + position;% b
+    rotor_b_points_rotated 
 
 
     %% 坐标反转矩阵---目前不变，后续针对高度酌情修改
-    % convert North-East Down to East-North-Up for rendering
-    % 定义旋转矩阵，绕X轴反转Z坐标
+    % % convert North-East Down to East-North-Up for rendering
+    % % 定义旋转矩阵，绕X轴反转Z坐标
     R_z = [1, 0, 0; 
            0, 1, 0; 
            0, 0, 1];    
@@ -144,8 +143,7 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     rotated_points_z = (R_z * points')';  % 转置后进行矩阵乘法，再转置回来    
     % 更新 `points` 为旋转后的结果
     points = rotated_points_z;
-    rotor_a_points_rotated = (R_z * rotor_a_points_rotated')'; % a
-    rotor_b_points_rotated = (R_z * rotor_b_points_rotated')'; % b
+
 
     %% 绘制所有部分在一张图中
     figure;
@@ -200,19 +198,7 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
               [p1(3), p2(3), p3(3)], color, 'FaceAlpha', 0.7);
     end
 
-
-    %% 添加原点显示
-    % 绘制原点为小球
-    [X, Y, Z] = sphere(20); % 创建球体
-    sphere_radius = 1; % 设置球体半径
-    surf(sphere_radius * X, sphere_radius * Y, sphere_radius * Z, ...
-         'EdgeColor', 'none', 'FaceColor', [1, 0, 0], 'FaceAlpha', 0.2);
-
-    % 添加原点的标注
-    text(0, 0, 0, '原点', 'FontSize', 8, 'Color', 'r', 'HorizontalAlignment', 'center');
-
-
-    %% Labeling and settings for the combined figure
+    % Labeling and settings for the combined figure
     xlabel('X (m)');
     ylabel('Y (m)');
     zlabel('Z (m)');
