@@ -1,135 +1,106 @@
-classdef WingPlot < handle
-    % WINGPLOT Visualization class for fixed-wing aircraft
+function WingPlot(position, attitude, wingspan, length, tail_span, engine_pos)
+    % position: [x, y, z] - 飞行器的位置
+    % orientation: [roll, pitch, yaw] - 飞行器的姿态角度（单位：弧度）
+    % wingspan: 翼展（米）
+    % length: 飞行器的长度（米）
+    % tail_span: 尾翼的跨度（米）
+    % engine_pos: 发动机位置，表示发动机在机身上的相对位置 [x, y, z]
 
-    properties (SetAccess = public)
-        k = 0;
-        qn;             % Aircraft number
-        time = 0;       % Time
-        state;          % Current state
-        des_state;      % Desired state [x; y; z; xdot; ydot; zdot; pitch; roll; yaw]
-        rot;            % Rotation matrix from body to world
-        wingspan;       % Wingspan
-        length;         % Aircraft length
-        color;          % Aircraft color
-        motor_pos;      % Position of the engines
+    % 创建一个新的图形窗口
+    figure;
+    hold on;
+    axis equal;
+    grid on;
+    xlabel('X');
+    ylabel('Y');
+    zlabel('Z');
 
-        state_hist;     % Position history
-        state_des_hist; % Desired position history
-        time_hist;      % Time history
-        max_iter;       % Max iteration
-    end
+    % 设置背景颜色
+    set(gca, 'Color', [1, 1, 1]); % 设置背景为浅灰色
 
-    properties (SetAccess = private)
-        h_3d
-        h_wing;         % Wing plot handle
-        h_tail;         % Tail plot handle
-        h_pos_hist;     % Position history handle
-        h_pos_des_hist; % Desired position history handle
-        h_qn;           % Aircraft number handle
-        text_dist;      % Distance between aircraft number and aircraft
-    end
+    % 旋转矩阵计算：先计算旋转矩阵，再将所有部件应用相同的旋转
+    R = eul2rotm(attitude(1,:)); % 姿态旋转矩阵
 
-    methods
-        % Constructor
-        function W = WingPlot(qn, state, wingspan, length, color, max_iter, h_3d)
-            W.qn = qn;
-            W.state = state;
-            W.wingspan = wingspan;
-            W.length = length;
-            W.color = color;
-            W.rot = QuatToRot(W.state(7:9)); % Rotation matrix
-            W.motor_pos = [W.state(1) W.state(2) W.state(3)]; % Aircraft position
-            W.text_dist = W.wingspan / 3;
-            W.des_state = W.state(1:6); % Only position and velocity for now
+        % 生成飞行器的机身（一个简单的长方体）
+    fuselage_length = length * 0.6;  % 假设机身长度为飞行器总长的 60%
+    fuselage_width = 1;               % 假设机身宽度为 1 米
+    fuselage_height = 0.5;            % 假设机身高度为 0.5 米
 
-            W.max_iter = max_iter;
-            W.state_hist = zeros(6, max_iter);
-            W.state_des_hist = zeros(6, max_iter);
-            W.time_hist = zeros(1, max_iter);
+    fuselage_vertices = [
+        -fuselage_length / 2, -fuselage_width / 2, -fuselage_height / 2;  % 后左下
+        fuselage_length / 2, -fuselage_width / 2, -fuselage_height / 2;   % 后右下
+        fuselage_length / 2, fuselage_width / 2, -fuselage_height / 2;    % 后右上
+        -fuselage_length / 2, fuselage_width / 2, -fuselage_height / 2;   % 后左上
+        -fuselage_length / 2, -fuselage_width / 2, fuselage_height / 2;   % 前左下
+        fuselage_length / 2, -fuselage_width / 2, fuselage_height / 2;    % 前右下
+        fuselage_length / 2, fuselage_width / 2, fuselage_height / 2;     % 前右上
+        -fuselage_length / 2, fuselage_width / 2, fuselage_height / 2;    % 前左上
+    ];
 
-            % Initialize plot handle
-            if nargin < 7, h_3d = gca; end
-            W.h_3d = h_3d;
-            hold(W.h_3d, 'on');
-            W.h_pos_hist = plot3(W.h_3d, W.state(1), W.state(2), W.state(3), 'r.');
-            W.h_pos_des_hist = plot3(W.h_3d, W.des_state(1), W.des_state(2), W.des_state(3), 'b.');
-            W.h_wing = plot3(W.h_3d, [0 0], [0 0], [0 0], 'Color', W.color, 'LineWidth', 2); % placeholder for wing
-            W.h_tail = plot3(W.h_3d, [0 0], [0 0], [0 0], 'Color', W.color, 'LineWidth', 2); % placeholder for tail
-            W.h_qn = text( ...
-                W.state(1) + W.text_dist, ...
-                W.state(2) + W.text_dist, ...
-                W.state(3) + W.text_dist, num2str(qn));
-            hold(W.h_3d, 'off');
-        end
+    % 旋转和位移机身
+    fuselage_vertices_rot = (R * fuselage_vertices')';  % 应用旋转
+    fuselage_vertices_rot(:,1) = fuselage_vertices_rot(:,1) + position(1);  % 位置偏移
+    fuselage_vertices_rot(:,2) = fuselage_vertices_rot(:,2) + position(2);
+    fuselage_vertices_rot(:,3) = fuselage_vertices_rot(:,3) + position(3);
 
-        % Update aircraft state
-        function UpdateWingState(W, state, time)
-            W.state = state;
-            W.time = time;
-            W.rot = QuatToRot(state(7:10))'; % Body-to-world rotation matrix
-        end
+    % 绘制机身
+    faces = [
+        1, 2, 6, 5;
+        2, 3, 7, 6;
+        3, 4, 8, 7;
+        4, 1, 5, 8;
+        1, 2, 3, 4;
+        5, 6, 7, 8
+    ];
+    patch('Vertices', fuselage_vertices_rot, 'Faces', faces, ...
+        'FaceColor', 'r', 'FaceAlpha', 0.6);
+    % 生成飞行器的机翼（delta-wing）
+    wing_vertices = [
+        length/2, 0, 0;                   % 机翼的机头位置
+        length, -wingspan / 2, 0; % 机翼的左翼后端
+        length, wingspan / 2, 0;  % 机翼的右翼后端
+    ];
+%     wing_vertices = [
+%     -fuselage_length/2, -wing_span/2, 0;   % 左翼根
+%     -fuselage_length/2, wing_span/2, 0;    % 右翼根
+%     fuselage_length/2, 0, 0;               % 机头
+% ];
 
-        % Update desired aircraft state
-        function UpdateDesiredWingState(W, des_state)
-            W.des_state = des_state;
-        end
+    % 旋转和位移机翼位置
+    wing_vertices_rot = (R * wing_vertices')';  % 应用旋转
+    wing_vertices_rot(:,1) = wing_vertices_rot(:,1) + position(1);  % 位置偏移
+    wing_vertices_rot(:,2) = wing_vertices_rot(:,2) + position(2);
+    wing_vertices_rot(:,3) = wing_vertices_rot(:,3) + position(3);
 
-        % Update aircraft history
-        function UpdateWingHist(W)
-            W.k = W.k + 1;
-            W.time_hist(W.k) = W.time;
-            W.state_hist(:,W.k) = W.state(1:6);
-            W.state_des_hist(:,W.k) = W.des_state(1:6);
-        end
+    % 绘制机翼
+    patch(wing_vertices_rot(:,1), wing_vertices_rot(:,2), wing_vertices_rot(:,3), 'b', 'FaceAlpha', 0.6);
 
-        % Update aircraft position
-        function UpdateMotorPos(W)
-            W.motor_pos = [W.state(1) W.state(2) W.state(3)];
-        end
+    % 生成尾翼（简单的矩形尾翼）
+    tail_vertices = [
+        -tail_span / 2, 0, 0;     % 尾翼的左端
+        tail_span / 2, 0, 0;      % 尾翼的右端
+        tail_span / 2, 0, length / 6;  % 尾翼的下端
+        -tail_span / 2, 0, length / 6; % 尾翼的下端
+    ];
 
-        % Truncate history
-        function TruncateHist(W)
-            W.time_hist = W.time_hist(1:W.k);
-            W.state_hist = W.state_hist(:, 1:W.k);
-            W.state_des_hist = W.state_des_hist(:, 1:W.k);
-        end
+    % 旋转和位移尾翼
+    tail_vertices_rot = (R * tail_vertices')';  % 应用旋转
+    tail_vertices_rot(:,1) = tail_vertices_rot(:,1) + position(1);  % 位置偏移
+    tail_vertices_rot(:,2) = tail_vertices_rot(:,2) + position(2);
+    tail_vertices_rot(:,3) = tail_vertices_rot(:,3) + position(3);
 
-        % Update aircraft plot
-        function UpdateWingPlot(W, state, des_state, time)
-            W.UpdateWingState(state, time);
-            W.UpdateDesiredWingState(des_state);
-            W.UpdateWingHist();
-            W.UpdateMotorPos();
+    % 绘制尾翼
+    patch(tail_vertices_rot(:,1), tail_vertices_rot(:,2), tail_vertices_rot(:,3), 'g', 'FaceAlpha', 0.6);
+    % 
+    % % 绘制发动机位置（假设两个发动机位置）
+    % engine1_pos = engine_pos + [1, 0, -length/4];  % 发动机 1 位置
+    % engine2_pos = engine_pos + [-1, 0, -length/4]; % 发动机 2 位置
+    % plot3(engine1_pos(1), engine1_pos(2), engine1_pos(3), 'ko', 'MarkerFaceColor', 'k');
+    % plot3(engine2_pos(1), engine2_pos(2), engine2_pos(3), 'ko', 'MarkerFaceColor', 'k');
 
-            % Update wing plot (draw a simple 3D plane representation)
-            % Assuming a simple box shape for the wing
-            wing_x = [-W.wingspan/2, W.wingspan/2, W.wingspan/2, -W.wingspan/2];
-            wing_y = [-W.length/2, -W.length/2, W.length/2, W.length/2];
-            wing_z = [0, 0, 0, 0];
-            
-            wing_points = W.rot * [wing_x; wing_y; wing_z];
-            set(W.h_wing, 'XData', wing_points(1,:) + W.state(1));
-            set(W.h_wing, 'YData', wing_points(2,:) + W.state(2));
-            set(W.h_wing, 'ZData', wing_points(3,:) + W.state(3));
-
-            % Update tail (a simple representation)
-            tail_x = [-W.wingspan/5, W.wingspan/5];
-            tail_y = [0, 0];
-            tail_z = [-W.length/4, W.length/4];
-            tail_points = W.rot * [tail_x; tail_y; tail_z];
-            set(W.h_tail, 'XData', tail_points(1,:) + W.state(1));
-            set(W.h_tail, 'YData', tail_points(2,:) + W.state(2));
-            set(W.h_tail, 'ZData', tail_points(3,:) + W.state(3));
-
-            % Update aircraft number position
-            set(W.h_qn, 'Position', [W.state(1) + W.text_dist, W.state(2) + W.text_dist, W.state(3) + W.text_dist]);
-
-            % Update position history
-            set(W.h_pos_hist, 'XData', W.state_hist(1,1:W.k), 'YData', W.state_hist(2,1:W.k), 'ZData', W.state_hist(3,1:W.k));
-            set(W.h_pos_des_hist, 'XData', W.state_des_hist(1,1:W.k), 'YData', W.state_des_hist(2,1:W.k), 'ZData', W.state_des_hist(3,1:W.k));
-
-            drawnow;
-        end
-    end
-
+    % 设置视角和图形属性
+    view(3);   % 3D视图
+    axis([-50, 50, -50, 50, -50, 50]); % 设置坐标轴范围
+    title('Delta Wing Aircraft Visualization');
 end
+

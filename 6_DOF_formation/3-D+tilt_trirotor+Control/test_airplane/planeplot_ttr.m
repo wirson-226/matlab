@@ -1,0 +1,135 @@
+function planeplot_ttr(position, attitude,tilt_angle)
+%  position(x,y,z),实时位置；
+%  attitude（roll，pitch，yaw）实时姿态；
+%  tilt_angle(a,b),顺序为右，左，向倾转为正；尾部固定。为c；
+%  tips shift + enter 同时修改变量名；ctrl + h 替换；ctrl + r 注释；f5 运行；
+
+    % Define your points (38 points)
+    a = 0.009;  % m
+    l = 5 * a;  % m
+    l_p = 4 * a;
+    l_p2 = l_p * cos(pi/4);
+    
+    points = [
+        4.5*l, 0, 0; 0, -l, 0; 0, 0, -6*a; 0, l, 0; -10*l, 0, 0;
+        -10*l, -10*l, 0; -10*l, 10*l, 0; -6*l, -3*l, -5*a; -6*l, 3*l, -5*a;
+        -1.5*l, -5*l, 0; -1.5*l, 5*l, 0; -13*l, 0, 0;
+        -1.5*l + l_p + l_p2, -5*l - l_p, 0; -1.5*l + l_p + l_p2, -5*l + l_p, 0;
+        -1.5*l + l_p, -5*l + l_p + l_p2, 0; -1.5*l - l_p, -5*l + l_p + l_p2, 0;
+        -1.5*l - l_p - l_p2, -5*l + l_p, 0; -1.5*l - l_p - l_p2, -5*l - l_p, 0;
+        -1.5*l - l_p, -5*l - l_p - l_p2, 0; -1.5*l + l_p, -5*l - l_p - l_p2, 0;
+        -1.5*l + l_p + l_p2, 5*l - l_p, 0; -1.5*l + l_p + l_p2, 5*l + l_p, 0;
+        -1.5*l + l_p, 5*l + l_p + l_p2, 0; -1.5*l - l_p, 5*l + l_p + l_p2, 0;
+        -1.5*l - l_p - l_p2, 5*l + l_p, 0; -1.5*l - l_p - l_p2, 5*l - l_p, 0;
+        -1.5*l - l_p, 5*l - l_p - l_p2, 0; -1.5*l + l_p, 5*l - l_p - l_p2, 0;
+        -13*l + l_p + l_p2, 0 - l_p, 0; -13*l + l_p + l_p2, 0 + l_p, 0;
+        -13*l + l_p, 0 + l_p + l_p2, 0; -13*l - l_p, 0 + l_p + l_p2, 0;
+        -13*l - l_p - l_p2, 0 + l_p, 0; -13*l - l_p - l_p2, 0 - l_p, 0;
+        -13*l - l_p, 0 - l_p - l_p2, 0; -13*l + l_p, 0 - l_p - l_p2, 0;
+        -1.5*l, 0, 0; -1.5*l, 0, 3*a
+    ];
+    
+    %% 增加尺寸定义
+    scale = 50;
+    points = scale * points;
+    % points = rotation(points,attitude);
+    % points = translation(points,position);
+
+    % convert North-East Down to East-North-Up for rendering
+    % 定义旋转矩阵，绕X轴反转Z坐标
+    R_z = [1, 0, 0; 
+           0, 1, 0; 
+           0, 0, -1];
+    
+    % 对每个点进行旋转
+    rotated_points = (R_z * points')';  % 转置后进行矩阵乘法，再转置回来
+    
+    % 更新 `points` 为旋转后的结果
+    points = rotated_points;
+    
+    % Define the mesh (faces as triplets of point indices)
+    mesh = [
+        1, 2, 3; 1, 3, 4; 1, 2, 4; 5, 2, 3; 5, 2, 4; 5, 3, 4;
+        2, 5, 6; 4, 5, 7; 8, 2, 6; 8, 6, 5; 8, 2, 5; 9, 4, 5;
+        9, 7, 5; 9, 4, 7; 10, 13, 14; 10, 14, 15; 10, 15, 16; 10, 16, 17;
+        10, 17, 18; 10, 18, 19; 10, 19, 20; 10, 20, 13; 11, 21, 22;
+        11, 22, 23; 11, 23, 24; 11, 24, 25; 11, 25, 26; 11, 26, 27;
+        11, 27, 28; 11, 21, 28; 12, 29, 30; 12, 30, 31; 12, 31, 32;
+        12, 32, 33; 12, 33, 34; 12, 35, 34; 12, 35, 36; 12, 36, 29;
+        37, 38, 10; 37, 38, 11; 37, 38, 12; 37, 38, 1
+    ];
+    
+    % Define colors for different faces (e.g., rotor faces, arm faces, etc.)
+    colors = [
+        0.1, 0.2, 0.9;   % Blue for base/arm faces
+        0.8, 0.1, 0.1;   % Red for rotor_a faces
+        0.1, 0.8, 0.1;   % Green for rotor_b faces
+        0.8, 0.8, 0.1;   % Yellow for rotor_c faces
+        0.6, 0.6, 0.6;   % Grey for body faces
+        0.9, 0.9, 0.9;   % Light grey for connecting faces
+    ];
+    
+    % Create figure for plotting
+    figure;
+    hold on;
+    
+    % Loop over each face and plot using patch with color
+    for i = 1:size(mesh, 1)
+        % Extract the points of the current face
+        p1 = points(mesh(i, 1), :);
+        p2 = points(mesh(i, 2), :);
+        p3 = points(mesh(i, 3), :);
+        
+        % Select color based on face number (you can customize the logic)
+        if i <= 14
+            color = colors(1, :);  % Base/arm faces(15-40为三个电机)
+        elseif i <= 22
+            color = colors(2, :);  % Rotor A faces red（15-22）a
+        elseif i <= 30
+            color = colors(3, :);  % Rotor B faces green（23-30）b
+        elseif i <= 38
+            color = colors(4, :);  % Rotor C faces green（31-38）c
+        else
+            color = colors(1, :);  % connections
+        end
+        
+        % Plot the triangle (face) with the selected color
+        fill3([p1(1), p2(1), p3(1)], ...
+              [p1(2), p2(2), p3(2)], ...
+              [p1(3), p2(3), p3(3)], color, 'FaceAlpha', 0.7);
+    end
+    
+    % Labeling and setting limits
+    xlabel('X (m)');
+    ylabel('Y (m)');
+    zlabel('Z (m)');
+    title('3D Mesh of Aircraft Model');
+    axis equal;
+    grid on;
+    
+    % Set the axis limits to fit the model (you can adjust based on your model scale)
+    xlim([-50, 50]);
+    ylim([-50, 50]);
+    zlim([-30, 30]);
+    
+    % Adjust the view angle for better visualization
+    view(3);
+    
+    hold off;
+
+end
+
+
+function translation(points,position)
+% 位置偏移
+    points(:,1) = points(:,1) + position(1);  
+    points(:,2) = points(:,2) + position(2);
+    points(:,3) = points(:,3) + position(3);
+
+end
+
+function rotation(points,attitude)
+% 姿态旋转
+    R = eul2rotm(attitude(1,:)); % 姿态旋转矩阵
+    points = R*points;  
+end
