@@ -87,12 +87,12 @@ function planeplot_ttr_animation()
     
             case 'uparrow'
                 % 按上箭头键加速
-                speed = speed + 0.1; 
+                speed = speed + 1; 
                 disp(['Speed increased to ', num2str(speed)]);
     
             case 'downarrow'
                 % 按下箭头键减速
-                speed = max(speed - 0.1, 0.1); % 最小速度限制为 0.1
+                speed = max(speed - 1, 0.1); % 最小速度限制为 0.1
                 disp(['Speed decreased to ', num2str(speed)]);
     
             case 'w'

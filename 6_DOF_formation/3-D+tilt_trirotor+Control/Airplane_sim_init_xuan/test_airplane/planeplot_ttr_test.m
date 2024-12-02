@@ -31,7 +31,7 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     ];
     
     %% 增加尺寸定义
-    scale = 30;
+    scale = 5;
     points = scale * points;
 
     

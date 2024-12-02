@@ -1,4 +1,4 @@
-function [t_out, s_out] = simulation_3d_att_plus_1_1_over(trajhandle, controlhandle)
+function [t_out, s_out] = Copy_of_simulation_3d_att_plus_1_1_over(trajhandle, controlhandle)
 % 在1.0基础推进了步长设置调整，自适应ode45与状态输出矩阵的规格
 % NOTE: This script will not run as expected unless you fill in proper
 % code in trajhandle and controlhandle
@@ -72,10 +72,10 @@ for iter = 1:max_iter
 
     % Initialize quad plot
     if iter == 1
-        QP = QuadPlot(1, x0, 0.1, 0.04, quadcolors(1,:), max_iter, h_3d);
+        QP = Copy_of_QuadPlot(1, x0, 0.1, 0.04, quadcolors(1,:), max_iter, h_3d);
         current_state = stateToQd(x);
         desired_state = trajhandle(time, current_state);
-        QP.UpdateQuadPlot(x, [desired_state.pos; desired_state.vel], time);
+        QP.UpdateCopy_of_QuadPlot(x, [desired_state.pos; desired_state.vel], time);
         h_title = title(sprintf('iteration: %d, time: %4.2f', iter, time));
     end
 
@@ -112,7 +112,7 @@ for iter = 1:max_iter
     % Update quad plot
     current_state = stateToQd(x);
     desired_state = trajhandle(time + cstep, current_state);
-    QP.UpdateQuadPlot(x, [desired_state.pos; desired_state.vel], time + cstep);
+    QP.UpdateCopy_of_QuadPlot(x, [desired_state.pos; desired_state.vel], time + cstep);
     set(h_title, 'String', sprintf('iteration: %d, time: %4.2f', iter, time + cstep))
 
     time = time + cstep; % Update simulation time
