@@ -52,7 +52,7 @@ function planeplot_ttr_animation()
         cla; % 只清除当前窗口的内容
 
         % 调用绘图函数，不再创建新窗口
-        planeplot_ttr_test(position, attitude, tilt_angle);  % 更新同一窗口
+        planeplot_ttr(position, attitude, tilt_angle);  % 更新同一窗口
 
         % 更新仿真时间
         sim_time = sim_time + dt * speed;  % 根据速度调整时间步

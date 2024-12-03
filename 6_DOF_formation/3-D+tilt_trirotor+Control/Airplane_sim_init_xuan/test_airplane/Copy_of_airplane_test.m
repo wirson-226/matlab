@@ -6,8 +6,8 @@ hold on;
 xlabel('X');
 ylabel('Y');
 zlabel('Z');
-title('Three Aircraft Maintaining Equilateral Triangle Formation Along Circular Path');
-view(3);  % 3D视图
+title('Airplane flight');
+view(30,30);  % 3D视图
 xlim([0 100]); ylim([0 100]); zlim([-10 10]); % 设置坐标轴范围
 
 % 定义飞行参数
@@ -96,12 +96,9 @@ for t = 1:num_steps
         tilt = [90,90];
         cla; % 只清除当前窗口的内容
         planeplot_ttr_test(current_positions(i, :), att, tilt);  % 更新同一窗口
-    % end
-    % 
-    % % 绘制实时轨迹
+
     % % 绘制每架飞机的预期轨迹和实际轨迹
-    % % 绘制每架飞机的预期轨迹和实际轨迹
-    % for i = 1:num_agents
+
         plot3(desired_trajectories(1:t, 1, i), desired_trajectories(1:t, 2, i), desired_trajectories(1:t, 3, i), 'g--', 'LineWidth', 1.5); % 预期轨迹
         plot3(current_trajectories(1:t, 1, i), current_trajectories(1:t, 2, i), current_trajectories(1:t, 3, i), 'b', 'LineWidth', 1); % 实际位置
     end
@@ -118,6 +115,10 @@ quiver3(0, 0, 0, 0, 0, 10, 'b', 'LineWidth', 2);  % Z轴
 
 % 显示图形
 hold off;
+
+
+
+
 
 % 辅助函数：四元数插值 (Slerp)
 function q_interp = slerp(q1, q2, t)
