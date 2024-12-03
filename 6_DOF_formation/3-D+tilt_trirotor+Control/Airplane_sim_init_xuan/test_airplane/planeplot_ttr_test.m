@@ -138,7 +138,8 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     rotor_a_points_rotated = (R_z * rotor_a_points_rotated')'; % a
     rotor_b_points_rotated = (R_z * rotor_b_points_rotated')'; % b
 
-    %% 绘制所有部分在一张图中
+    % % 绘制所有部分在一张图中
+    % cla;
     % figure;
     % hold on;
 
@@ -192,29 +193,16 @@ function planeplot_ttr_test(position, attitude,tilt_angle)
     end
 
 
-    %% 添加原点显示
-    % 绘制原点为小球
-    [X, Y, Z] = sphere(20); % 创建球体
-    sphere_radius = 1; % 设置球体半径
-    surf(sphere_radius * X, sphere_radius * Y, sphere_radius * Z, ...
-         'EdgeColor', 'none', 'FaceColor', [1, 0, 0], 'FaceAlpha', 0.2);
+    % %% 添加原点显示
+    % % 绘制原点为小球
+    % [X, Y, Z] = sphere(20); % 创建球体
+    % sphere_radius = 1; % 设置球体半径
+    % surf(sphere_radius * X, sphere_radius * Y, sphere_radius * Z, ...
+    %      'EdgeColor', 'none', 'FaceColor', [1, 0, 0], 'FaceAlpha', 0.2);
+    % 
+    % % 添加原点的标注
+    % text(0, 0, 0, '原点', 'FontSize', 8, 'Color', 'r', 'HorizontalAlignment', 'center');
 
-    % 添加原点的标注
-    text(0, 0, 0, '原点', 'FontSize', 8, 'Color', 'r', 'HorizontalAlignment', 'center');
-
-
-    % %% Labeling and settings for the combined figure
-    % xlabel('X (m)');
-    % ylabel('Y (m)');
-    % zlabel('Z (m)');
-    % title('Complete Aircraft Mesh with Pitch Rotation for Rotor A and B');
-    % axis equal;
-    % grid on;
-    % xlim([-50, 50]);
-    % ylim([-50, 50]);
-    % zlim([-30, 30]);
-    % view(3);
-    % hold off;
 end
 
 

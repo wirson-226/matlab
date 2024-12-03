@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 1;
+max_time = 5;
 
 % parameters for simulation
 params = sys_params;

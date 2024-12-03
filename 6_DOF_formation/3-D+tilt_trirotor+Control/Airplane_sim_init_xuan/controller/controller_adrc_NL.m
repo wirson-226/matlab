@@ -1,4 +1,4 @@
-function [F, M] = controller(t, state, des_state, params)
+function [F, M] = controller_adrc_NL(t, state, des_state, params)
 % CONTROLLER  ADRC Controller for the quadrotor
 %
 %   state: The current state of the robot with the following fields:

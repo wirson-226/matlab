@@ -93,22 +93,13 @@ for iter = 1:max_iter
     % 清除之前绘制
     cla; % 只清除当前窗口的内容
     % 绘制飞机模型
-    pos_4_plot = x(1:3);
-    rot_4_plot = QuatToRot(x(7:10));
-    att_4_plot = RotToRPY_ZXY(rot_4_plot);
-    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
+    % pos_4_plot = x(1:3);
+    % rot_4_plot = QuatToRot(x(7:10));
+    % att_4_plot = RotToRPY_ZXY(rot_4_plot);
+    % planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
 
 
-    % planeplot_ttr_test([1,1,1], [0,0,0], [0,0]);
-
-    % % 绘制每架飞机的预期轨迹和实际轨迹 --- todo
-    % plot3(desired_trajectories(1:t, 1, i), desired_trajectories(1:t, 2, i), desired_trajectories(1:t, 3, i), 'g--', 'LineWidth', 1.5); % 预期轨迹
-    % plot3(current_trajectories(1:t, 1, i), current_trajectories(1:t, 2, i), current_trajectories(1:t, 3, i), 'b', 'LineWidth', 1);
-    % 
-    % % % 更新视角：相机位置始终跟随飞机
-    % camera_target = current_positions(i, :);  % 相机始终跟随飞机
-    % camera_position = camera_target + [camera_distance-2, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
-    % campos(camera_position);          % 设置相机位置
+    planeplot_ttr_test([1,1,1], [0,0,0], [0,0]);
 
 
     % Add attitude save
@@ -136,10 +127,6 @@ for iter = 1:max_iter
     % Save attitudetraj
     attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = att_des_save(1:end-1, :); % desired att
     attitudetraj((iter-1)*nstep+1:iter*nstep, :) = att_current_save(1:end-1,:); % real state att
-
-
-
-
 
     time = time + cstep; % Update simulation time
     t = toc;

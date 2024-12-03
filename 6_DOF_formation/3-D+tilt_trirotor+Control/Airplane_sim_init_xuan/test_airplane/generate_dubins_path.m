@@ -15,7 +15,7 @@ function full_path = generate_dubins_path(points, r, stepsize, h, quiet)
         p2 = points(i + 1, :);
         
         % 调用 Dubins 曲线函数，计算相邻点之间的路径段
-        path_segment = dubins_curve_3D(p1, p2, r, stepsize, h, quiet);
+        path_segment = dubins_curve(p1, p2, r, stepsize,quiet);
         
         % 连接路径
         if isempty(full_path)
