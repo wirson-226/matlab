@@ -35,7 +35,7 @@ ylabel('Y');
 zlabel('Z');
 title('Airplane flight');
 view(3);  % 3D视图
-xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
+xlim([-10 10]); ylim([-10 10]); zlim([-1 1]); % 设置坐标轴范围
 
 
 % axis equal
@@ -60,8 +60,8 @@ stop_pos  = des_stop.pos;
 x0    = init_state(des_start.pos, 0);
 xtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
-pos_4_plot = [0,0,0];
-att_4_plot = [0,0,0];
+% pos_4_plot = [0,0,0];
+% att_4_plot = [0,0,0];
 tilt_angle = [0,0];
 
 
@@ -92,10 +92,11 @@ for iter = 1:max_iter
     %% aircraft plot
     % 清除之前绘制
     cla; % 只清除当前窗口的内容
-    % 绘制飞机模型
-    pos_4_plot = x(1:3);
+    % 绘制飞机模型 --- done 
+    pos_4_plot = x(1:3)';
     rot_4_plot = QuatToRot(x(7:10));
-    att_4_plot = RotToRPY_ZXY(rot_4_plot);
+    [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+    att_4_plot = [phi,theta,psi];
     planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
 
 
@@ -106,9 +107,9 @@ for iter = 1:max_iter
     % plot3(current_trajectories(1:t, 1, i), current_trajectories(1:t, 2, i), current_trajectories(1:t, 3, i), 'b', 'LineWidth', 1);
     % 
     % % % 更新视角：相机位置始终跟随飞机
-    % camera_target = current_positions(i, :);  % 相机始终跟随飞机
-    % camera_position = camera_target + [camera_distance-2, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
-    % campos(camera_position);          % 设置相机位置
+    camera_target = pos_4_plot;  % 相机始终跟随飞机
+    camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
+    campos(camera_position);          % 设置相机位置
 
 
     % Add attitude save
