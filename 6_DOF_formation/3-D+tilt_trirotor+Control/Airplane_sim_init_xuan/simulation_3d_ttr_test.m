@@ -1,4 +1,4 @@
-function [t_out, s_out] = simulation_3d_ttr(trajhandle, controlhandle)
+function [t_out, s_out] = simulation_3d_ttr_test(trajhandle, controlhandle)
 % 在1.0基础推进了步长设置调整，自适应ode45与状态输出矩阵的规格
 % NOTE: This script will not run as expected unless you fill in proper
 % code in trajhandle and controlhandle
