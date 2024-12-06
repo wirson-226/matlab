@@ -37,7 +37,7 @@ controlhandle = @controller_pid;
 % state - n x 13, with each row having format [x, y, z, xdot, ydot, zdot, qw, qx, qy, qz, p, q, r]
 
 % [t, state] = simulation_3d_att_plus_1_1_over(trajhandle, controlhandle); % 姿态跟踪完成版1_1，扩展接口实现R
-[t, state] = Copy_of_simulation_3d_att_plus_1_1_over(trajhandle, controlhandle); % 添加姿态跟踪效果
+[t, state] = simulation_3d_ttr(trajhandle, controlhandle); % 添加姿态跟踪效果
 
 % viewer
 % planeplot_ttr_animation;

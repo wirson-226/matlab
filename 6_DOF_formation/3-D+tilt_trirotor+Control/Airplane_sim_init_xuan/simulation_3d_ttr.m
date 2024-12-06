@@ -1,4 +1,4 @@
-function [t_out, s_out] = Copy_of_simulation_3d_att_plus_1_1_over(trajhandle, controlhandle)
+function [t_out, s_out] = simulation_3d_ttr(trajhandle, controlhandle)
 % 在1.0基础推进了步长设置调整，自适应ode45与状态输出矩阵的规格
 % NOTE: This script will not run as expected unless you fill in proper
 % code in trajhandle and controlhandle
@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 1;
+max_time = 5;
 
 % parameters for simulation
 params = sys_params;
