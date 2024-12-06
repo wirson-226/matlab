@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 5;
+max_time = 1;
 
 % parameters for simulation
 params = sys_params;
@@ -59,6 +59,7 @@ des_stop  = trajhandle(inf, []);
 stop_pos  = des_stop.pos;
 x0    = init_state(des_start.pos, 0);
 xtraj = zeros(max_iter*nstep, length(x0));
+dtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];
 % att_4_plot = [0,0,0];
@@ -164,23 +165,75 @@ end
 
 %% ************************* POST PROCESSING *************************
 
+
 % Truncate xtraj and ttraj  停留在当前步数状态数据，留存以防跳出流失数据
-xtraj = xtraj(1:iter*nstep,:);
+xtraj = xtraj(1:iter*nstep,:);  % Position and other state variables
 ttraj = ttraj(1:iter*nstep);
 attitudetraj = attitudetraj(1:iter*nstep, :); % Truncate attitude trajectory
 attitude_des_traj = attitude_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
-% 
-% % Truncate saved variables
-% QP.TruncateHist();
-% 
+
 % Plot position
-% h_pos = figure('Name', ['Quad position']);
-% plot_state(h_pos, xtraj(:,1:3), ttraj, 'pos', 'vic');
-% plot_state(h_pos, xtraj(:,4:6), ttraj, 'pos', 'des');
+h_pos = figure('Name', 'Quad Position');
+subplot(3,1,1);
+plot(ttraj, xtraj(:,1), 'b', 'LineWidth', 1.5);  % Plot x position
+hold on;
+% 如果有预期轨迹，绘制预期轨迹
+plot(ttraj, desired_trajectory(:,1), 'r--', 'LineWidth', 1.5);  % Desired x position
+xlabel('Time [s]');
+ylabel('X [m]');
+legend('Actual X', 'Desired X');
+title('Quad Position');
+grid on;
+
+subplot(3,1,2);
+plot(ttraj, xtraj(:,2), 'b', 'LineWidth', 1.5);  % Plot y position
+hold on;
+plot(ttraj, desired_trajectory(:,2), 'r--', 'LineWidth', 1.5);  % Desired y position
+xlabel('Time [s]');
+ylabel('Y [m]');
+legend('Actual Y', 'Desired Y');
+grid on;
+
+subplot(3,1,3);
+plot(ttraj, xtraj(:,3), 'b', 'LineWidth', 1.5);  % Plot z position
+hold on;
+plot(ttraj, desired_trajectory(:,3), 'r--', 'LineWidth', 1.5);  % Desired z position
+xlabel('Time [s]');
+ylabel('Z [m]');
+legend('Actual Z', 'Desired Z');
+grid on;
+
 % Plot velocity
-% h_vel = figure('Name', ['Quad velocity']);
-% plot_state(h_vel, QP.state_hist(4:6,:), ttraj, 'vel', 'vic');
-% plot_state(h_vel, QP.state_des_hist(4:6,:), ttraj, 'vel', 'des');
+h_vel = figure('Name', 'Quad Velocity');
+subplot(3,1,1);
+plot(ttraj, xtraj(:,4), 'b', 'LineWidth', 1.5);  % Plot x velocity
+hold on;
+plot(ttraj, desired_velocity(:,1), 'r--', 'LineWidth', 1.5);  % Desired x velocity
+xlabel('Time [s]');
+ylabel('Vx [m/s]');
+legend('Actual Vx', 'Desired Vx');
+title('Quad Velocity');
+grid on;
+
+subplot(3,1,2);
+plot(ttraj, xtraj(:,5), 'b', 'LineWidth', 1.5);  % Plot y velocity
+hold on;
+plot(ttraj, desired_velocity(:,2), 'r--', 'LineWidth', 1.5);  % Desired y velocity
+xlabel('Time [s]');
+ylabel('Vy [m/s]');
+legend('Actual Vy', 'Desired Vy');
+grid on;
+
+subplot(3,1,3);
+plot(ttraj, xtraj(:,6), 'b', 'LineWidth', 1.5);  % Plot z velocity
+hold on;
+plot(ttraj, desired_velocity(:,3), 'r--', 'LineWidth', 1.5);  % Desired z velocity
+xlabel('Time [s]');
+ylabel('Vz [m/s]');
+legend('Actual Vz', 'Desired Vz');
+grid on;
+
+
 
 % Plot attitudes
 h_attitude = figure('Name', 'Quad Attitude');
@@ -212,6 +265,8 @@ ylabel('Yaw [deg]');
 legend('Actual Yaw', 'Desired Yaw');
 grid on;
 
+
+
 if(~isempty(err))
     error(err);
 end
@@ -220,6 +275,59 @@ disp('finished.')
 
 t_out = ttraj;
 s_out = xtraj;
-% attitude_out = attitudetraj;
-% attitude_des_out = attitude_des_traj;
+
+end
+
+function [ h_fig ] = plot_state( h_fig, state, time, name, type, view )
+%PLOT_STATE visualize state data
+
+if nargin < 6, view = 'sep'; end
+if nargin < 5, type = 'vic'; end
+if nargin < 4, name = 'pos'; end
+if isempty(h_fig), h_fig = figure(); end
+line_width = 2;
+
+switch type
+    case 'vic'
+        line_color = 'r';
+    case 'des'
+        line_color = 'b';
+    case 'est'
+        line_color = 'g';
+end
+
+switch name
+    case 'pos'
+        labels = {'x [m]', 'y [m]', 'z [m]'};
+    case 'vel'
+        labels = {'xdot [m/s]', 'ydot [m/s]', 'zdot [m/s]'};
+    case 'euler'
+        labels = {'roll [rad]', 'pitch [rad]', 'yaw [rad]'};
+end
+
+figure(h_fig)
+if strcmp(view, 'sep')
+    % Plot seperate
+
+    for i = 1:3
+        subplot(3, 1, i)
+        hold on
+        plot(time, state(i,:), line_color, 'LineWidth', line_width);
+        hold off
+        xlim([time(1), time(end)])
+        grid on
+        xlabel('time [s]')
+        ylabel(labels{i})
+    end
+elseif strcmp(view, '3d')
+    % Plot 3d
+    hold on
+    plot3(state(1,:), state(2,:), state(3,:), line_color, 'LineWidth', line_width)
+    hold off
+    grid on
+    xlabel(labels{1});
+    ylabel(labels{2});
+    zlabel(labels{3});
+end
+
 end
