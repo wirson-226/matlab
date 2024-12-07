@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 1;
+max_time = 30;
 
 % parameters for simulation
 params = sys_params;
@@ -35,14 +35,14 @@ ylabel('Y');
 zlabel('Z');
 title('Airplane flight');
 view(3);  % 3D视图
-xlim([-10 10]); ylim([-10 10]); zlim([-1 1]); % 设置坐标轴范围
+xlim([-10 10]); ylim([-10 10]); zlim([-5 5]); % 设置坐标轴范围
 
 
 % axis equal
 % grid on
 % view(3);
 % xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]')
-% set(gcf,'Renderer','OpenGL')
+set(gcf,'Renderer','OpenGL')
 
 %% *********************** INITIAL CONDITIONS ***********************
 disp('Setting initial conditions...');
@@ -59,7 +59,7 @@ des_stop  = trajhandle(inf, []);
 stop_pos  = des_stop.pos;
 x0    = init_state(des_start.pos, 0);
 xtraj = zeros(max_iter*nstep, length(x0));
-dtraj = zeros(max_iter*nstep, length(x0));
+% dtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];
 % att_4_plot = [0,0,0];
@@ -68,13 +68,16 @@ tilt_angle = [0,0];
 
 attitudetraj = zeros(max_iter*nstep, 3); % To record attitude (phi, theta, psi)
 attitude_des_traj = zeros(max_iter*nstep, 3);
+position_des_traj = zeros(max_iter*nstep, 3);
 
 x       = x0;        % state
 
 pos_tol = 0.01;
 vel_tol = 0.01;
 
-
+% Initialize trajectory storage
+actual_trajectory = []; % To store actual positions
+desired_trajectory = []; % To store desired positions
 
 
 %% ************************* RUN SIMULATION *************************
@@ -90,34 +93,15 @@ for iter = 1:max_iter
     [tsave, xsave] = ode45(@(t,s) quadEOM(t, s, controlhandle, trajhandle, params), timeint, x); % added att
     x    = xsave(end, :)'; % x =  [13 * 1] transform of each loop final result of xasve = [6 * 13] 0; 0.01; 0.02; 0.03; 0.04; 0.05;
     
-    %% aircraft plot
-    % 清除之前绘制
-    cla; % 只清除当前窗口的内容
-    % 绘制飞机模型 --- done 
-    pos_4_plot = x(1:3)';
-    rot_4_plot = QuatToRot(x(7:10));
-    [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
-    att_4_plot = [phi,theta,psi];
-    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
-
-
-    % planeplot_ttr_test([1,1,1], [0,0,0], [0,0]);
-
-    % % 绘制每架飞机的预期轨迹和实际轨迹 --- todo
-    % plot3(desired_trajectories(1:t, 1, i), desired_trajectories(1:t, 2, i), desired_trajectories(1:t, 3, i), 'g--', 'LineWidth', 1.5); % 预期轨迹
-    % plot3(current_trajectories(1:t, 1, i), current_trajectories(1:t, 2, i), current_trajectories(1:t, 3, i), 'b', 'LineWidth', 1);
-    % 
-    % % % 更新视角：相机位置始终跟随飞机
-    camera_target = pos_4_plot;  % 相机始终跟随飞机
-    camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
-    campos(camera_position);          % 设置相机位置
-
 
     % Add attitude save
     % Current attitude  
     % 关键处，保证与时间步长迭代的一致性，同时数组规格统一
     att_current_save = zeros(length(tsave), 3);
     att_des_save = zeros(length(tsave), 3);
+    position_des_save = zeros(length(tsave), 3);
+    % Update trajectory
+    actual_trajectory = [actual_trajectory; xsave(:, 1:3)]; % Store actual positions
 
     for i = 1:length(tsave)
         % Current attitude
@@ -129,16 +113,46 @@ for iter = 1:max_iter
         desired_state = trajhandle(tsave(i), current_all_state);
         [~, ~, desired_attitude] = controlhandle(tsave(i), current_all_state, desired_state, params);
         att_des_save(i, :) = desired_attitude';
+        position_des_save(i, :) = desired_state.pos';
+        desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
     end
+
+
+
+
+    %% aircraft plot
+    % 清除之前绘制
+    cla; % 只清除当前窗口的内容
+    % 绘制飞机模型 --- done 
+    pos_4_plot = x(1:3)';
+    rot_4_plot = QuatToRot(x(7:10));
+    [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+    att_4_plot = [phi,theta,psi];
+    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
+
+    % Plot trajectories (actual and desired)
+    plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);
+    plot3(desired_trajectory(:, 1), desired_trajectory(:, 2), desired_trajectory(:, 3), 'r-', 'LineWidth', 3);
+
+
+   
+    % % % 更新视角：相机位置始终跟随飞机
+    camera_target = pos_4_plot;  % 相机始终跟随飞机
+    camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
+    campos(camera_position);          % 设置相机位置
+
 
     % Save to traj 每个五步一存记录
     xtraj((iter-1)*nstep+1:iter*nstep,:) = xsave(1:end-1,:); % end -1 取消每一步最后状态作为下一步初始的重复
     ttraj((iter-1)*nstep+1:iter*nstep) = tsave(1:end-1);
 
     % Save attitudetraj
+    position_des_traj((iter-1)*nstep+1:iter*nstep, :) = position_des_save(1:end-1, :); % desired pos
+
     attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = att_des_save(1:end-1, :); % desired att
     attitudetraj((iter-1)*nstep+1:iter*nstep, :) = att_current_save(1:end-1,:); % real state att
 
+    % % 绘制每架飞机的预期轨迹和实际轨迹 --- todo
 
 
 
@@ -171,6 +185,7 @@ xtraj = xtraj(1:iter*nstep,:);  % Position and other state variables
 ttraj = ttraj(1:iter*nstep);
 attitudetraj = attitudetraj(1:iter*nstep, :); % Truncate attitude trajectory
 attitude_des_traj = attitude_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
+position_des_traj = position_des_traj(1:iter*nstep, :);
 
 % Plot position
 h_pos = figure('Name', 'Quad Position');
@@ -178,7 +193,7 @@ subplot(3,1,1);
 plot(ttraj, xtraj(:,1), 'b', 'LineWidth', 1.5);  % Plot x position
 hold on;
 % 如果有预期轨迹，绘制预期轨迹
-plot(ttraj, desired_trajectory(:,1), 'r--', 'LineWidth', 1.5);  % Desired x position
+plot(ttraj, position_des_traj(:,1), 'r--', 'LineWidth', 1.5);  % Desired x position
 xlabel('Time [s]');
 ylabel('X [m]');
 legend('Actual X', 'Desired X');
@@ -188,7 +203,7 @@ grid on;
 subplot(3,1,2);
 plot(ttraj, xtraj(:,2), 'b', 'LineWidth', 1.5);  % Plot y position
 hold on;
-plot(ttraj, desired_trajectory(:,2), 'r--', 'LineWidth', 1.5);  % Desired y position
+plot(ttraj, position_des_traj(:,2), 'r--', 'LineWidth', 1.5);  % Desired y position
 xlabel('Time [s]');
 ylabel('Y [m]');
 legend('Actual Y', 'Desired Y');
@@ -197,43 +212,41 @@ grid on;
 subplot(3,1,3);
 plot(ttraj, xtraj(:,3), 'b', 'LineWidth', 1.5);  % Plot z position
 hold on;
-plot(ttraj, desired_trajectory(:,3), 'r--', 'LineWidth', 1.5);  % Desired z position
+plot(ttraj, position_des_traj(:,3), 'r--', 'LineWidth', 1.5);  % Desired z position
 xlabel('Time [s]');
 ylabel('Z [m]');
 legend('Actual Z', 'Desired Z');
 grid on;
 
-% Plot velocity
-h_vel = figure('Name', 'Quad Velocity');
-subplot(3,1,1);
-plot(ttraj, xtraj(:,4), 'b', 'LineWidth', 1.5);  % Plot x velocity
-hold on;
-plot(ttraj, desired_velocity(:,1), 'r--', 'LineWidth', 1.5);  % Desired x velocity
-xlabel('Time [s]');
-ylabel('Vx [m/s]');
-legend('Actual Vx', 'Desired Vx');
-title('Quad Velocity');
-grid on;
-
-subplot(3,1,2);
-plot(ttraj, xtraj(:,5), 'b', 'LineWidth', 1.5);  % Plot y velocity
-hold on;
-plot(ttraj, desired_velocity(:,2), 'r--', 'LineWidth', 1.5);  % Desired y velocity
-xlabel('Time [s]');
-ylabel('Vy [m/s]');
-legend('Actual Vy', 'Desired Vy');
-grid on;
-
-subplot(3,1,3);
-plot(ttraj, xtraj(:,6), 'b', 'LineWidth', 1.5);  % Plot z velocity
-hold on;
-plot(ttraj, desired_velocity(:,3), 'r--', 'LineWidth', 1.5);  % Desired z velocity
-xlabel('Time [s]');
-ylabel('Vz [m/s]');
-legend('Actual Vz', 'Desired Vz');
-grid on;
-
-
+% % Plot velocity
+% h_vel = figure('Name', 'Quad Velocity');
+% subplot(3,1,1);
+% plot(ttraj, xtraj(:,4), 'b', 'LineWidth', 1.5);  % Plot x velocity
+% hold on;
+% plot(ttraj, desired_velocity(:,1), 'r--', 'LineWidth', 1.5);  % Desired x velocity
+% xlabel('Time [s]');
+% ylabel('Vx [m/s]');
+% legend('Actual Vx', 'Desired Vx');
+% title('Quad Velocity');
+% grid on;
+% 
+% subplot(3,1,2);
+% plot(ttraj, xtraj(:,5), 'b', 'LineWidth', 1.5);  % Plot y velocity
+% hold on;
+% plot(ttraj, desired_velocity(:,2), 'r--', 'LineWidth', 1.5);  % Desired y velocity
+% xlabel('Time [s]');
+% ylabel('Vy [m/s]');
+% legend('Actual Vy', 'Desired Vy');
+% grid on;
+% 
+% subplot(3,1,3);
+% plot(ttraj, xtraj(:,6), 'b', 'LineWidth', 1.5);  % Plot z velocity
+% hold on;
+% plot(ttraj, desired_velocity(:,3), 'r--', 'LineWidth', 1.5);  % Desired z velocity
+% xlabel('Time [s]');
+% ylabel('Vz [m/s]');
+% legend('Actual Vz', 'Desired Vz');
+% grid on;
 
 % Plot attitudes
 h_attitude = figure('Name', 'Quad Attitude');
@@ -264,6 +277,37 @@ xlabel('Time [s]');
 ylabel('Yaw [deg]');
 legend('Actual Yaw', 'Desired Yaw');
 grid on;
+
+
+% % Plot attitudes
+% h_attitude = figure('Name', 'Quad Attitude');
+% subplot(3,1,1);
+% plot(ttraj, rad2deg(attitudetraj(:,1)), 'b', 'LineWidth', 1.5);
+% hold on;
+% plot(ttraj, rad2deg(attitude_des_traj(:,1)), 'r--', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Roll [deg]');
+% legend('Actual Roll', 'Desired Roll');
+% title('Quad Attitude');
+% grid on;
+% 
+% subplot(3,1,2);
+% plot(ttraj, rad2deg(attitudetraj(:,2)), 'b', 'LineWidth', 1.5);
+% hold on;
+% plot(ttraj, rad2deg(attitude_des_traj(:,2)), 'r--', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Pitch [deg]');
+% legend('Actual Pitch', 'Desired Pitch');
+% grid on;
+% 
+% subplot(3,1,3);
+% plot(ttraj, rad2deg(attitudetraj(:,3)), 'b', 'LineWidth', 1.5);
+% hold on;
+% plot(ttraj, rad2deg(attitude_des_traj(:,3)), 'r--', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Yaw [deg]');
+% legend('Actual Yaw', 'Desired Yaw');
+% grid on;
 
 
 

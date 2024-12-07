@@ -126,37 +126,6 @@ for iter = 1:max_iter
     end
 
     
-    % % Plot agent connections (polygon)
-    % if iter > 1 && mod(iter, 5) == 0 % Plot every 5 iterations
-    %     % Clear previous polygon lines
-    %     if exist('polygon_handle', 'var') && ishandle(polygon_handle)
-    %         delete(polygon_handle);
-    %     end
-    % 
-    %     if exist('polygon_handle_des', 'var') && ishandle(polygon_handle_des)
-    %         delete(polygon_handle_des);
-    %     end
-    % 
-    %     % Extract current positions of all agents
-    %     current_positions = zeros(3, num_agents);
-    %     desired_positions = zeros(3, num_agents);
-    %     for agent = 1:num_agents
-    %         current_positions(:, agent) = x{agent}(1:3); % Extract current position of each agent
-    %         des_state = trajhandle(time + cstep, agent);
-    %         desired_positions(:, agent) = des_state.pos; % Extract desired position from trajhandle
-    %     end
-    % 
-    %     % Plot polygon (connections)
-    %     hold on;
-    %     polygon_vertices = [current_positions, current_positions(:, 1)]; % Close polygon
-    %     polygon_handle = plot3(h_3d, polygon_vertices(1, :), polygon_vertices(2, :), polygon_vertices(3, :), 'LineStyle', '--', 'Color', 'k', 'LineWidth', 1.5);% color [1  0  1]; [0.4940 0.1840 0.5560]
-    % 
-    %     polygon_vertices_des = [desired_positions, desired_positions(:, 1)]; % Close polygon
-    %     polygon_handle_des = plot3(h_3d, polygon_vertices_des(1, :), polygon_vertices_des(2, :), polygon_vertices_des(3, :), 'LineStyle', '--', 'Color', 'g', 'LineWidth', 1.5);% color [1  0  1]; [0.4940 0.1840 0.5560]
-    %     hold off;
-    % end
-
-    
         % Plot agent connections (polygon)
     if iter > 1 && mod(iter, 5) == 0 % Plot every 5 iterations
         % Clear previous plots
@@ -166,9 +135,6 @@ for iter = 1:max_iter
         if exist('polygon_handle_des', 'var') && ishandle(polygon_handle_des)
             delete(polygon_handle_des);
         end
-        % if exist('markers_des', 'var') && ishandle(markers_des)
-        %     delete(markers_des);
-        % end
 
         % Check if markers_des variable exists and is a valid handle
         if exist('markers_des', 'var')
