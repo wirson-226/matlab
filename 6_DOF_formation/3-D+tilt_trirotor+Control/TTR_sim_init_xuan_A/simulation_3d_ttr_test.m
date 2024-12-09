@@ -152,11 +152,6 @@ for iter = 1:max_iter
     attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = att_des_save(1:end-1, :); % desired att
     attitudetraj((iter-1)*nstep+1:iter*nstep, :) = att_current_save(1:end-1,:); % real state att
 
-    % % 绘制每架飞机的预期轨迹和实际轨迹 --- todo
-
-
-
-
     time = time + cstep; % Update simulation time
     t = toc;
     % Check to make sure ode45 is not timing out

@@ -33,7 +33,7 @@ function [F, M, ATT_des] = controller_pid(t, state, des_state, params)
 
 
 % Controller gains
-%小角度
+%小角度--可用
 Kp_pos = [0.1; 0.1; 4];  % Position proportional gain
 Kd_pos = [2; 2; 2];  % Position derivative gain
 
@@ -63,10 +63,13 @@ u1 = params.mass * (params.gravity + acc_des(3));
 
 % =================== Desired Angles Calculation ===================
 
-% des_state.yaw = 0;
-phi_des = (acc_des(1) * sin(des_state.yaw) - acc_des(2) * cos(des_state.yaw)) / params.gravity;
-theta_des = (acc_des(1) * cos(des_state.yaw) + acc_des(2) * sin(des_state.yaw)) / params.gravity;
-psi_des = des_state.yaw;
+
+des_stateyaw = atan2(des_state.pos(2) - state.pos(2), des_state.pos(1) - state.pos(1)); %  视线导引 期望偏航角
+% des_stateyaw = 0; % 取消偏航
+% des_stateyaw = des_state.yaw; % 跟踪轨迹既定偏航
+phi_des = (acc_des(1) * sin(des_stateyaw) - acc_des(2) * cos(des_stateyaw)) / params.gravity;
+theta_des = (acc_des(1) * cos(des_stateyaw) + acc_des(2) * sin(des_stateyaw)) / params.gravity;
+psi_des = des_stateyaw;
 
 
 % Limit the desired angles
