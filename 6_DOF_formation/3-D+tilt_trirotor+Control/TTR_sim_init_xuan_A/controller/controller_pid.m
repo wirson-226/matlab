@@ -34,17 +34,13 @@ function [F, M, ATT_des] = controller_pid(t, state, des_state, params)
 
 % Controller gains
 %小角度
-Kp_pos = [2; 2; 10];  % Position proportional gain
-Kd_pos = [0.5; 0.5; 1];  % Position derivative gain
+Kp_pos = [0.1; 0.1; 4];  % Position proportional gain
+Kd_pos = [2; 2; 2];  % Position derivative gain
 
-Kp_att = [50; 50; 50]; % Attitude proportional gain
-Kd_att = [2; 2; 2];    % Attitude derivative gain
+Kp_att = [0.005; 0.005; 0.005]; % Attitude proportional gain
+Kd_att = [0.002; 0.002; 0.002];    % Attitude derivative gain
 
-% Kp_pos = [0.1; 0.1; 4];  % Position proportional gain
-% Kd_pos = [2; 2; 2];  % Position derivative gain
-% 
-% Kp_att = [0.005; 0.005; 0.005]; % Attitude proportional gain
-% Kd_att = [0.002; 0.002; 0.002];    % Attitude derivative gain
+
 
 
 

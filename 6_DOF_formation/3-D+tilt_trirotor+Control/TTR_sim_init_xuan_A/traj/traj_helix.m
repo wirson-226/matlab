@@ -1,23 +1,23 @@
-function [desired_state] = traj_helix(t, state, r, z_max)
-% TRAJ_HELIX generats a helix in the xy plane of r 5m centered about the
-%   point (0; 0; 0) starting at the point (r; 0; 0).
-%   The z coordinate should start at 0 and end at z_max.
+function [desired_state] = traj_helix(t, state)
+% TRAJ_HELIX generates a helix trajectory where the nose points along the trajectory direction.
 
 if nargin < 4, z_max = 2.5; end
 if nargin < 3, r = 5; end
-T       = 12;       % finishing time 10
+T       = 12;       % finishing time 快速 大角度
+% T       = 12*3;       % finishing time 慢速 小角度
 
 if t >= T
-    % hover controller input
+    % hover at the final position
     x       = cos(2*pi)*r;
     y       = sin(2*pi)*r;
     z       = z_max;
     pos     = [x; y; z];
     vel     = zeros(3,1);
     acc     = zeros(3,1);
+    yaw     = atan2(vel(2), vel(1));
+    yawdot  = 0;
 else
-    % 3-d position controller input
-    % quintic polynomial
+    % trajectory generation using quintic polynomial
     t0      = 0;
     tf      = T;
     M       = ...
@@ -49,18 +49,22 @@ else
     y       = sin(beta)*r;
     pos     = [x; y; z];
     % velocity
-    xd      = -y*betad;
-    yd      =  x*betad;
+    xd      = -r*sin(beta)*betad;
+    yd      =  r*cos(beta)*betad;
     vel     = [xd; yd; zd];
     % acceleration
-    xdd     = -x*betad^2 - y*betadd;
-    ydd     = -y*betad^2 + x*betadd;
+    xdd     = -r*cos(beta)*betad^2 - r*sin(beta)*betadd;
+    ydd     = -r*sin(beta)*betad^2 + r*cos(beta)*betadd;
     acc     = [xdd; ydd; zdd];
+    % yaw and yawdot
+    yaw = atan2(vel(2), vel(1));
+    speed_sq = vel(1)^2 + vel(2)^2;
+    if speed_sq > 1e-6
+        yawdot = (vel(1)*acc(2) - vel(2)*acc(1)) / speed_sq;
+    else
+        yawdot = 0;
+    end
 end
-
-% yaw and yawdot
-yaw = 0;
-yawdot = 0;
 
 % output desired state
 desired_state.pos = pos(:);

@@ -10,12 +10,16 @@ function [t_out, s_out] = simulation_3d_att_plus_1_1_over(trajhandle, controlhan
 % *********** YOU SHOULDN'T NEED TO CHANGE ANYTHING BELOW **********
 
 addpath('utils');
+addpath('traj');
+addpath('controller');
+addpath('test_tools');
+addpath('test_airplane');
 
 % real-time
 real_time = true;
 
 % max time
-max_time = 10;
+max_time = 5;
 
 % parameters for simulation
 params = sys_params;

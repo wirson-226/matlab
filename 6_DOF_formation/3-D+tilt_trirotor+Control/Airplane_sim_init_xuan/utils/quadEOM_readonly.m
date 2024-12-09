@@ -18,19 +18,19 @@ function sdot = quadEOM_readonly(t, s, F, M, params)
 
 %************ EQUATIONS OF MOTION ************************
 % Limit the force and moments due to actuator limits
-A = [0.25,                      0, -0.5/params.arm_length;
-     0.25,  0.5/params.arm_length,                      0;
-     0.25,                      0,  0.5/params.arm_length;
-     0.25, -0.5/params.arm_length,                      0];
-
-prop_thrusts = A*[F;M(1:2)]; % Not using moment about Z-axis for limits
-prop_thrusts_clamped = max(min(prop_thrusts, params.maxF/4), params.minF/4);
-
-B = [                 1,                 1,                 1,                  1;
-                      0, params.arm_length,                 0, -params.arm_length;
-     -params.arm_length,                 0, params.arm_length,                 0];
-F = B(1,:)*prop_thrusts_clamped;
-M = [B(2:3,:)*prop_thrusts_clamped; M(3)];
+% A = [0.25,                      0, -0.5/params.arm_length;
+%      0.25,  0.5/params.arm_length,                      0;
+%      0.25,                      0,  0.5/params.arm_length;
+%      0.25, -0.5/params.arm_length,                      0];
+% 
+% prop_thrusts = A*[F;M(1:2)]; % Not using moment about Z-axis for limits
+% prop_thrusts_clamped = max(min(prop_thrusts, params.maxF/4), params.minF/4);
+% 
+% B = [                 1,                 1,                 1,                  1;
+%                       0, params.arm_length,                 0, -params.arm_length;
+%      -params.arm_length,                 0, params.arm_length,                 0];
+% F = B(1,:)*prop_thrusts_clamped;
+% M = [B(2:3,:)*prop_thrusts_clamped; M(3)];
 
 % Assign states
 x = s(1);
@@ -52,6 +52,7 @@ bRw = QuatToRot(quat);
 wRb = bRw';
 
 % Acceleration
+%动力学解算过程
 accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
 
 % Angular velocity
@@ -63,6 +64,7 @@ qdot = -1/2*[0, -p, -q, -r;...
              r, -q,  p,  0] * quat + K_quat*quaterror * quat;
 
 % Angular acceleration
+% 包含陀螺力矩
 omega = [p;q;r];
 pqrdot   = params.invI * (M - cross(omega, params.I*omega));
 

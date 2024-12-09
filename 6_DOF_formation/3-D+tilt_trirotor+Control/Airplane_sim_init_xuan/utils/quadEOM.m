@@ -1,4 +1,4 @@
-function[sdot, att_des ] = quadEOM(t, s, controlhandle, trajhandle, params)
+function[sdot] = quadEOM(t, s, controlhandle, trajhandle, params)
 % QUADEOM Wrapper function for solving quadrotor equation of motion
 % 	quadEOM takes in time, state vector, controller, trajectory generator
 % 	and parameters and output the derivative of the state vector, the

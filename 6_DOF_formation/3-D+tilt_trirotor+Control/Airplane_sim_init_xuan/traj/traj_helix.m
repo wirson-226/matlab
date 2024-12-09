@@ -1,10 +1,10 @@
-function [desired_state] = traj_helix(t, state, r, z_max)
+function [desired_state] = traj_helix(t, state)
 % TRAJ_HELIX generates a helix trajectory where the nose points along the trajectory direction.
 
 if nargin < 4, z_max = 2.5; end
 if nargin < 3, r = 5; end
-% T       = 12;       % finishing time
-T       = 12*5;       % finishing time
+% T       = 12;       % finishing time 快速 大角度
+T       = 12*5;       % finishing time 慢速 小角度
 
 if t >= T
     % hover at the final position
