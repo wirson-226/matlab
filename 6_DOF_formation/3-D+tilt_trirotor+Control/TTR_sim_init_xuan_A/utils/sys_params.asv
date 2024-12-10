@@ -1,5 +1,5 @@
 function params = sys_params()
-% 全部参数定义  ---  控制参数 仅有 ESO 待添加 PID formation 等等
+% 全部参数定义  ---  控制参数 仅有 ESO 待添加 PID 
 % aerodynamics, rotor parameters, and control-related parameters.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

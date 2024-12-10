@@ -179,7 +179,7 @@ for iter = 1:max_iter
 end
 
 %% ************************* POST PROCESSING *************************
-
+% --- to do---plot 单独函数封装
 
 % Truncate xtraj and ttraj  停留在当前步数状态数据，留存以防跳出流失数据
 xtraj = xtraj(1:iter*nstep,:);  % Position and other state variables
