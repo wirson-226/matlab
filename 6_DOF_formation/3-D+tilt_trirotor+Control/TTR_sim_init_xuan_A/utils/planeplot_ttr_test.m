@@ -1,7 +1,7 @@
 function planeplot_ttr_test(position, attitude,tilt_angle)
 %  position(x,y,z),实时位置；
 %  attitude（roll，pitch，yaw）弧度 实时姿态；
-%  tilt_angle(a,b),角度 顺序为右，左，向倾转为正；尾部固定。为c；
+%  tilt_angle(a,b),角度 顺序为右，左，向下倾转为正；尾部固定。为c；
 %  tips shift + enter 同时修改变量名；ctrl + h 替换；ctrl + r 注释；f5 运行；
 %  plot steps--定义全部点与尺寸--平移对齐转轴--倾转rotor a，b电机--整体旋转--整体平移---所有点依次连接上色
 

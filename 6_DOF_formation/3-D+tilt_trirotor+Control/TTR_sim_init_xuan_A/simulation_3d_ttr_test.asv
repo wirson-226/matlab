@@ -186,11 +186,10 @@ xtraj = xtraj(1:iter*nstep,:);  % Position and other state variables
 ttraj = ttraj(1:iter*nstep);
 attitudetraj = attitudetraj(1:iter*nstep, :); % Truncate attitude trajectory
 attitude_des_traj = attitude_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
-position_des_traj = position_des_traj(1:iter*nstep, :); 
-tilt_des_traj = tilt_des_traj(1:iter*nstep, :);
+position_des_traj = position_des_traj(1:iter*nstep, :);
 
 % Plot position
-h_pos = figure('Name', 'Position');
+h_pos = figure('Name', 'Quad Position');
 subplot(3,1,1);
 plot(ttraj, xtraj(:,1), 'b', 'LineWidth', 1.5);  % Plot x position
 hold on;
@@ -199,7 +198,7 @@ plot(ttraj, position_des_traj(:,1), 'r--', 'LineWidth', 1.5);  % Desired x posit
 xlabel('Time [s]');
 ylabel('X [m]');
 legend('Actual X', 'Desired X');
-title('Position');
+title('Quad Position');
 grid on;
 
 subplot(3,1,2);
@@ -251,7 +250,7 @@ grid on;
 % grid on;
 
 % Plot attitudes
-h_attitude = figure('Name', 'Attitude');
+h_attitude = figure('Name', 'Quad Attitude');
 subplot(3,1,1);
 plot(ttraj, rad2deg(attitudetraj(:,1)), 'b', 'LineWidth', 1.5);
 hold on;
@@ -259,7 +258,7 @@ plot(ttraj, rad2deg(attitude_des_traj(:,1)), 'r--', 'LineWidth', 1.5);
 xlabel('Time [s]');
 ylabel('Roll [deg]');
 legend('Actual Roll', 'Desired Roll');
-title('Attitude');
+title('Quad Attitude');
 grid on;
 
 subplot(3,1,2);
@@ -283,34 +282,13 @@ grid on;
 
 % Plot 7 input -- thrust abc + tilt ab + elevon ab
 % now just 2--tilt ab 
-h_actutor = figure('Name', 'Actutor');
-% subplot(3,1,1);
-% plot(ttraj, rad2deg(attitudetraj(:,1)), 'b', 'LineWidth', 1.5);
-% hold on;
-% plot(ttraj, rad2deg(attitude_des_traj(:,1)), 'r--', 'LineWidth', 1.5);
-% xlabel('Time [s]');
-% ylabel('Roll [deg]');
-% legend('Actual Roll', 'Desired Roll');
-% title('Actutor');
-% grid on;
-% 
-% subplot(3,1,2);
-% plot(ttraj, rad2deg(attitudetraj(:,2)), 'b', 'LineWidth', 1.5);
-% hold on;
-% plot(ttraj, rad2deg(attitude_des_traj(:,2)), 'r--', 'LineWidth', 1.5);
-% xlabel('Time [s]');
-% ylabel('Pitch [deg]');
-% legend('Actual Pitch', 'Desired Pitch');
-% grid on;
 
-subplot(3,1,1);
-plot(ttraj, tilt_des_traj(:,1), 'b', 'LineWidth', 1.5); % arm a, right
+plot(ttraj, , 'b', 'LineWidth', 1.5);
 hold on;
-plot(ttraj, tilt_des_traj(:,2), 'r--', 'LineWidth', 1.5); % arm b, left
+plot(ttraj, attitudetraj(:,3), 'r', 'LineWidth', 1.5);
 xlabel('Time [s]');
 ylabel('titl_angle [deg]');
 legend('right arm', 'left arm');
-title('Actutor');
 grid on;
 
 if(~isempty(err))
@@ -323,10 +301,6 @@ t_out = ttraj;
 s_out = xtraj;
 
 end
-
-
-
-
 
 function [ h_fig ] = plot_state( h_fig, state, time, name, type, view )
 %PLOT_STATE visualize state data
