@@ -63,7 +63,7 @@ xtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];
 % att_4_plot = [0,0,0];
-tilt_angle = [0,0];
+tilt_angle = [0,0]; % degrees
 
 
 attitudetraj = zeros(max_iter*nstep, 3); % To record attitude (phi, theta, psi)
@@ -111,7 +111,7 @@ for iter = 1:max_iter
         % Desired attitude
         % tsave(i) 跟进时间步长迭代
         desired_state = trajhandle(tsave(i), current_all_state);
-        [~, ~, desired_attitude] = controlhandle(tsave(i), current_all_state, desired_state, params);
+        [~, ~, desired_attitude,des_tilt4_save] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
         att_des_save(i, :) = desired_attitude';
         position_des_save(i, :) = desired_state.pos';
         desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
@@ -129,6 +129,7 @@ for iter = 1:max_iter
     [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
     att_4_plot = [phi,theta,psi];
     planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
+    tilt_angle = desired_state.tilt_angle;
 
     % Plot trajectories (actual and desired)
     plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);

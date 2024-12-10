@@ -24,7 +24,7 @@ current_state = stateToQd(s);
 desired_state = trajhandle(t, current_state);
 
 % get control outputs
-[F, M, att_des] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 
+[F, M, ~, ~] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 
 
 % compute derivative
 sdot = quadEOM_readonly(t, s, F, M, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];

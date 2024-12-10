@@ -1,4 +1,4 @@
-function [F, M, ATT_des,tilt_des] = controller_pid(t, state, des_state, params)
+function [F, M, ATT_des] = controller_pid(t, state, des_state, params)
 %   CONTROLLER  Controller for the quadrotor
 %
 %   state: The current state of the robot with the following fields:
@@ -15,7 +15,6 @@ function [F, M, ATT_des,tilt_des] = controller_pid(t, state, des_state, params)
 %   Using these current and desired states, you have to compute the desired
 %   controls
 %   PD mian core
-%   添加倾转角度
 
 
 
@@ -106,7 +105,7 @@ u2 = [Kp_att(1) * (phi_des - phi) + Kd_att(1) * (p_des - p);
 F = u1;
 M = u2;
 ATT_des = [phi_des; theta_des; psi_des]; % [3 * 1]
-tilt_des = des_state.tilt_angle;
+
 
 % =================== Your code ends here ===================
 

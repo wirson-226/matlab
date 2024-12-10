@@ -70,16 +70,12 @@ else
     end
 end
 
-    %tilt angle duration
-if t>T_hover && t<(T-T_hover)
-
+    %tilt angle
+if t>T_hover & t<(T-T_hover)
     tilt_angle = [90,90];
     
 else
-    tilt_angle = [0,0];
-
-end
-
+        tilt_angle = [0,0];
 
 % output desired state
 desired_state.pos = pos(:);
