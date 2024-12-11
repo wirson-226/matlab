@@ -141,14 +141,14 @@ params.k_motor = 102.5;
 params.kTp = 0.0;
 params.kOmega = 0.0;
 params.C_prop = 1.0;
-
+params.k_f = 0.2; % thrust to torque todo 待修改
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-params.l1 = 0.09;     % m, front motor X-axis force arm
-params.l2 = 0.18;     % m, rear motor X-axis force arm
-params.l3 = 0.11;     % m, front motor Y-axis force arm
+params.l1 = 0.09;     % m, front motor X-axis force arm 俯仰
+params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰
+params.l3 = 0.11;     % m, front motor Y-axis force arm 滚转
 params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
 params.delta_lr_max = deg2rad(45.0);  % max elevon deflection angle

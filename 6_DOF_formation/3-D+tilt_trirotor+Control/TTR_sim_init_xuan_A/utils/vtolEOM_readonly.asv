@@ -1,7 +1,8 @@
-function sdot = quadEOM_readonly(t, s, F, M, params)
+function sdot = vtolEOM_readonly(t, s, F, M, params)
 % QUADEOM_READONLY Solve quadrotor equation of motion
 %   quadEOM_readonly calculate the derivative of the state vector
-%
+%   空气动力相关部分，参考：《Aerodynamic modeling of a delta‑wing UAV for model‑based
+%   navigation》 
 % INPUTS:
 % t      - 1 x 1, time
 % s      - 13 x 1, state vector = [x, y, z, xd, yd, zd, qw, qx, qy, qz, p,
@@ -54,8 +55,8 @@ wRb = bRw';
 
 % Acceleration
 %动力学解算过程
-accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
-
+accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % 前右上
+% accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
 
 % Angular velocity
 K_quat = 2; %this enforces the magnitude 1 constraint for the quaternion
