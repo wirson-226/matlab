@@ -11,22 +11,17 @@ m = 0.18; % kg
 g = 9.81; % m/s^2
 I = [0.00025,   0,          2.55e-6;
      0,         0.000232,   0;
-     2.55e-6,   0,          0.0003738]; % kg m^2 
+     2.55e-6,   0,          0.0003738];
 
 params.mass = m;
 params.I    = I;
 params.invI = inv(I);
-params.Jx = 0.00025;
-params.Jy = 0.000232;
-params.Jz = 0.0003738;
-params.Jxz = 0.00025;
-
 params.gravity = g;
 params.arm_length = 0.086; % m
 
 params.minF = 0.0;
-TW_ratio = 3 ; % 推重比
-params.maxF = TW_ratio * m * params.gravity;  % 最大合力 -- z向
+params.TW_ratio = 3 ; % 推重比
+params.maxF = params. * m * g; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %新机型 待调试匹配pid 后续再用
@@ -43,8 +38,8 @@ params.maxF = TW_ratio * m * params.gravity;  % 最大合力 -- z向
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.north0 = 0.0;  % initial north position
 params.east0 = 0.0;   % initial east position
-params.down0 = 0.0;  % initial down position
-params.u0 = 0.0;  % initial velocity along body x-axis
+params.down0 = -100.0;  % initial down position
+params.u0 = 5.0;  % initial velocity along body x-axis
 params.v0 = 0.0;  % initial velocity along body y-axis
 params.w0 = 0.0;  % initial velocity along body z-axis
 
@@ -54,15 +49,14 @@ params.psi0 = 0.0;  % initial yaw angle
 params.p0 = 0.0;  % initial roll rate
 params.q0 = 0.0;  % initial pitch rate
 params.r0 = 0.0;  % initial yaw rate
-
-params.init = [params.north0,params.east0,params.down0,
-               params.u0,params.v0,params.w0,
-               params.phi0,params.theta0,params.psi0,
-               params.p0,params.q0,params.r0]; % initial state 初始状态
-
 params.Va0 = sqrt(params.u0^2 + params.v0^2 + params.w0^2);  % initial airspeed
 
-
+% Euler to quaternion conversion
+e = euler_2_quaternion(params.phi0, params.theta0, params.psi0);
+params.e0 = e(1);
+params.e1 = e(2);
+params.e2 = e(3);
+params.e3 = e(4);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aerodynamic Parameters
@@ -74,9 +68,7 @@ params.c = 0.00203;  % m, mean aerodynamic chord
 params.S_prop = 0.0006;  % m^2, propeller area
 params.e_os = 0.9;  % Oswald efficiency factor
 params.AR = (params.b^2) / params.S_wing;  % Aspect ratio
-
-
-
+params.gravity = 9.8;  % m/s^2
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Longitudinal Coefficients
@@ -141,14 +133,13 @@ params.kTp = 0.0;
 params.kOmega = 0.0;
 params.C_prop = 1.0;
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.l1 = 0.09;     % m, front motor X-axis force arm
 params.l2 = 0.18;     % m, rear motor X-axis force arm
 params.l3 = 0.11;     % m, front motor Y-axis force arm
-params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
+params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
 params.delta_lr_max = deg2rad(45.0);  % max elevon deflection angle
 params.delta_lr_min = deg2rad(-45.0);  % min elevon deflection angle
@@ -156,40 +147,11 @@ params.delta_lr_min = deg2rad(-45.0);  % min elevon deflection angle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Thrust and Torque Limits for Motor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% params.T_max = 4.0;  % N, max thrust produced by a single motor
-params.T_max = params.maxF/3;  % 三旋翼垂起 执行器限制 single rotor thrust
-params.T_min = 0.0;
-params.T_percent_max = 1.0;  % maximum throttle value thrust abc 油门表示 目前不需要
-params.T_percent_min = 0.0;  % minimum throttle value
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Path planner Parameters
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-params.WS_ratio = params.mass/params.S_wing; % 翼载荷
-% Calculate maximum cruise speed
-params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_0)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
-% Calculate minimum cruise speed (V_min)
-params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_0)); % 最小平飞速度和翼载荷有关 L = D
-
-
-
-% dubin path 固定翼杜宾曲线相关限制 最小转弯半径，巡航速度
-% airspeed commanded by planner
-params.Va_planner = 25.0;
-
-% max possible roll angle
-params.phi_max = deg2rad(30);
-
-% minimum turn radius
-params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
-
-
-
-
+% params.F_max = 4.0;  % N, max thrust produced by a single motor
+params.F_max = params.F; 
+params.F_min = 0.0;
+params.T_max = 1.0;  % maximum throttle value
+params.T_min = 0.0;  % minimum throttle value
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ESO Parameters (Extended State Observer)

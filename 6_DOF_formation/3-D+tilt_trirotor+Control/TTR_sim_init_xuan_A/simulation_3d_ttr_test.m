@@ -69,6 +69,7 @@ tilt_angle = [0,0]; % degrees
 attitudetraj = zeros(max_iter*nstep, 3); % To record attitude (phi, theta, psi)
 attitude_des_traj = zeros(max_iter*nstep, 3);
 position_des_traj = zeros(max_iter*nstep, 3);
+velocity_des_traj = zeros(max_iter*nstep,3);
 tilt_des_traj = zeros(max_iter*nstep, 2);
 
 
@@ -102,6 +103,7 @@ for iter = 1:max_iter
     att_current_save = zeros(length(tsave), 3);
     att_des_save = zeros(length(tsave), 3);
     position_des_save = zeros(length(tsave), 3);
+    velocity_des_save = zeros(length(tsave), 3);
     des_tilt4_save = zeros(length(tsave), 2); 
 
     
@@ -119,6 +121,7 @@ for iter = 1:max_iter
         [~, ~, desired_attitude,des_tilt4_save(i, :)] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
         att_des_save(i, :) = desired_attitude';
         position_des_save(i, :) = desired_state.pos';
+        velocity_des_save(i, :) = desired_state.vel';
         desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
     end
 
@@ -154,6 +157,7 @@ for iter = 1:max_iter
 
     % Save attitudetraj
     position_des_traj((iter-1)*nstep+1:iter*nstep, :) = position_des_save(1:end-1, :); % desired pos
+    velocity_des_traj((iter-1)*nstep+1:iter*nstep, :) = velocity_des_save(1:end-1, :); % desired pos
     tilt_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_tilt4_save(1:end-1, :); % desired tilt save with iter
     attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = att_des_save(1:end-1, :); % desired att
     attitudetraj((iter-1)*nstep+1:iter*nstep, :) = att_current_save(1:end-1,:); % real state att
@@ -187,9 +191,10 @@ ttraj = ttraj(1:iter*nstep);
 attitudetraj = attitudetraj(1:iter*nstep, :); % Truncate attitude trajectory
 attitude_des_traj = attitude_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
 position_des_traj = position_des_traj(1:iter*nstep, :); 
+velocity_des_traj = velocity_des_traj(1:iter*nstep, :);
 tilt_des_traj = tilt_des_traj(1:iter*nstep, :);
 
-% Plot position
+%% Plot position
 h_pos = figure('Name', 'Position');
 subplot(3,1,1);
 plot(ttraj, xtraj(:,1), 'b', 'LineWidth', 1.5);  % Plot x position
@@ -220,37 +225,37 @@ ylabel('Z [m]');
 legend('Actual Z', 'Desired Z');
 grid on;
 
-% % Plot velocity
-% h_vel = figure('Name', 'Quad Velocity');
-% subplot(3,1,1);
-% plot(ttraj, xtraj(:,4), 'b', 'LineWidth', 1.5);  % Plot x velocity
-% hold on;
-% plot(ttraj, desired_velocity(:,1), 'r--', 'LineWidth', 1.5);  % Desired x velocity
-% xlabel('Time [s]');
-% ylabel('Vx [m/s]');
-% legend('Actual Vx', 'Desired Vx');
-% title('Quad Velocity');
-% grid on;
-% 
-% subplot(3,1,2);
-% plot(ttraj, xtraj(:,5), 'b', 'LineWidth', 1.5);  % Plot y velocity
-% hold on;
-% plot(ttraj, desired_velocity(:,2), 'r--', 'LineWidth', 1.5);  % Desired y velocity
-% xlabel('Time [s]');
-% ylabel('Vy [m/s]');
-% legend('Actual Vy', 'Desired Vy');
-% grid on;
-% 
-% subplot(3,1,3);
-% plot(ttraj, xtraj(:,6), 'b', 'LineWidth', 1.5);  % Plot z velocity
-% hold on;
-% plot(ttraj, desired_velocity(:,3), 'r--', 'LineWidth', 1.5);  % Desired z velocity
-% xlabel('Time [s]');
-% ylabel('Vz [m/s]');
-% legend('Actual Vz', 'Desired Vz');
-% grid on;
+%% Plot velocity
+h_vel = figure('Name', 'Velocity');
+subplot(3,1,1);
+plot(ttraj, xtraj(:,4), 'b', 'LineWidth', 1.5);  % Plot x velocity
+hold on;
+plot(ttraj, velocity_des_traj(:,1), 'r--', 'LineWidth', 1.5);  % Desired x velocity
+xlabel('Time [s]');
+ylabel('Vx [m/s]');
+legend('Actual Vx', 'Desired Vx');
+title('Velocity');
+grid on;
 
-% Plot attitudes
+subplot(3,1,2);
+plot(ttraj, xtraj(:,5), 'b', 'LineWidth', 1.5);  % Plot y velocity
+hold on;
+plot(ttraj, velocity_des_traj(:,2), 'r--', 'LineWidth', 1.5);  % Desired y velocity
+xlabel('Time [s]');
+ylabel('Vy [m/s]');
+legend('Actual Vy', 'Desired Vy');
+grid on;
+
+subplot(3,1,3);
+plot(ttraj, xtraj(:,6), 'b', 'LineWidth', 1.5);  % Plot z velocity
+hold on;
+plot(ttraj, velocity_des_traj(:,3), 'r--', 'LineWidth', 1.5);  % Desired z velocity
+xlabel('Time [s]');
+ylabel('Vz [m/s]');
+legend('Actual Vz', 'Desired Vz');
+grid on;
+
+%% Plot attitudes
 h_attitude = figure('Name', 'Attitude');
 subplot(3,1,1);
 plot(ttraj, rad2deg(attitudetraj(:,1)), 'b', 'LineWidth', 1.5);
@@ -281,7 +286,7 @@ legend('Actual Yaw', 'Desired Yaw');
 grid on;
 
 
-% Plot 7 input -- thrust abc + tilt ab + elevon ab
+%% Plot 7 input -- thrust abc + tilt ab + elevon ab
 % now just 2--tilt ab 
 h_actutor = figure('Name', 'Actutor');
 % subplot(3,1,1);
@@ -328,6 +333,7 @@ end
 
 
 
+%% todo---后续整合利用，目前暂存
 function [ h_fig ] = plot_state( h_fig, state, time, name, type, view )
 %PLOT_STATE visualize state data
 
