@@ -10,7 +10,7 @@ function [force, moment] = all_forces_moments(state, actuator, params)
     % thrust a = b 但是不一定 = c ，不过 a+b/c = l2/l1 a + b + c = F
     % params - Aircraft parameters structure (params from sys_params)
     %
-    % Outputs:
+    % Outputs: 机体坐标系 xyz 前右上
     % force - Aerodynamic forces [Fx, Fy, Fz] (N)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
 
@@ -80,9 +80,10 @@ function [force, moment] = all_forces_moments(state, actuator, params)
     % Calculate C_D using the provided formula
     C_D = MAV.C_D_p + (C_L_0 + C_L_alpha * alpha)^2 / (pi * MAV.e_os * MAV.AR);
 
-    % Control surface deflections (elevator, aileron)
-    elevator = 1/2 * (actuator.aileron_l + actuator.aileron_r);  % Equivalent deflection for elevons (flying wing)
-    aileron = 1/2 * (actuator.aileron_l - actuator.aileron_r);
+    % Control surface deflections (elevator, aileron) 
+    % 应该向下偏转为负，向上为正 俯仰抬头 以此给 +My---rad 向上偏转为正
+    elevator = 1/2 * (actuator.elevon_l + actuator.elevon_r);  % Equivalent deflection for elevons (flying wing)
+    aileron = 1/2 * (actuator.elevon_l - actuator.elevon_r);
 
     % Compute Lift and Drag Forces
     % 考虑空速为零

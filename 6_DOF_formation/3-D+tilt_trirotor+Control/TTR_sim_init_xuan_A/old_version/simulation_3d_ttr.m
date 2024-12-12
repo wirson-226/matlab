@@ -65,16 +65,12 @@ ttraj = zeros(max_iter*nstep, 1);
 % att_4_plot = [0,0,0];
 tilt_angle = [0,0]; % degrees
 
-% 状态记录 for plot
+
 attitudetraj = zeros(max_iter*nstep, 3); % To record attitude (phi, theta, psi)
 attitude_des_traj = zeros(max_iter*nstep, 3);
 position_des_traj = zeros(max_iter*nstep, 3);
 velocity_des_traj = zeros(max_iter*nstep,3);
-
-% 执行器记录 for plot
 tilt_des_traj = zeros(max_iter*nstep, 2);
-throttle_des_traj = zeros(max_iter*nstep, 3);
-elevon_des_traj = zeros(max_iter*nstep, 2);
 
 
 x       = x0;        % state
@@ -108,11 +104,7 @@ for iter = 1:max_iter
     att_des_save = zeros(length(tsave), 3);
     position_des_save = zeros(length(tsave), 3);
     velocity_des_save = zeros(length(tsave), 3);
-
-    % 执行器记录 7个
-    des_tilt4_save = zeros(length(tsave), 2);     % 倾转 arm_a,b
-    des_throttle4_save = zeros(length(tsave), 3); % 油门 throttle_a,b,c
-    des_elevon4_save = zeros(length(tsave), 2);   % 舵面 
+    des_tilt4_save = zeros(length(tsave), 2); 
 
     
     % Update trajectory
@@ -126,16 +118,7 @@ for iter = 1:max_iter
         % Desired attitude
         % tsave(i) 跟进时间步长迭代
         desired_state = trajhandle(tsave(i), current_all_state);
-        
-        % 控制器解算 执行器输入
-        [~, ~, desired_attitude,command] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
-        
-        % 执行器输入记录
-        des_tilt4_save(i, :) = command.arm;          % 倾转 arm_a,b
-        des_throttle4_save(i, :) = command.throttle; % 油门 throttle_a,b,c
-        des_elevon4_save(i, :) = command.elevon;     % 舵面 elevon_a,b
-
-        % 状态记录
+        [~, ~, desired_attitude,des_tilt4_save(i, :)] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
         att_des_save(i, :) = desired_attitude';
         position_des_save(i, :) = desired_state.pos';
         velocity_des_save(i, :) = desired_state.vel';
@@ -148,14 +131,13 @@ for iter = 1:max_iter
     %% aircraft plot
     % 清除之前绘制
     cla; % 只清除当前窗口的内容
-    
     % 绘制飞机模型 --- done 
     pos_4_plot = x(1:3)';
     rot_4_plot = QuatToRot(x(7:10));
     [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
     att_4_plot = [phi,theta,psi];
-    planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
-    % tilt_angle = desired_state.tilt_angle;
+    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
+    tilt_angle = desired_state.tilt_angle;
 
     % Plot trajectories (actual and desired)
     plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);
@@ -173,15 +155,12 @@ for iter = 1:max_iter
     xtraj((iter-1)*nstep+1:iter*nstep,:) = xsave(1:end-1,:); % end -1 取消每一步最后状态作为下一步初始的重复
     ttraj((iter-1)*nstep+1:iter*nstep) = tsave(1:end-1);
 
-    % Save traj
+    % Save attitudetraj
     position_des_traj((iter-1)*nstep+1:iter*nstep, :) = position_des_save(1:end-1, :); % desired pos
     velocity_des_traj((iter-1)*nstep+1:iter*nstep, :) = velocity_des_save(1:end-1, :); % desired pos
+    tilt_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_tilt4_save(1:end-1, :); % desired tilt save with iter
     attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = att_des_save(1:end-1, :); % desired att
     attitudetraj((iter-1)*nstep+1:iter*nstep, :) = att_current_save(1:end-1,:); % real state att
-
-    tilt_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_tilt4_save(1:end-1, :); % desired tilt save with iter
-    throttle_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_throttle4_save(1:end-1, :); % desired tilt save with iter
-    elevon_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_elevon4_save(1:end-1, :); % desired tilt save with iter
 
     time = time + cstep; % Update simulation time
     t = toc;
@@ -203,7 +182,6 @@ for iter = 1:max_iter
     drawnow;  % 更新图形
 end
 
-
 %% ************************* POST PROCESSING *************************
 % --- to do---plot 单独函数封装
 
@@ -214,11 +192,7 @@ attitudetraj = attitudetraj(1:iter*nstep, :); % Truncate attitude trajectory
 attitude_des_traj = attitude_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
 position_des_traj = position_des_traj(1:iter*nstep, :); 
 velocity_des_traj = velocity_des_traj(1:iter*nstep, :);
-
-% for actuator
 tilt_des_traj = tilt_des_traj(1:iter*nstep, :);
-throttle_des_traj = throttle_des_traj(1:iter*nstep, :);
-elevon_des_traj = elevon_des_traj(1:iter*nstep, :);
 
 %% Plot position
 h_pos = figure('Name', 'Position');
@@ -313,36 +287,35 @@ grid on;
 
 
 %% Plot 7 input -- thrust abc + tilt ab + elevon ab
-% now 7--arm ab ,throttle abc, elevon ab
-h_actutor = figure('Name', 'Actuator');
+% now just 2--tilt ab 
+h_actutor = figure('Name', 'Actutor');
+% subplot(3,1,1);
+% plot(ttraj, rad2deg(attitudetraj(:,1)), 'b', 'LineWidth', 1.5);
+% hold on;
+% plot(ttraj, rad2deg(attitude_des_traj(:,1)), 'r--', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Roll [deg]');
+% legend('Actual Roll', 'Desired Roll');
+% title('Actutor');
+% grid on;
+% 
+% subplot(3,1,2);
+% plot(ttraj, rad2deg(attitudetraj(:,2)), 'b', 'LineWidth', 1.5);
+% hold on;
+% plot(ttraj, rad2deg(attitude_des_traj(:,2)), 'r--', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Pitch [deg]');
+% legend('Actual Pitch', 'Desired Pitch');
+% grid on;
+
 subplot(3,1,1);
-plot(ttraj, rad2deg(tilt_des_traj(:,1)), 'b', 'LineWidth', 1.5); % arm a, right
+plot(ttraj, tilt_des_traj(:,1), 'b', 'LineWidth', 1.5); % arm a, right
 hold on;
-plot(ttraj, rad2deg(tilt_des_traj(:,2)), 'r--', 'LineWidth', 1.5); % arm b, left
+plot(ttraj, tilt_des_traj(:,2), 'r--', 'LineWidth', 1.5); % arm b, left
 xlabel('Time [s]');
 ylabel('titl_angle [deg]');
-legend('right arm_a', 'left arm_b');
-title('Actuator');
-grid on;
-
-subplot(3,1,2);
-plot(ttraj, throttle_des_traj(:,1), 'b', 'LineWidth', 1.5); % throttle a, right
-hold on;
-plot(ttraj, throttle_des_traj(:,2), 'r--', 'LineWidth', 1.5); % throttle b, left
-hold on;
-plot(ttraj, throttle_des_traj(:,3), 'g--', 'LineWidth', 1.5); % throttle c, tail
-xlabel('Time [s]');
-ylabel('throttle [percent]');
-legend('right throttle_a', 'left throttle_b', 'tail throttle_c');
-grid on;
-
-subplot(3,1,3);
-plot(ttraj, rad2deg(elevon_des_traj(:,1)), 'b', 'LineWidth', 1.5); % elevon a, right
-hold on;
-plot(ttraj, rad2deg(elevon_des_traj(:,2)), 'r--', 'LineWidth', 1.5); % elevon b, left
-xlabel('Time [s]');
-ylabel('elevon_delta_angle [deg]');
-legend('right elevon_a', 'left arm');
+legend('right arm', 'left arm');
+title('Actutor');
 grid on;
 
 if(~isempty(err))
@@ -355,9 +328,6 @@ t_out = ttraj;
 s_out = xtraj;
 
 end
-
-
-
 
 
 

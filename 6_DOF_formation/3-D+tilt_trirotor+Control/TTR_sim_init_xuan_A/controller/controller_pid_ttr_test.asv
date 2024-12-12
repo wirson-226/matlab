@@ -111,7 +111,6 @@ ATT_des = [phi_des; theta_des; psi_des]; % [3 * 1]
 
 command.arm = [des_state.tilt_angle(1),des_state.tilt_angle(2)];
 
-
 %% 满油平飞 测试用
 % command.throttle = [1,1,0];
 % command.elevon = [0,0];
@@ -123,7 +122,7 @@ command.arm = [des_state.tilt_angle(1),des_state.tilt_angle(2)];
 % command.elevon = [0,0];
 % command.arm = [0,0];
 
-%% 过渡 hovering to cruise 定高加速 测试用 
+%% 过渡 hovering to cruise 定高加速 测试用 需要屁股有x轴向倾转角与自转平衡
 % command.throttle = [2/3,2/3,1/3];
 % command.elevon = [0,0]; 
 % command.arm = [pi/6,pi/6];
