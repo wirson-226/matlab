@@ -63,6 +63,12 @@ params.r0 = 0.0;  % initial yaw rate
 
 params.Va0 = sqrt(params.u0^2 + params.v0^2 + params.w0^2);  % initial airspeed
 
+% 风速
+params.w_ns = 0.0; % 目前限定为0，待修改测试抗扰算法
+params.w_es = 0.0;
+params.w_ds = 0.0;
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

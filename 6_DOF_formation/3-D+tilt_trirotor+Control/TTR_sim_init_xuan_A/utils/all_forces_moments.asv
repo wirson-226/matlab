@@ -1,4 +1,4 @@
-function [force, moment] = all_forces_moments(state, actuator, params)
+function [force, moment] = all_forces_moments(state, wind_speed, actuator, params)
     % AERODYNAMIC_FORCES_MOMENTS calculates the aerodynamic forces and moments in the body axis system
     % based on the provided ground speed, wind speed, and control surfaces (delta).
     %
@@ -15,9 +15,12 @@ function [force, moment] = all_forces_moments(state, actuator, params)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
 
     % Relative velocity components (ground speed - wind speed)
-    u_r = state(4) - params.w_ns;
-    v_r = state(5) - params.w_es;
-    w_r = state(6) - params.w_ds;
+    params.w_ns = 0.0; % 目前限定为0，待修改测试抗扰算法
+    params.w_es = 0.0;
+    params.w_ds = 0.0;
+    u_r = state(4) - wind_speed(1);
+    v_r = state(5) - wind_speed(2);
+    w_r = state(6) - wind_speed(3);
 
     p = state(11);
     q = state(12);
