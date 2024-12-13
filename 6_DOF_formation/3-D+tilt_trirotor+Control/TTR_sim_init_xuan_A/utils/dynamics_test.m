@@ -3,7 +3,13 @@
 params = sys_params();
 
 % Example inputs
-state = [10, 0, -1, 0, 0, 0, 10, 0, -1,10, 0, -1,10];  % m/s (ground speed)
+state = [10, 0, -1, 3, 3, 3, 10, 0, -1,10, 0, -1,10];  % m/s (ground speed)
+% struct format
+% state.pos = [10, 0, -1];
+% state.vel = [10, 0, -1];
+% state.rot = [10, 0, -1];
+% state.omega = [10, 0, -1];
+
 
 % 旋翼悬停平衡计算测试 参考Media--TTR_arm_a
 %% 偏航plan A
@@ -48,9 +54,9 @@ disp('Fg:');
 disp(Fg);
 
 
-% 创建一个图形窗口并设置名称
-fig = figure('name', 'arm_a calculation reference', 'NumberTitle', 'off');
-% figure;
-% 在窗口中显示图像
-imshow('E:\documents\Codes\codes\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\TTR_sim_init_xuan_A\Medias\TTR_arm_a.jpg'); % Load the image (ensure the file path is correct)
-title('神的笔记');
+% % 创建一个图形窗口并设置名称
+% fig = figure('name', 'arm_a calculation reference', 'NumberTitle', 'off');
+% % figure;
+% % 在窗口中显示图像
+% imshow('E:\documents\Codes\codes\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\TTR_sim_init_xuan_A\Medias\TTR_arm_a.jpg'); % Load the image (ensure the file path is correct)
+% title('神的笔记');

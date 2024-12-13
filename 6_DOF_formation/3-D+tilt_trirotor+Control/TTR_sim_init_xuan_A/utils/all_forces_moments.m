@@ -134,6 +134,10 @@ function [force, moment] = all_forces_moments(state, command, params)
     torque_prop_c_y = torque_prop_c * s_arm_c;
     torque_prop_c_z = torque_prop_c * c_arm_c;
 
+    %% 测试隔离
+    F_lift = 0;
+    F_drag = 0;
+    F_Y = 0;
 
     % Compute longitudinal forces in body frame
     fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 前右上 正向
@@ -158,10 +162,18 @@ function [force, moment] = all_forces_moments(state, command, params)
     % Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z) + torque_prop_a_x - torque_prop_b_x; % 滚转 不忽略ab反扭倾转映射
     % My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_y * MAV.l2 - torque_prop_c_y; % 俯仰 不忽略c反扭倾转映射
 
+    %% 测试隔离用
+    Aero_Mx = 0;
+    Aero_My = 0;
+    Aero_Mz = 0;
+
     Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z); % 滚转 忽略反扭倾转映射
     My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射
     Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_x - thrust_prop_b_x) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_y * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡
     
+    
+    %% 测试隔离用
+    % My = 0;
 
     %% 监视检测部分
     % 推力检测  

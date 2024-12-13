@@ -119,9 +119,9 @@ ATT_des = [phi_des; theta_des; psi_des]; % [3 * 1]
 
 
 %% 旋翼悬停 测试用
-% command.throttle = [1/3,1/3,1/3]; % T_max = mg for single rotor
-% command.elevon = [0,0];
-% command.arm = [0,0];
+command.throttle = [0.1,0.1,0.1]; % T_max = mg for single rotor
+command.elevon = [0,0];
+command.arm = [0,0];
 
 %% 过渡 hovering to cruise 定高加速 测试用 
 % command.throttle = [2/3,2/3,1/3];

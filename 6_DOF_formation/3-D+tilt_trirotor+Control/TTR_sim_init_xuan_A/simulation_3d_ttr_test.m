@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 30;
+max_time = 3;
 
 % parameters for simulation
 params = sys_params;
@@ -59,7 +59,6 @@ des_stop  = trajhandle(inf, []);
 stop_pos  = des_stop.pos;
 x0    = init_state(des_start.pos, 0);
 xtraj = zeros(max_iter*nstep, length(x0));
-% dtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];
 % att_4_plot = [0,0,0];
@@ -97,7 +96,7 @@ for iter = 1:max_iter
     tic;
 
     % Run simulation
-    [tsave, xsave] = ode45(@(t,s) quadEOM(t, s, controlhandle, trajhandle, params), timeint, x); % added att
+    [tsave, xsave] = ode45(@(t,s) vtolEOM(t, s, controlhandle, trajhandle, params), timeint, x); % added att
     x    = xsave(end, :)'; % x =  [13 * 1] transform of each loop final result of xasve = [6 * 13] 0; 0.01; 0.02; 0.03; 0.04; 0.05;
     
 
@@ -140,6 +139,19 @@ for iter = 1:max_iter
         position_des_save(i, :) = desired_state.pos';
         velocity_des_save(i, :) = desired_state.vel';
         desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
+
+        %% aircraft plot test
+        % 清除之前绘制
+        cla; % 只清除当前窗口的内容
+        
+        % 绘制飞机模型 --- done 
+        pos_4_plot = current_all_state.pos;
+        rot_4_plot = QuatToRot(x(7:10));
+        [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+        att_4_plot = [phi,theta,psi];
+        planeplot_ttr_test(pos_4_plot,current_all_state.rot',rad2deg(tilt_angle));
+
+
     end
 
 
@@ -155,7 +167,7 @@ for iter = 1:max_iter
     [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
     att_4_plot = [phi,theta,psi];
     planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
-    % tilt_angle = desired_state.tilt_angle;
+  
 
     % Plot trajectories (actual and desired)
     plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);
