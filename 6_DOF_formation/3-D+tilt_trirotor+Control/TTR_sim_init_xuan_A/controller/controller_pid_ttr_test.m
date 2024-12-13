@@ -15,7 +15,7 @@ function [F, M, ATT_des,command] = controller_pid_ttr_test(t, state, des_state, 
 %   Using these current and desired states, you have to compute the desired
 %   controls
 %   PD mian core
-%   添加倾转角度 rad 向下偏转为正  command.
+%   添加倾转角度 rad 向下偏转为正  command.arm
 %   添加舵面角度 rad 向上偏转为正 
 %   添加油门 0 -- 1 ，对应单电机最大推力T_max, k_f 推力到力矩系数
 

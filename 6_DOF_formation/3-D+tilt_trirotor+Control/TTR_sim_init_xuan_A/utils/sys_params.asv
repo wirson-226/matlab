@@ -1,6 +1,8 @@
 function params = sys_params()
 % 全部参数定义  ---  控制参数 仅有 ESO 待添加 PID formation 等等
 % aerodynamics, rotor parameters, and control-related parameters.
+% 偏航尾部电机自平衡
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Physical Parameters
@@ -16,10 +18,10 @@ I = [0.00025,   0,          2.55e-6;
 params.mass = m;
 params.I    = I;
 params.invI = inv(I);
-params.Jx = 0.00025;
-params.Jy = 0.000232;
-params.Jz = 0.0003738;
-params.Jxz = 0.00025;
+params.Jx =  0.00025;
+params.Jy =  0.000232;
+params.Jz =  0.0003738;
+params.Jxz = 0.00000255; % 一般忽略，两个数量级的差
 
 params.gravity = g;
 params.arm_length = 0.086; % m
@@ -55,12 +57,19 @@ params.p0 = 0.0;  % initial roll rate
 params.q0 = 0.0;  % initial pitch rate
 params.r0 = 0.0;  % initial yaw rate
 
-params.init = [params.north0,params.east0,params.down0,
-               params.u0,params.v0,params.w0,
-               params.phi0,params.theta0,params.psi0,
-               params.p0,params.q0,params.r0]; % initial state 初始状态
+% params.init = [params.north0,params.east0,params.down0,
+%                params.u0,params.v0,params.w0,
+%                params.phi0,params.theta0,params.psi0,
+%                params.p0,params.q0,params.r0]; % initial state 初始状态
+%                有init_state 函数 存到了x0
 
 params.Va0 = sqrt(params.u0^2 + params.v0^2 + params.w0^2);  % initial airspeed
+
+% 风速
+params.w_ns = 0.0; % 目前限定为0，待修改测试抗扰算法
+params.w_es = 0.0;
+params.w_ds = 0.0;
+
 
 
 
@@ -140,14 +149,14 @@ params.k_motor = 102.5;
 params.kTp = 0.0;
 params.kOmega = 0.0;
 params.C_prop = 1.0;
-
+params.k_f = 0.02; % thrust to torque todo 修改
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-params.l1 = 0.09;     % m, front motor X-axis force arm
-params.l2 = 0.18;     % m, rear motor X-axis force arm
-params.l3 = 0.11;     % m, front motor Y-axis force arm
+params.l1 = 0.09;     % m, front motor X-axis force arm 俯仰
+params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰
+params.l3 = 0.11;     % m, front motor Y-axis force arm 滚转
 params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
 params.delta_lr_max = deg2rad(45.0);  % max elevon deflection angle

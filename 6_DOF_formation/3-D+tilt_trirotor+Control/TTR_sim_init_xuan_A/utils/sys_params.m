@@ -1,6 +1,8 @@
 function params = sys_params()
 % 全部参数定义  ---  控制参数 仅有 ESO 待添加 PID formation 等等
 % aerodynamics, rotor parameters, and control-related parameters.
+% 偏航尾部电机自平衡
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Physical Parameters
@@ -147,13 +149,13 @@ params.k_motor = 102.5;
 params.kTp = 0.0;
 params.kOmega = 0.0;
 params.C_prop = 1.0;
-params.k_f = 0.2; % thrust to torque todo 待修改
+params.k_f = 0.02; % thrust to torque todo 修改
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.l1 = 0.09;     % m, front motor X-axis force arm 俯仰
-params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰
+params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂
 params.l3 = 0.11;     % m, front motor Y-axis force arm 滚转
 params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
@@ -170,6 +172,11 @@ params.T_percent_max = 1.0;  % maximum throttle value thrust abc 油门表示 �
 params.T_percent_min = 0.0;  % minimum throttle value
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 偏航自定义 plan A 尾部自平衡 参考media---new_Mx_set
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+params.arm_c = atan2(params.k_f, params.l2);
 
 
 
