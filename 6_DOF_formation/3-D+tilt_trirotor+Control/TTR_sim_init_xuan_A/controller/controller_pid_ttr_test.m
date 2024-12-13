@@ -109,7 +109,7 @@ F = u1;
 M = u2;
 ATT_des = [phi_des; theta_des; psi_des]; % [3 * 1]
 
-command.arm = [des_state.tilt_angle(1),des_state.tilt_angle(2)];
+% command.arm = [des_state.tilt_angle(1),des_state.tilt_angle(2)];
 
 
 %% 满油平飞 测试用

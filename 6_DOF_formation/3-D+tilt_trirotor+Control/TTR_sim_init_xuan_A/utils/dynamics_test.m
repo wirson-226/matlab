@@ -23,7 +23,11 @@ tb = ta;
 % ta = tc / (2 * cos(arm_a));
 % tb = ta;
 
-command = struct('elevon_l', 0.1, 'elevon_r', -0.1, 'throttle_a', ta, 'throttle_b', tb,'throttle_c', tc, 'arm_a', arm_a, 'arm_b', arm_b);
+
+command.throttle = [ta,tb,tc];
+command.elevon = [0,0]; 
+command.arm = [arm_a,arm_b];
+
 
 % Call the function to calculate aerodynamic forces and moments
 [force, moment] = all_forces_moments(state, command, params);

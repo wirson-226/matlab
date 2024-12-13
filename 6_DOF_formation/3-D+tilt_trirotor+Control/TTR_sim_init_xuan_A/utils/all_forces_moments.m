@@ -1,4 +1,4 @@
-function [force, moment] = all_forces_moments(state, actuator, params)
+function [force, moment] = all_forces_moments(state, command, params)
     % AERODYNAMIC_FORCES_MOMENTS calculates the aerodynamic forces and moments in the body axis system
     % based on the provided ground speed, wind speed, and control surfaces (delta).
     %
@@ -15,6 +15,16 @@ function [force, moment] = all_forces_moments(state, actuator, params)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
     % todo --- 偏航控制讨论--now 采用尾部电机自平衡 向y轴右偏 arm_c  rad，
     % 忽略所有电机倾转反扭的其他轴映射，比如尾部的俯仰投射，头部的滚转投射
+
+    % 命令分配 actutor struct
+
+    actuator.arm_a = command.arm(1);          % 倾转 arm_a,b
+    actuator.arm_b = command.arm(2);          % 倾转 arm_a,b
+    actuator.throttle_a = command.throttle(1); % 油门 throttle_a,b,c
+    actuator.throttle_b = command.throttle(2); % 油门 throttle_a,b,c
+    actuator.throttle_c = command.throttle(3); % 油门 throttle_a,b,c
+    actuator.elevon_r = command.elevon(1);     % 舵面 elevon_a,b -- rl
+    actuator.elevon_l = command.elevon(2);     % 舵面 elevon_a,b
 
     % Relative velocity components (ground speed - wind speed)
     u_r = state(4) - params.w_ns;
@@ -165,7 +175,7 @@ function [force, moment] = all_forces_moments(state, actuator, params)
     % Display debug values for key parameters
     disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
     disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
-    
+
     % Display the aerodynamics results
     disp('Aero_forces:');
     disp(['F_lift: ', num2str(F_lift)]);

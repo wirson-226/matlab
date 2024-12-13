@@ -112,7 +112,7 @@ for iter = 1:max_iter
     % 执行器记录 7个
     des_tilt4_save = zeros(length(tsave), 2);     % 倾转 arm_a,b
     des_throttle4_save = zeros(length(tsave), 3); % 油门 throttle_a,b,c
-    des_elevon4_save = zeros(length(tsave), 2);   % 舵面 
+    des_elevon4_save = zeros(length(tsave), 2);   % 舵面 elevon a,b
 
     
     % Update trajectory

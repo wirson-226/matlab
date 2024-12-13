@@ -11,7 +11,7 @@ arm_a = 0;
 arm_b = -arm_a;
 % tc = (params.mass * params.gravity * 1/3) / (params.T_max * cos(params.arm_c));
 tc = (1/3) / cos(params.arm_c);
-ta = (params.l1/params.l2) * tc * cos(params.arm_c);
+ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
 tb = ta;
 
 
@@ -23,6 +23,10 @@ tb = ta;
 % ta = tc / (2 * cos(arm_a));
 % tb = ta;
 
+
+% command.throttle = [ta,tb,tc];
+% command.elevon = [0,0]; 
+% command.arm = [pi/6,pi/6];
 command = struct('elevon_l', 0.1, 'elevon_r', -0.1, 'throttle_a', ta, 'throttle_b', tb,'throttle_c', tc, 'arm_a', arm_a, 'arm_b', arm_b);
 
 % Call the function to calculate aerodynamic forces and moments
