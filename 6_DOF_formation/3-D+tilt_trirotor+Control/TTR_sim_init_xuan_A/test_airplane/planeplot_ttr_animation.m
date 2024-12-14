@@ -1,6 +1,6 @@
 function planeplot_ttr_animation()
     % 动画总时间和时间步
-    total_time = 60; % 总时间 (秒)
+    total_time = 6; % 总时间 (秒)
     dt = 0.1; % 初始时间步 (秒)
     
     % 控制状态（用于暂停和加速）

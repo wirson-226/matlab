@@ -157,16 +157,16 @@ for iter = 1:max_iter
 
 
 
-    %% aircraft plot
-    % 清除之前绘制
-    cla; % 只清除当前窗口的内容
-    
-    % 绘制飞机模型 --- done 
-    pos_4_plot = x(1:3)';
-    rot_4_plot = QuatToRot(x(7:10));
-    [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
-    att_4_plot = [phi,theta,psi];
-    planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
+    % %% aircraft plot
+    % % 清除之前绘制
+    % cla; % 只清除当前窗口的内容
+    % 
+    % % 绘制飞机模型 --- done 
+    % pos_4_plot = x(1:3)';
+    % rot_4_plot = QuatToRot(x(7:10));
+    % [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+    % att_4_plot = [phi,theta,psi];
+    % planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
   
 
     % Plot trajectories (actual and desired)
