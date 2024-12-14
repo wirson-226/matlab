@@ -3,7 +3,7 @@
 params = sys_params();
 
 % Example inputs
-state = [10, 0, -1, 3, 3, 3, 10, 0, -1,10, 0, -1,10];  % m/s (ground speed)
+state = [0, 0, -20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 % struct format
 % state.pos = [10, 0, -1];
 % state.vel = [10, 0, -1];

@@ -35,7 +35,8 @@ ylabel('Y');
 zlabel('Z');
 title('Airplane flight');
 view(3);  % 3D视图
-xlim([-10 10]); ylim([-10 10]); zlim([-5 5]); % 设置坐标轴范围
+xlim([-10 10]); ylim([-10 10]); zlim([-10 10]); % 设置坐标轴范围
+set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
 
 
 % axis equal

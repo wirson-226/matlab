@@ -15,6 +15,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
     % todo --- 偏航控制讨论--now 采用尾部电机自平衡 向y轴右偏 arm_c  rad，
     % 忽略所有电机倾转反扭的其他轴映射，比如尾部的俯仰投射，头部的滚转投射
+    % 这里的y轴正向为左 todo 调整为 右
 
     % 命令分配 actutor struct
 
