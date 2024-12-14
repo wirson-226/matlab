@@ -141,16 +141,16 @@ for iter = 1:max_iter
         velocity_des_save(i, :) = desired_state.vel';
         desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
 
-        %% aircraft plot test
+        % % aircraft plot test
         % 清除之前绘制
-        cla; % 只清除当前窗口的内容
-        
+        % cla; % 只清除当前窗口的内容
+        % 
         % 绘制飞机模型 --- done 
-        pos_4_plot = current_all_state.pos;
-        rot_4_plot = QuatToRot(x(7:10));
-        [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
-        att_4_plot = [phi,theta,psi];
-        planeplot_ttr_test(pos_4_plot,current_all_state.rot',rad2deg(tilt_angle));
+        % pos_4_plot = current_all_state.pos;
+        % rot_4_plot = QuatToRot(x(7:10));
+        % [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+        % att_4_plot = [phi,theta,psi];
+        % planeplot_ttr_test(pos_4_plot,current_all_state.rot',rad2deg(tilt_angle));
 
 
     end
@@ -158,16 +158,16 @@ for iter = 1:max_iter
 
 
 
-    % %% aircraft plot
-    % % 清除之前绘制
-    % cla; % 只清除当前窗口的内容
-    % 
-    % % 绘制飞机模型 --- done 
-    % pos_4_plot = x(1:3)';
-    % rot_4_plot = QuatToRot(x(7:10));
-    % [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
-    % att_4_plot = [phi,theta,psi];
-    % planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
+    %% aircraft plot
+    % 清除之前绘制
+    cla; % 只清除当前窗口的内容
+
+    % 绘制飞机模型 --- done 
+    pos_4_plot = x(1:3)';
+    rot_4_plot = QuatToRot(x(7:10));
+    [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+    att_4_plot = [phi,theta,psi];
+    planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
   
 
     % Plot trajectories (actual and desired)

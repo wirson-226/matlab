@@ -3,25 +3,34 @@
 params = sys_params();
 
 % Example inputs
-state = [0, 0, -20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
-% struct format
-% state.pos = [10, 0, -1];
-% state.vel = [10, 0, -1];
-% state.rot = [10, 0, -1];
-% state.omega = [10, 0, -1];
+state = [0, 0, -20, params.V_min, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
+
+elevon_a = deg2rad(10);
+elevon_b = deg2rad(10);
+
+%% 满油平飞 测试用
+command.throttle = [1,1,0];
+command.arm = [pi/2,pi/2];
+command.elevon = [elevon_a, elevon_b];
+% command.elevon = [params.elevon_max, params.elevon_max];
+
+%% 过渡 hovering to cruise 定高加速 测试用 
+% command.throttle = [2/3,2/3,1/3];
+% command.elevon = [0,0]; 
+% command.arm = [pi/6,pi/6];
 
 
-% 旋翼悬停平衡计算测试 参考Media--TTR_arm_a
-%% 偏航plan A
-arm_a = 0;
-arm_b = -arm_a;
-% tc = (params.mass * params.gravity * 1/3) / (params.T_max * cos(params.arm_c));
-tc = (1/3) / cos(params.arm_c);
-ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
-tb = ta;
 
+%% 旋翼悬停平衡计算测试 参考Media--TTR_arm_a
+% 偏航plan A
+% arm_a = 0;
+% arm_b = -arm_a;
+% % tc = (params.mass * params.gravity * 1/3) / (params.T_max * cos(params.arm_c));
+% tc = (1/3) / cos(params.arm_c);
+% ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
+% tb = ta;
 
-%% 偏航plan B
+% 偏航plan B
 % tc = 1/3 ;
 % arm_a = atan2(params.k_f, params.l3);
 % arm_b = -arm_a;
@@ -29,13 +38,13 @@ tb = ta;
 % ta = tc / (2 * cos(arm_a));
 % tb = ta;
 
+% command.throttle = [ta,tb,tc];
+% command.elevon = [0,0]; 
+% command.arm = [arm_a,arm_b];
 
-command.throttle = [ta,tb,tc];
-command.elevon = [0,0]; 
-command.arm = [arm_a,arm_b];
 
 
-% Call the function to calculate aerodynamic forces and moments
+%% Call the function to calculate aerodynamic forces and moments
 [force, moment] = all_forces_moments(state, command, params);
 
 
@@ -50,9 +59,18 @@ disp(force);
 disp('Moments:');
 disp(moment);
 
-disp('Fg:');
-disp(Fg);
+% disp('Fg:');
+% disp(Fg);
 
+%% 显示设计性能
+disp('系统设计性能计算V_max: m/s');
+disp(params.V_max);
+disp('系统设计性能计算V_min: m/s');
+disp(params.V_min);
+% disp('系统设计性能计算phi_max: deg');
+% disp(rad2deg(params.phi_max));
+% disp('系统设计性能计算R_min:  m');
+% disp(params.R_min);
 
 % % 创建一个图形窗口并设置名称
 % fig = figure('name', 'arm_a calculation reference', 'NumberTitle', 'off');

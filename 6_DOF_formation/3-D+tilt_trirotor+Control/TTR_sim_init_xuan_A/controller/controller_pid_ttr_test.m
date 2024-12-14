@@ -109,38 +109,46 @@ F = u1;
 M = u2;
 ATT_des = [phi_des; theta_des; psi_des]; % [3 * 1]
 
-% command.arm = [des_state.tilt_angle(1),des_state.tilt_angle(2)];
+
+
 
 
 %% 满油平飞 测试用
-% command.throttle = [1,1,0];
-% command.elevon = [0,0];
+
+% elevon_a = deg2rad(0);
+% elevon_b = deg2rad(0);
+% 
+% command.throttle = [0.2,0.2,0];
 % command.arm = [pi/2,pi/2];
+% command.elevon = [elevon_a, elevon_b];
 
-
-%% 旋翼悬停 测试用
-% command.throttle = [0.1,0.1,0.1]; % T_max = mg for single rotor
-% command.elevon = [0,0];
-% command.arm = [0,0];
 
 %% 过渡 hovering to cruise 定高加速 测试用 
-% command.throttle = [2/3,2/3,1/3];
-% command.elevon = [0,0]; 
-% command.arm = [pi/6,pi/6];
-
-
-%% 旋翼悬停平衡计算测试 参考Media--TTR_arm_a 
-% 悬停 hovering 成功
-% 偏航plan A
-arm_a = 0;
-arm_b = -arm_a;
+% 过渡 transition 成功
+arm_a = pi/6;
+arm_b = arm_a;
 tc = (1/3) / cos(params.arm_c);
-ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
+ta = (2 * (params.l1/params.l2) * tc * cos(params.arm_c))/cos(arm_a);
 tb = ta;
 
 command.throttle = [ta,tb,tc];
 command.elevon = [0,0]; 
 command.arm = [arm_a,arm_b];
+
+
+%% 旋翼悬停 测试用 参考Media--TTR_arm_a 
+% 悬停 hovering 成功
+% 偏航plan A
+
+% arm_a = 0;
+% arm_b = -arm_a;
+% tc = (1/3) / cos(params.arm_c);
+% ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
+% tb = ta;
+% 
+% command.throttle = [ta,tb,tc];
+% command.elevon = [0,0]; 
+% command.arm = [arm_a,arm_b];
 
 % =================== Your code ends here ===================
 

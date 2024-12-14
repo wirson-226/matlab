@@ -9,7 +9,7 @@ function params = sys_params()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % kumar老机型参数 目前可用
 
-m = 0.18; % kg
+m = 0.50; % kg
 g = 9.81; % m/s^2
 I = [0.00025,   0,          2.55e-6;
      0,         0.000232,   0;
@@ -138,7 +138,7 @@ params.K_Q = (1 / params.K_V) * 60 / (2 * pi);  % KQ in N-m/A, V-s/rad
 params.R_motor = 0.042;  % ohms
 params.i0 = 1.5;  % no-load (zero-torque) current (A)
 params.ncells = 3.0;  % battery cell count
-params.V_max = 3.7 * params.ncells;  % max voltage for specified number of battery cells
+% params.V_max = 3.7 * params.ncells;  % max voltage for specified number of battery cells
 params.C_Q2 = -0.01664;
 params.C_Q1 = 0.004970;
 params.C_Q0 = 0.005230;
@@ -159,8 +159,8 @@ params.l2 = 0.018;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂
 params.l3 = 0.011;     % m, front motor Y-axis force arm 滚转
 params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
-params.delta_lr_max = deg2rad(45.0);  % max elevon deflection angle
-params.delta_lr_min = deg2rad(-45.0);  % min elevon deflection angle
+params.elevon_max = deg2rad(45.0);  % max elevon deflection angle
+params.elevon_min = deg2rad(-45.0);  % min elevon deflection angle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Thrust and Torque Limits for Motor
@@ -193,7 +193,7 @@ params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * par
 
 % dubin path 固定翼杜宾曲线相关限制 最小转弯半径，巡航速度
 % airspeed commanded by planner
-params.Va_planner = 25.0;
+params.Va_planner = 0.5*(params.V_max + params.V_min);
 
 % max possible roll angle
 params.phi_max = deg2rad(30);

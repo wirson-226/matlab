@@ -135,10 +135,10 @@ function [force, moment] = all_forces_moments(state, command, params)
     torque_prop_c_y = torque_prop_c * s_arm_c;
     torque_prop_c_z = torque_prop_c * c_arm_c;
 
-    %% 测试隔离
-    F_lift = 0;
-    F_drag = 0;
-    F_Y = 0;
+    %% 测试隔离 doing
+    % F_lift = 0;
+    % F_drag = 0;
+    % F_Y = 0;
 
     % Compute longitudinal forces in body frame
     fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 前右上 正向
@@ -204,6 +204,12 @@ function [force, moment] = all_forces_moments(state, command, params)
     Tail_Mx = - torque_prop_c_z + thrust_prop_c_y * MAV.l2;
     disp('尾部电机:');
     disp(['Tail_Mx: ', num2str(Tail_Mx)]);
+
+    % 重力
+    Fg = params.mass * params.gravity;
+    disp('Fg:');
+    disp(Fg);
+
 
     % Return the forces and moments in body frame
     force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
