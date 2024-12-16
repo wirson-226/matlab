@@ -147,8 +147,10 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     % Compute lateral forces in body frame
     % fy = F_Y + thrust_prop_c_y; % 不忽略尾部电机倾转力的映射
-    fy = F_Y; % 忽略尾部电机倾转力的映射
+    % fy = F_Y; % 忽略尾部电机倾转力的映射 忽略侧滑角
+    fy = 0;
 
+    
     % Compute moments (torques) in body frame 
     % 考虑空速为零
     if Va == 0
@@ -171,7 +173,7 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z); % 滚转 忽略反扭倾转映射
     My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射
-    Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_x - thrust_prop_b_x) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_y * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡
+    Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_x - thrust_prop_b_x) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_y * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡（0 = - torque_prop_c_z + thrust_prop_c_y * MAV.l2）
     
     
     %% 测试隔离用

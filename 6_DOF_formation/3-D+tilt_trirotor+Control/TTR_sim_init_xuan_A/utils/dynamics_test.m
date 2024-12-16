@@ -4,7 +4,7 @@ params = sys_params();
 
 % Example inputs
 % state = [0, 0, -20, params.V_min, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
-state = [0, 0, -20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
+state = [0, 0, -20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 % elevon_a = deg2rad(10);
 % elevon_b = deg2rad(10);
 

@@ -1,12 +1,12 @@
 
     % 测试 inverse_actuator_assignment 函数
     params = sys_params();
-    state = [0, 0, -20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % 
+    state = [0, 0, -20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % 
 
     
     % 输入的力和力矩（模拟值）除了重力
-    force = [0.5; 0; 1.7658];   % [fx, fy, fz] in Newtons (前向, 侧向, 垂直)
-    moment = [0; 0; 0];     % [Mx, My, Mz] in Newton-meters (滚转, 俯仰, 偏航)
+    force = [-0.0013; 0; 1.8303];   % [fx, fy, fz] in Newtons (前向, 侧向, 垂直)
+    moment = [0; 0.00001209; 0];     % [Mx, My, Mz] in Newton-meters (滚转, 俯仰, 偏航)
     
     % 调用 inverse_actuator_assignment 函数
     % 反解
@@ -24,10 +24,19 @@
 
     % 正解
     % 验证结束成功 加范围约束
-    [force, moment] = all_forces_moments(state, actuator, params);
+    [force_test, moment_test] = all_forces_moments(state, actuator, params);
     % Display the results
     disp('Forces:');
-    disp(force);
+    disp(force_test);
     
     disp('Moments:');
-    disp(moment);
+    disp(moment_test);
+
+
+    
+    % % % 创建一个图形窗口并设置名称
+    % fig = figure('name', 'assignment calculation reference', 'NumberTitle', 'off');
+    % % figure;
+    % % 在窗口中显示图像
+    % imshow('E:\documents\Codes\codes\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\TTR_sim_init_xuan_A\Medias\assignment_new.png'); % Load the image (ensure the file path is correct)
+    % title('神的笔记');

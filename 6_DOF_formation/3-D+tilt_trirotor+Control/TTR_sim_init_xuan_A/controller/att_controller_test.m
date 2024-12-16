@@ -17,7 +17,7 @@ function [des_from_ctrl,command] = att_controller_test(t, state, des_state, para
 %   des_state.pos = [x; y; z], yaw_cmd = des_state.yaw
 
 %   Using these current and desired states, you have to compute the desired
-%   controls：des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, roll_cmd, pitch_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
+%   controls：des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, phi_cmd, theta_cmd,, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
 
 
 
@@ -83,14 +83,14 @@ Mz_cmd = PIDControl(); %  with r_err
 moment_cmd_body = [Mx_cmd; Mx_cmd; Mx_cmd];
 
 %% 期望状态输出 1 * 12 --- vel-att-omege-M
-% des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, roll_cmd, pitch_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
+% des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, phi_cmd, theta_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
 
 
 %% 执行器命令结算 -- 控制分配  - 机体坐标系
 command = actuator_assignment(force_cmd_body, moment_cmd_body, state, params);
 
 %% 测试用
-des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, roll_cmd, pitch_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
+des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, phi_cmd, theta_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
 
 command.throttle = [ta,tb,tc];
 command.elevon = [0,0]; 
