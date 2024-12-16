@@ -24,7 +24,7 @@ current_state = stateToQd(s);
 desired_state = trajhandle(t, current_state);
 
 % get control outputs
-[F, M, ~, command] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
+[~,command] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
 %   而后 利用 all_foreces_moments得到FM
 [force, moment] = all_forces_moments(s, command, params);
 

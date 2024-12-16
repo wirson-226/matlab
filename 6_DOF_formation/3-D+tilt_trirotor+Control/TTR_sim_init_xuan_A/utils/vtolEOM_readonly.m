@@ -58,12 +58,12 @@ quat = [qW; qX; qY; qZ];
 bRw = QuatToRot(quat);
 wRb = bRw';
 
-% Acceleration
+% Acceleration world nes
 %动力学解算过程
 accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % 前右上
 % accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
 
-% Angular velocity
+% Angular velocity body xyz
 K_quat = 2; %this enforces the magnitude 1 constraint for the quaternion
 quaterror = 1 - (qW^2 + qX^2 + qY^2 + qZ^2);
 qdot = -1/2*[0, -p, -q, -r;...

@@ -53,7 +53,7 @@ bRw = QuatToRot(quat);
 wRb = bRw';
 
 % Acceleration
-%动力学解算过程
+%动力学解算过程 世界坐标系下
 accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
 
 
@@ -66,7 +66,7 @@ qdot = -1/2*[0, -p, -q, -r;...
              r, -q,  p,  0] * quat + K_quat*quaterror * quat;
 
 % Angular acceleration
-% 包含陀螺力矩
+% 包含陀螺力矩 机体坐标系下
 omega = [p;q;r];
 pqrdot   = params.invI * (M - cross(omega, params.I*omega));
 

@@ -9,23 +9,25 @@ function params = sys_params()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % kumar老机型参数 目前可用
 
-m = 0.50; % kg
+m = 0.18; % kg
 g = 9.81; % m/s^2
-I = [0.00025,   0,          2.55e-6;
-     0,         0.000232,   0;
-     2.55e-6,   0,          0.0003738]; % kg m^2 
-
 params.mass = m;
-params.I    = I;
-params.invI = inv(I);
 params.Jx =  0.00025;
 params.Jy =  0.000232;
 params.Jz =  0.0003738;
 params.Jxz = 0.00000255; % 一般忽略，两个数量级的差
 
-params.gravity = g;
-params.arm_length = 0.086; % m
+% I = [0.00025,   0,          2.55e-6;
+%      0,         0.000232,   0;
+%      2.55e-6,   0,          0.0003738]; % kg m^2 
 
+I = [params.Jx,    0,            params.Jxz;
+     0,            params.Jy,    0;
+     params.Jxz,   0,            params.Jz]; % kg m^2 
+
+params.I    = I;
+params.invI = inv(I);
+params.gravity = g;
 params.minF = 0.0;
 TW_ratio = 3 ; % 推重比
 params.maxF = TW_ratio * m * params.gravity;  % 最大合力 -- z向
@@ -149,14 +151,14 @@ params.k_motor = 102.5;
 params.kTp = 0.0;
 params.kOmega = 0.0;
 params.C_prop = 1.0;
-params.k_f = 0.02; % thrust to torque todo 修改
+params.k_f = 0.01; % thrust to torque todo 修改
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-params.l1 = 0.009;     % m, front motor X-axis force arm 俯仰
-params.l2 = 0.018;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂
-params.l3 = 0.011;     % m, front motor Y-axis force arm 滚转
+params.l1 = 0.09;     % m, front motor X-axis force arm 俯仰
+params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂
+params.l3 = 0.11;     % m, front motor Y-axis force arm 滚转
 params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
 params.elevon_max = deg2rad(45.0);  % max elevon deflection angle
@@ -197,6 +199,11 @@ params.Va_planner = 0.5*(params.V_max + params.V_min);
 
 % max possible roll angle
 params.phi_max = deg2rad(30);
+params.phi_min = deg2rad(30);
+params.theta_max = deg2rad(40);
+params.theta_min = deg2rad(40);
+params.psi_max = deg2rad(180);
+params.psi_min = deg2rad(180);
 
 % minimum turn radius
 params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
@@ -252,5 +259,82 @@ params.C_r_p = params.gamma4 * params.C_ell_p + params.gamma8 * params.C_n_p;
 params.C_r_r = params.gamma4 * params.C_ell_r + params.gamma8 * params.C_n_r;
 params.C_r_delta_a = params.gamma4 * params.C_ell_delta_a + params.gamma8 * params.C_n_delta_a;
 params.C_r_delta_r = params.gamma4 * params.C_ell_delta_r + params.gamma8 * params.C_n_delta_r;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Control parameters --- mode 1 copter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% % ----------position loop-------------
+params.pn_kp = 0.5;
+params.pn_ki = 0.00;
+params.pn_kd = 0.001;
+params.vx_sat_limit = 10;  % m/s
+
+params.pe_kp = 0.5;
+params.pe_ki = 0.00;
+params.pe_kd = 0.001;
+params.vy_sat_limit = 10;  % m/s
+
+params.pd_kp = 2.5;
+params.pd_ki = 0.00;
+params.pd_kd = 0.00;
+params.vz_sat_limit = 10;  % m/s
+
+% % ---------- velocity loop -------------
+% % the outputs are phi_desired and theta_desired
+params.vh_kp = 2.4  ;% horizontal
+params.vh_ki = 0.5;
+params.vh_kd = 0.1;
+
+params.vx_kp = params.vh_kp;
+params.vx_ki = params.vh_ki;
+params.vx_kd = params.vh_kd;
+params.acc_x_sat_limit = 2.0 * params.gravity;
+
+params.vy_kp = params.vh_kp;
+params.vy_ki = params.vh_ki;
+params.vy_kd = params.vh_kd;
+params.acc_y_sat_limit = 2.0 * params.gravity;
+
+% % the output is collective thrust
+params.vz_kp = 8.0;  % 8.0
+params.vz_ki = 2.0 ; % 2.0
+params.vz_kd = 0.1;
+params.acc_z_sat_limit = 2.0 * params.gravity;
+
+% % TODO: 加速度的限幅值和角度约束和拉力约束是有对应关系的，这个进行辨识后要算出来。
+
+% % ---------- attitude loop -------------
+params.roll_kp = 8.0;
+params.roll_ki = 0.0;
+params.roll_kd = 0.1;
+params.roll_input_limit = 60. * pi / 180.;  % rad
+params.roll_rate_sat_limit = 60.0 * pi / 180.0 ; % rad/s
+
+params.pitch_kp = 8.0;
+params.pitch_ki = 0.0;
+params.pitch_kd = 0.1;
+params.pitch_input_limit = 60. * pi / 180.;  % rad
+params.pitch_rate_sat_limit = 60.0 * pi / 180.0 ; % rad/s
+
+params.yaw_kp = 7.0;
+params.yaw_ki = 0.0;
+params.yaw_kd = 0.2;
+params.yaw_rate_sat_limit = 90.0 * pi / 180.0;  % rad/s
+
+% % ---------- attitude rate loop -------------
+params.roll_rate_kp = 0.08;
+params.roll_rate_ki = 0.01;
+params.roll_rate_kd = 0.005;
+
+params.pitch_rate_kp = 0.08;
+params.pitch_rate_ki = 0.01;
+params.pitch_rate_kd = 0.005;
+
+params.yaw_rate_kp = 0.13;
+params.yaw_rate_ki = 0.01;
+params.yaw_rate_kd = 0.005;
 
 end

@@ -112,31 +112,7 @@ ATT_des = [phi_des; theta_des; psi_des]; % [3 * 1]
 
 
 
-
-%% 满油平飞 测试用
-
-% elevon_a = deg2rad(0);
-% elevon_b = deg2rad(0);
-% 
-% command.throttle = [0.2,0.2,0];
-% command.arm = [pi/2,pi/2];
-% command.elevon = [elevon_a, elevon_b];
-
-
-%% 过渡 hovering to cruise 定高加速 测试用 
-% 过渡 transition 成功
-arm_a = pi/6;
-arm_b = arm_a;
-tc = (1/3) / cos(params.arm_c);
-ta = (2 * (params.l1/params.l2) * tc * cos(params.arm_c))/cos(arm_a);
-tb = ta;
-
-command.throttle = [ta,tb,tc];
-command.elevon = [0,0]; 
-command.arm = [arm_a,arm_b];
-
-
-%% 旋翼悬停 测试用 参考Media--TTR_arm_a 
+%% 旋翼悬停 测试用 参考Media--TTR_arm_a  --- mode 1 hovering
 % 悬停 hovering 成功
 % 偏航plan A
 
@@ -150,6 +126,43 @@ command.arm = [arm_a,arm_b];
 % command.elevon = [0,0]; 
 % command.arm = [arm_a,arm_b];
 
-% =================== Your code ends here ===================
+
+%% 满油平飞 测试用                       ---  mode 2 cruise
+
+% elevon_a = deg2rad(0);
+% elevon_b = deg2rad(0);
+% 
+% command.throttle = [0.2,0.2,0];
+% command.arm = [pi/2,pi/2];
+% command.elevon = [elevon_a, elevon_b];
+
+%% 过渡 hovering to cruise 定高加速 测试用 --- mode 3 hov2cru (transision)
+% 过渡 transition 成功
+arm_a = pi/8;
+arm_b = arm_a;
+damp = 0.00;
+tc = (1/3-damp * t) / cos(params.arm_c);
+ta = (2 * (params.l1/params.l2) * tc * cos(params.arm_c))/cos(arm_a);
+tb = ta;
+
+command.throttle = [ta,tb,tc];
+command.elevon = [0,0]; 
+command.arm = [arm_a,arm_b];
+
+
+
+%% 过渡 cruise to hovering 定高加速 测试用 --- mode 4 cru2hov (transision)
+
+% arm_a = pi/6;
+% arm_b = arm_a;
+% tc = (1/3) / cos(params.arm_c);
+% ta = (2 * (params.l1/params.l2) * tc * cos(params.arm_c))/cos(arm_a);
+% tb = ta;
+% 
+% command.throttle = [ta,tb,tc];
+% command.elevon = [0,0]; 
+% command.arm = [arm_a,arm_b];
+
+
 
 end

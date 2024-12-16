@@ -44,6 +44,8 @@ trajhandle = @traj_line; % 可以运行的轨迹，与时间设定形式有关�
 % controlhandle = @controller_adrc;
 % controlhandle = @controller_pid_NL; % 可用
 % controlhandle = @controller_pid;
+
+
 controlhandle = @controller_pid_ttr_test;
 
 % Run simulation with given trajectory generator and controller

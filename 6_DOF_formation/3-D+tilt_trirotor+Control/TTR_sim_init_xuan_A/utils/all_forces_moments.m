@@ -16,6 +16,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % todo --- 偏航控制讨论--now 采用尾部电机自平衡 向y轴右偏 arm_c  rad，
     % 忽略所有电机倾转反扭的其他轴映射，比如尾部的俯仰投射，头部的滚转投射
     % 这里的y轴正向为左 todo 调整为 右
+    % 机体坐标系
 
     % 命令分配 actutor struct
 
@@ -142,7 +143,7 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     % Compute longitudinal forces in body frame
     fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 前右上 正向
-    fz = F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z;
+    fz =  F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z;
 
     % Compute lateral forces in body frame
     % fy = F_Y + thrust_prop_c_y; % 不忽略尾部电机倾转力的映射
@@ -164,9 +165,9 @@ function [force, moment] = all_forces_moments(state, command, params)
     % My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_y * MAV.l2 - torque_prop_c_y; % 俯仰 不忽略c反扭倾转映射
 
     %% 测试隔离用
-    Aero_Mx = 0;
-    Aero_My = 0;
-    Aero_Mz = 0;
+    % Aero_Mx = 0;
+    % Aero_My = 0;
+    % Aero_Mz = 0;
 
     Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z); % 滚转 忽略反扭倾转映射
     My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射

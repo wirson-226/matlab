@@ -35,7 +35,7 @@ ylabel('Y');
 zlabel('Z');
 title('Airplane flight');
 view(3);  % 3D视图
-xlim([-10 10]); ylim([-10 10]); zlim([-10 10]); % 设置坐标轴范围
+xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
 set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
 
 
@@ -128,17 +128,20 @@ for iter = 1:max_iter
         desired_state = trajhandle(tsave(i), current_all_state);
         
         % 控制器解算 执行器输入
-        [~, ~, desired_attitude,command] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
+        [~, ~, des_from_ctrl,command] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
         
         % 执行器输入记录
         des_tilt4_save(i, :) = command.arm;          % 倾转 arm_a,b
         des_throttle4_save(i, :) = command.throttle; % 油门 throttle_a,b,c
         des_elevon4_save(i, :) = command.elevon;     % 舵面 elevon_a,b
 
-        % 状态记录
-        att_des_save(i, :) = desired_attitude';
+        % 状态记录 --- todo 合并保存des_from_ctrl_save  --- 300 * 12
+        % velocity_des_save(i, :) = des_from_ctrl.vel';
+        % a_des_save(i, :) = des_from_ctrl.vel';
+        % att_des_save(i, :) = des_from_ctrl.att';
+        % omega_des_save(i, :) = des_from_ctrl.vel';
         position_des_save(i, :) = desired_state.pos';
-        velocity_des_save(i, :) = desired_state.vel';
+        des_from_ctrl_save(i, :) = des_from_ctrl; % vel-att-omege-M 加速度与姿态是一层，解算出来的
         desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
 
         % % aircraft plot test
