@@ -1,6 +1,6 @@
-function [des_from_ctrl,command] = att_controller_test(t, state, des_state, params)
+function [des_from_ctrl,command] = copter_controller_test(t, state, des_state, params)
 %   CONTROLLER  Controller for the quadrotor
-%
+%   
 %   state: The current state of the robot with the following fields:
 %   state.pos = [x; y; z], state.vel = [x_dot; y_dot; z_dot],
 %   state.rot = [phi; theta; psi], state.omega = [p; q; r]
@@ -20,60 +20,9 @@ function [des_from_ctrl,command] = att_controller_test(t, state, des_state, para
 %   Using these current and desired states, you have to compute the desired
 %   controls：des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, phi_cmd, theta_cmd,, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
 
-%% PID 控制器引用
-% 控制器参数
-% kp = 2.0;      % 比例增益
-% ki = 0.5;      % 积分增益
-% kd = 1.0;      % 微分增益
-% Ts = 0.01;     % 采样时间（10ms）
-% sigma = 0.05;  % 微分低通滤波器时间常数
-% limit = 10;    % 控制输出限制
-
-% 创建PID控制器对象
-% pid = PIDControl(kp, ki, kd, Ts, sigma, limit);
-
-% method 1 --- 调用update方法
-% 初始化参数
-% y_ref = 1.0;  % 参考值
-% y = 0.8;      % 测量值
-
-% [u, pid] = pid.update(y_ref, y);
-
-% 输出控制量
-% disp(['控制输出: ', num2str(u)]);
-
-
-% method 2 --- 调用updateWithRate方法
-% 初始化参数
-% y_ref = 1.0;  % 参考值
-% y = 0.8;      % 测量值
-% ydot = -0.1;  % 输出变化率
-
-% [u, pid] = pid.updateWithRate(y_ref, y, ydot);
-% 
-% % 输出控制量
-% disp(['控制输出 (带速率): ', num2str(u)]);
-
-
-
-% 重置控制器状态
-% [~, pid] = pid.update(y_ref, y, true);
-
-% 控制输出超出限制 [-limit, limit]
-% u = 15;  % 假设u过大
-% u_sat = pid.saturate(u);
-
-% disp(['饱和输出: ', num2str(u_sat)]);
-
-
-%% 关键注意事项
-% 低通滤波器：sigma 影响微分项的平滑效果，需要根据实际情况调整。
-% 采样时间 Ts：应与实际系统的采样周期匹配。
-% 反饱和积分项：控制器实现了抗积分饱和，避免积分项过度累积。
-
 
 %% Application
-params = sys_params();
+% params = sys_params();
 controller = AircraftControl(params);
 % u_vx = controller.vx_from_pn.update(y_ref, y, reset_flag);
 
@@ -90,10 +39,10 @@ vs_cmd = controller.vs_from_ps.update(des_state.pos(3), state.pos(3)); % s sky �
 % vel_err_n = vn_cmd - state.vel(1);
 % vel_err_e = ve_cmd - state.vel(2);
 % vel_err_s = vs_cmd - state.vel(3);
-acc_des = [0,0,0]; %  n e d
-acc_des(1) = controller.acc_x_from_vx.update(vn_cmd - state.vel(1));
-acc_des(2) = controller.acc_y_from_vy.update(ve_cmd - state.vel(2));
-acc_des(3) = controller.acc_z_from_vs.update(vs_cmd - state.vel(3));
+acc_des = [0,0,0]; %  n e s 北东天
+acc_des(1) = controller.acc_n_from_vn.update(vn_cmd, state.vel(1)); 
+acc_des(2) = controller.acc_e_from_ve.update(ve_cmd, state.vel(2));
+acc_des(3) = controller.acc_s_from_vs.update(vs_cmd, state.vel(3));
 
 
 
@@ -114,6 +63,7 @@ phi_cmd = wrap(phi_cmd, limit=pi/ 2);      % 滚转角，[-pi/2., pi/2.]
 phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
 theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
 
+
 % Compute desired force 
 thrust_n_cmd = params.mass * acc_des(1);
 thrust_e_cmd = params.mass * acc_des(2);
@@ -123,26 +73,24 @@ bRw = RPYToRot(state.rot);
 force_cmd_body = bRw * [thrust_n_cmd; thrust_e_cmd; thrust_s_cmd]; % world to body nes --- xyz
 
 
-
-
 %% attitude control -- p_cmd, q_cmd, r_cmd from accitudes error using PIDControl(class) 机体坐标系下
-phi_err = phi_cmd - state.rot(1); % roll
-theta_err = theta_cmd - state.rot(2); % pitch
-psi_err = psi_cmd - state.rot(3); % yaw
+% phi_err = phi_cmd - state.rot(1); % roll
+% theta_err = theta_cmd - state.rot(2); % pitch
+% psi_err = psi_cmd - state.rot(3); % yaw
 
-p_cmd = PIDControl();
-q_cmd = PIDControl();
-r_cmd = PIDControl();
+p_cmd = controller.roll_rate_from_roll.update(phi_cmd, state.rot(1));
+q_cmd = controller.pitch_rate_from_pitch.update(theta_cmd, state.rot(2));
+r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
 
 %% omega control-- xyz 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
-p_err = p_cmd - state.omega(1); % roll_rate
-q_err = q_cmd - state.omega(2); % pitch_rate
-r_err = r_cmd - state.omega(3); % yaw_rate
-Mx_cmd = PIDControl(); %  with p_err
-My_cmd = PIDControl(); %  with q_err
-Mz_cmd = PIDControl(); %  with r_err
+% p_err = p_cmd - state.omega(1); % roll_rate
+% q_err = q_cmd - state.omega(2); % pitch_rate
+% r_err = r_cmd - state.omega(3); % yaw_rate
+Mx_cmd = controller.Mx_from_roll_rate.update(p_cmd, state.omega(1)); %  with p_err
+My_cmd = controller.My_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err
+Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %  with r_err
 
-moment_cmd_body = [Mx_cmd; Mx_cmd; Mx_cmd];
+moment_cmd_body = [Mx_cmd; My_cmd; Mz_cmd];
 
 %% 期望状态输出 1 * 12 --- vel-att-omege-M
 des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, phi_cmd, theta_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
@@ -157,11 +105,36 @@ command = actuator_assignment(force_cmd_body, moment_cmd_body, state, params);
 % command.arm = [arm_a,arm_b];
 
 
+u_r = state.vel(1) - params.w_ns;
+v_r = state.vel(2) - params.w_es;
+w_r = state.vel(3) - params.w_ds;
 
 
+%% mode 2 cruise 固定翼模式
 
+% Compute airspeed (magnitude of velocity)
+Va = sqrt(u_r^2 + v_r^2 + w_r^2);
 
-
-
+    while des_state.mode == 2
+        throttle = controller.throttle_from_airspeed.update(des_state.Va, Va);
+        ta = throttle/2;
+        tb = ta;
+        tc = 0;
+        yaw_cmd = atan2(des_state.pos(2) - state.pos(2), des_state.pos(1) - state.pos(1)); % 期望偏航角
+        pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));
+        roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3));
+        elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2));
+        aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1));
+        elevon_r = elevator_cmd + aileron_cmd;
+        elevon_l = elevator_cmd - aileron_cmd;
+        arm_a = 0;
+        arm_b = 0;
+    
+        %% 测试用
+        command.throttle = [ta,tb,tc];
+        command.elevon = [elevon_r,elevon_l]; 
+        command.arm = [arm_a,arm_b];
+    end
+    
 
 end

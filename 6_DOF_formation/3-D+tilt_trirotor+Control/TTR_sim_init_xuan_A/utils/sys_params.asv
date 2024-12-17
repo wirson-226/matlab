@@ -395,7 +395,7 @@ print('altitude_kp = ',params.altitude_kp,'  altitude_ki = ',params.altitude_ki)
 params.airspeed_throttle_kp = 0.75;
 params.airspeed_throttle_ki = 0.35;
 params.airspeed_throttle_kd = 0.0;
-print('airspeed_kp = ', params.airspeed_throttle_kp,'   airspeed_ki = ',params.airspeed_throttle_ki);
+print('airspeed_kp = ', airspeed_throttle_kp,'   airspeed_ki = ',airspeed_throttle_ki);
 
 
 

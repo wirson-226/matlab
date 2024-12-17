@@ -9,6 +9,11 @@
 % 算出来：旋翼--acc_des = kp*e_pos..., att_des = asin(acc_des(1)/g) etc; 
 % 其中需要区分耦合与耦合，一对一还是多对一，分方向分平面分轴讨论然后 其他定零求解，因为不定零也是个des_from_control 的已知值流程相同
 % 比如拿到所有的控制xy位置得到的期望姿态再次pid控制得到的期望力矩，结合控制期望z高度得到的力，解算出四个电机的油门推力
+
+
+%% 参考轨迹需要 旋翼下 pos， yaw----  固定翼下 des_state 需要添加 des_state.mode， 添加des_state.Va 
+
+
 close all;
 
 clear;

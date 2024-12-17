@@ -4,9 +4,11 @@ params = sys_params();
 
 % Example inputs
 % state = [0, 0, -20, params.V_min, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
-state = [0, 0, -20, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
-% elevon_a = deg2rad(10);
-% elevon_b = deg2rad(10);
+state = [0, 0, -20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
+% elevon_a = deg2rad(params.elevon_min);
+% elevon_b = deg2rad(params.elevon_max);
+elevon_a = deg2rad(0);
+elevon_b = deg2rad(0);
 
 %% 满油平飞 测试用
 % command.throttle = [1,1,0];
@@ -39,12 +41,13 @@ tb = ta;
 % tb = ta;
 
 command.throttle = [ta,tb,tc];
-command.elevon = [0,0]; 
+command.elevon = [elevon_a,elevon_b]; 
 command.arm = [arm_a,arm_b];
 
 
 
 %% Call the function to calculate aerodynamic forces and moments
+% Mz_aero max     0.0116; My_aero max    0.4455  min 0.0003;Mx_aero  max   0.0007
 [force, moment] = all_forces_moments(state, command, params);
 
 
