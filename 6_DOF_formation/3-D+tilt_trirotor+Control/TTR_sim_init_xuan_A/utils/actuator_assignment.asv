@@ -117,19 +117,28 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     % Aero_Mz = 0;
 
     % Compute longitudinal forces in body frame
-    fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 前右上 正向
-    fz =  F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z;
+    fx_aero = -F_lift * sin(alpha) - F_drag * cos(alpha) ; % 前右上 正向
+    fz_aero =  F_lift * cos(alpha) + F_drag * sin(alpha) ;
+    % fy_aero = F_Y;
+    fy_aero = 0; % 忽略侧滑角
 
 
+    %% 合并 空气动力学项 aero
+    fz = fz - fz_aero;
+    fx = fx - fx_aero;
+    fy = fx - fy_aero;
+    Mx = Mx - Aero_Mx;
+    My = My - Aero_My;
+    Mz = Mz - Aero_Mz;
 
     %% 计算电机的推力（假设推力沿着 Z 轴）
 
     % thrust_c_z = fz/3; % 假设悬停
-    thrust_c_z = (fz-(My/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (My + tcz*l2)/l1 ---- 3tcz + My/l1 = Fz;
+    thrust_c_z = (fz - (My/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (My + tcz*l2)/l1 ---- 3tcz + My/l1 = Fz;
     thrust_b_z = (My + params.l2 * thrust_c_z)/(2*params.l1) + Mx/(2 * params.l3);
     thrust_a_z = (My + params.l2 * thrust_c_z)/(2*params.l1) - Mx/(2 * params.l3);
-    thrust_a_x = fx + Mz/(params.k_f + params.l3);
-    thrust_b_x = fx - Mz/(params.k_f + params.l3);
+    thrust_a_x = fx + fx_aero + Mz/(params.k_f + params.l3);
+    thrust_b_x = fx - fx_aero - Mz/(params.k_f + params.l3);
 
     % 计算总推力
     thrust_a_total = sqrt(thrust_a_x^2 + thrust_a_z^2);  % 电机 A 的总推力
@@ -145,7 +154,7 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     % 将推力转换为油门输入
     throttle_a = thrust_to_throttle(thrust_a_total, params);  % 电机 A 的油门
     throttle_b = thrust_to_throttle(thrust_b_total, params);  % 电机 B 的油门
-    throttle_c = thrust_to_throttle(thrust_c_total , params);  % 尾电机的油门
+    throttle_c = thrust_to_throttle(thrust_c_total, params);  % 尾电机的油门
     
 
     % % 副翼和升降舵的偏转角（这里假设对称，不考虑额外的滚转控制）

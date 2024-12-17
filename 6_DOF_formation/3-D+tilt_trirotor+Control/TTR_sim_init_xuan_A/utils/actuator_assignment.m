@@ -124,9 +124,9 @@ function [actuator] = actuator_assignment(force, moment, state, params)
 
 
     %% 合并 空气动力学项 aero
-    fz = fz - fz_aero;
     fx = fx - fx_aero;
-    fy = fx - fy_aero;
+    fy = fy - fy_aero;
+    fz = fz - fz_aero;
     Mx = Mx - Aero_Mx;
     My = My - Aero_My;
     Mz = Mz - Aero_Mz;
@@ -137,8 +137,16 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     thrust_c_z = (fz - (My/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (My + tcz*l2)/l1 ---- 3tcz + My/l1 = Fz;
     thrust_b_z = (My + params.l2 * thrust_c_z)/(2*params.l1) + Mx/(2 * params.l3);
     thrust_a_z = (My + params.l2 * thrust_c_z)/(2*params.l1) - Mx/(2 * params.l3);
-    thrust_a_x = fx - fx_aero + Mz/(params.k_f + params.l3);
-    thrust_b_x = fx - fx_aero - Mz/(params.k_f + params.l3);
+    thrust_a_x = fx + Mz/(params.k_f + params.l3);
+    thrust_b_x = fx - Mz/(params.k_f + params.l3);
+
+
+
+    disp('fx:');
+    disp(fx);
+
+    disp('thrust_a_x:');
+    disp(thrust_a_x);
 
     % 计算总推力
     thrust_a_total = sqrt(thrust_a_x^2 + thrust_a_z^2);  % 电机 A 的总推力
