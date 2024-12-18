@@ -21,12 +21,12 @@ function[sdot] = vtolEOM(t, s, controlhandle, trajhandle, params)
 current_state = stateToQd(s);
 
 % Get desired_state
-desired_state = trajhandle(t, current_state);
+desired_state = trajhandle(t, current_state); % stuct 结构
 
 % get control outputs
 [~,command] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
 %   而后 利用 all_foreces_moments得到FM
-[force, moment] = all_forces_moments(s, command, params);
+[force, moment] = all_forces_moments(s, command, params); % s 行向量结构
 
 
 %% 测试用

@@ -32,7 +32,13 @@ addpath('test_airplane');
 % trajhandle = @traj_circle; 
 % trajhandle = @traj_dubin; % 分析不同，设定单机轨迹，并拓展多机编队；
 % trajhandle = @traj_helix_adjust; % 还需调整
-trajhandle = @traj_helix_ttr;
+% trajhandle = @traj_helix_ttr;
+% trajhandle = @traj_4point_cruise;
+trajhandle = @traj_4point_step;
+
+
+
+
 
 %% Trajectory generation with waypoints
 %% You need to implement this
@@ -50,7 +56,9 @@ trajhandle = @traj_helix_ttr;
 % controlhandle = @controller_pid_NL; % 可用
 % controlhandle = @controller_pid;
 % controlhandle = @controller_pid_ttr_test;
-controlhandle = @copter_controller_test;
+% controlhandle = @copter_controller_test;
+controlhandle = @att_controller;
+% controlhandle = @cruise_controller;
 
 
 

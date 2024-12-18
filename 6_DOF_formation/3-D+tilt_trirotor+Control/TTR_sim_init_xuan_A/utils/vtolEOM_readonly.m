@@ -60,7 +60,7 @@ wRb = bRw';
 
 % Acceleration world nes
 %动力学解算过程
-accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % 前右上
+accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % nes
 % accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
 
 % Angular velocity body xyz

@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 3;
+max_time = 6;
 
 % parameters for simulation
 params = sys_params;
@@ -35,7 +35,8 @@ ylabel('Y');
 zlabel('Z');
 title('Airplane flight');
 view(3);  % 3D视图
-xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
+% xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
+xlim([-10 10]); ylim([-10 10]); zlim([-3 3]); % 设置坐标轴范围
 set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
 
 
@@ -67,9 +68,14 @@ tilt_angle = [0,0]; % degrees
 
 % 状态记录 for plot
 attitudetraj = zeros(max_iter*nstep, 3); % To record attitude (phi, theta, psi)
-attitude_des_traj = zeros(max_iter*nstep, 3);
+omegatraj = zeros(max_iter*nstep, 3); % real state omega
+
 position_des_traj = zeros(max_iter*nstep, 3);
 velocity_des_traj = zeros(max_iter*nstep,3);
+attitude_des_traj = zeros(max_iter*nstep, 3);
+omega_des_traj = zeros(max_iter*nstep,3);
+M_des_traj = zeros(max_iter*nstep,3);
+
 
 % 执行器记录 for plot
 tilt_des_traj = zeros(max_iter*nstep, 2);
@@ -105,6 +111,7 @@ for iter = 1:max_iter
     % Current attitude  
     % 关键处，保证与时间步长迭代的一致性，同时数组规格统一
     att_current_save = zeros(length(tsave), 3);
+    omega_current_save = zeros(length(tsave), 3);
     att_des_save = zeros(length(tsave), 3);
     position_des_save = zeros(length(tsave), 3);
     velocity_des_save = zeros(length(tsave), 3);
@@ -122,6 +129,7 @@ for iter = 1:max_iter
         % Current attitude
         current_all_state = stateToQd(xsave(i, :));
         att_current_save(i, :) = current_all_state.rot'; % qd.rot = [phi; theta; yaw]; current [3 * 1]' = [1 * 3]
+        omega_current_save(i, :) = current_all_state.omega;
         
         % Desired attitude
         % tsave(i) 跟进时间步长迭代
@@ -170,7 +178,7 @@ for iter = 1:max_iter
     rot_4_plot = QuatToRot(x(7:10));
     [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
     att_4_plot = [phi,theta,psi];
-    planeplot_ttr_test(pos_4_plot,att_4_plot,rad2deg(tilt_angle));
+    planeplot_ttr_test(pos_4_plot,att_4_plot,command.arm);
   
 
     % Plot trajectories (actual and desired)
@@ -191,9 +199,15 @@ for iter = 1:max_iter
 
     % Save traj
     position_des_traj((iter-1)*nstep+1:iter*nstep, :) = position_des_save(1:end-1, :); % desired pos
-    velocity_des_traj((iter-1)*nstep+1:iter*nstep, :) = velocity_des_save(1:end-1, :); % desired pos
-    attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = att_des_save(1:end-1, :); % desired att
+    velocity_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_from_ctrl_save(1:end-1, 1:3); % desired vel
+    attitude_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_from_ctrl_save(1:end-1, 4:6); % desired att
+    omega_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_from_ctrl_save(1:end-1, 7:9); % desired att
+    M_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_from_ctrl_save(1:end-1, 10:12); % desired att
+
     attitudetraj((iter-1)*nstep+1:iter*nstep, :) = att_current_save(1:end-1,:); % real state att
+    omegatraj((iter-1)*nstep+1:iter*nstep, :) = omega_current_save(1:end-1,:); % real state att
+
+
 
     tilt_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_tilt4_save(1:end-1, :); % desired tilt save with iter
     throttle_des_traj((iter-1)*nstep+1:iter*nstep, :) = des_throttle4_save(1:end-1, :); % desired tilt save with iter
@@ -227,9 +241,14 @@ end
 xtraj = xtraj(1:iter*nstep,:);  % Position and other state variables
 ttraj = ttraj(1:iter*nstep);
 attitudetraj = attitudetraj(1:iter*nstep, :); % Truncate attitude trajectory
+omegatraj = omegatraj(1:iter*nstep, :); % Truncate omega trajectory
+
+
 attitude_des_traj = attitude_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
+omega_des_traj = omega_des_traj(1:iter*nstep, :); % Truncate desired attitude trajectory
 position_des_traj = position_des_traj(1:iter*nstep, :); 
 velocity_des_traj = velocity_des_traj(1:iter*nstep, :);
+M_des_traj = M_des_traj(1:iter*nstep, :);
 
 % for actuator
 tilt_des_traj = tilt_des_traj(1:iter*nstep, :);
@@ -328,9 +347,67 @@ legend('Actual Yaw', 'Desired Yaw');
 grid on;
 
 
+%% Plot omega
+h_omega = figure('Name', 'Omega');
+subplot(3,1,1);
+plot(ttraj, rad2deg(omegatraj(:,1)), 'b', 'LineWidth', 1.5);
+hold on;
+plot(ttraj, rad2deg(omega_des_traj(:,1)), 'r--', 'LineWidth', 1.5);
+xlabel('Time [s]');
+ylabel('p [deg/s]');
+legend('Actual p', 'Desired p');
+title('p');
+grid on;
+
+subplot(3,1,2);
+plot(ttraj, rad2deg(omegatraj(:,2)), 'b', 'LineWidth', 1.5);
+hold on;
+plot(ttraj, rad2deg(omega_des_traj(:,2)), 'r--', 'LineWidth', 1.5);
+xlabel('Time [s]');
+ylabel('q [deg/s]');
+legend('Actual q', 'Desired q');
+grid on;
+
+subplot(3,1,3);
+plot(ttraj, rad2deg(omegatraj(:,3)), 'b', 'LineWidth', 1.5);
+hold on;
+plot(ttraj, rad2deg(omega_des_traj(:,3)), 'r--', 'LineWidth', 1.5);
+xlabel('Time [s]');
+ylabel('r [deg/s]');
+legend('Actual r', 'Desired r');
+grid on;
+
+%% Plot moment
+h_omega = figure('Name', 'moment');
+subplot(3,1,1);
+plot(ttraj, M_des_traj(:,1), 'b', 'LineWidth', 1.5);
+xlabel('Time [s]');
+ylabel('Mx N*m');
+legend('Des M_x');
+title('Moments');
+grid on;
+
+subplot(3,1,2);
+plot(ttraj, M_des_traj(:,2), 'b', 'LineWidth', 1.5);
+xlabel('Time [s]');
+ylabel('Mx N*m');
+legend('Des M_y');
+title('Moments');
+grid on;
+
+subplot(3,1,3);
+plot(ttraj, M_des_traj(:,3), 'b', 'LineWidth', 1.5);
+xlabel('Time [s]');
+ylabel('Mx N*m');
+legend('Des M_z');
+title('Moments');
+grid on;
+
+
+
 %% Plot 7 input -- thrust abc + tilt ab + elevon ab
 % now 7--arm ab ,throttle abc, elevon ab
-h_actutor = figure('Name', 'Actuator');
+h_actuator = figure('Name', 'Actuator');
 subplot(3,1,1);
 plot(ttraj, rad2deg(tilt_des_traj(:,1)), 'b', 'LineWidth', 1.5); % arm a, right
 hold on;

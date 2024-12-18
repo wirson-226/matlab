@@ -236,76 +236,79 @@ params.Ts = 0.01;     % 采样时间（10ms）
 params.sigma = 0.05;  % 微分低通滤波器时间常数
 
 % % ----------position loop-------------
-params.pn_kp = 0.5;
-params.pn_ki = 0.00;
-params.pn_kd = 0.001;
+params.pn_kp = 0.1;
+params.pn_ki = 0.0;
+params.pn_kd = 0.2;
 params.vx_sat_limit = 10;  % m/s
 
-params.pe_kp = 0.5;
-params.pe_ki = 0.00;
-params.pe_kd = 0.001;
+params.pe_kp = 0.1;
+params.pe_ki = 0.0;
+params.pe_kd = 0.2;
 params.vy_sat_limit = 10;  % m/s
 
-params.pd_kp = 2.5;
+params.pd_kp = 0.4;
 params.pd_ki = 0.00;
-params.pd_kd = 0.00;
+params.pd_kd = 0.2;
 params.vz_sat_limit = 10;  % m/s
 
 % % ---------- velocity loop -------------
 % % the outputs are phi_desired and theta_desired
-params.vh_kp = 2.4  ;% horizontal
+params.vh_kp = 0.3  ;% horizontal
 params.vh_ki = 0.5;
 params.vh_kd = 0.1;
 
 params.vx_kp = params.vh_kp;
 params.vx_ki = params.vh_ki;
 params.vx_kd = params.vh_kd;
-params.acc_x_sat_limit = 2.0 * params.gravity;
+params.acc_x_sat_limit = 0.2 * params.gravity;
 
 params.vy_kp = params.vh_kp;
 params.vy_ki = params.vh_ki;
 params.vy_kd = params.vh_kd;
-params.acc_y_sat_limit = 2.0 * params.gravity;
+params.acc_y_sat_limit = 0.2 * params.gravity;
 
 % % the output is collective thrust
-params.vz_kp = 8.0;  % 8.0
-params.vz_ki = 2.0 ; % 2.0
+params.vz_kp = 0.8;  % 8.0
+params.vz_ki = 0.2 ; % 2.0
 params.vz_kd = 0.1;
-params.acc_z_sat_limit = 2.0 * params.gravity;
+params.acc_z_sat_limit = 0.2 * params.gravity;
 
 % % TODO: 加速度的限幅值和角度约束和拉力约束是有对应关系的，这个进行辨识后要算出来。
 
 % % ---------- attitude loop -------------
-params.roll_kp = 8.0;
+params.roll_kp = 0.8;
 params.roll_ki = 0.0;
 params.roll_kd = 0.1;
-params.roll_input_limit = 60. * pi / 180.;  % rad
-params.roll_rate_sat_limit = 60.0 * pi / 180.0 ; % rad/s
+params.roll_input_limit = 30. * pi / 180.;  % rad
+params.roll_rate_sat_limit = 30.0 * pi / 180.0 ; % rad/s
 
-params.pitch_kp = 8.0;
+params.pitch_kp = 0.8;
 params.pitch_ki = 0.0;
 params.pitch_kd = 0.1;
-params.pitch_input_limit = 60. * pi / 180.;  % rad
-params.pitch_rate_sat_limit = 60.0 * pi / 180.0 ; % rad/s
+params.pitch_input_limit = 30. * pi / 180.;  % rad
+params.pitch_rate_sat_limit = 30.0 * pi / 180.0 ; % rad/s
 
-params.yaw_kp = 7.0;
+params.yaw_kp = 0.7;
 params.yaw_ki = 0.0;
 params.yaw_kd = 0.2;
 params.yaw_rate_sat_limit = 90.0 * pi / 180.0;  % rad/s
 
 % % ---------- attitude rate loop -------------
-params.roll_rate_kp = 0.08;
-params.roll_rate_ki = 0.01;
-params.roll_rate_kd = 0.005;
+params.roll_rate_kp = 0.8;
+params.roll_rate_ki = 0.1;
+params.roll_rate_kd = 0.05;
 
-params.pitch_rate_kp = 0.08;
-params.pitch_rate_ki = 0.01;
-params.pitch_rate_kd = 0.005;
+params.pitch_rate_kp = 0.8;
+params.pitch_rate_ki = 0.1;
+params.pitch_rate_kd = 0.05;
 
 params.yaw_rate_kp = 0.13;
-params.yaw_rate_ki = 0.01;
-params.yaw_rate_kd = 0.005;
+params.yaw_rate_ki = 0.1;
+params.yaw_rate_kd = 0.05;
 
+params.Mx_limit = 0.01;
+params.My_limit = 0.01;
+params.Mz_limit = 0.01;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path planner Parameters
@@ -345,8 +348,8 @@ params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
 % zeta_roll = 1.1; %old (003) 1.15  /1.4(004)
 % params.roll_kp = wn_roll^2 / TF.a_phi2;
 % params.roll_kd = (2.0 * zeta_roll * wn_roll - TF.a_phi1) / TF.a_phi2;
-params.roll_kp = 0.035;
-params.roll_kd = 0.0012;
+params.roll_cruise_kp = 0.035;
+params.roll_cruise_kd = 0.0012;
 % print('roll_kp = ',params.roll_kp,'  roll_kd = ',params.roll_kd);
 
 % ----------course loop-------------
@@ -367,8 +370,8 @@ params.yaw_damper_kr = 0.5; % (old) 0.5
 % zeta_pitch = 1.25;  % old 0.707/0.95(003) /1.25(004)
 % params.pitch_kp = (wn_pitch ^ 2 - TF.a_theta2) / TF.a_theta3;
 % params.pitch_kd = (2.0 * zeta_pitch * wn_pitch - TF.a_theta1) / TF.a_theta3;
-params.pitch_kp = -500.0;
-params.pitch_kd = -25.0;
+params.pitch_cruise_kp = -500.0;
+params.pitch_cruise_kd = -25.0;
 % params.K_theta_DC = pitch_kp * TF.a_theta3 / (TF.a_theta2 + pitch_kp * TF.a_theta3);
 % print('pitch_kp = ',params.pitch_kp,'   pitch_kd = ', params.pitch_kd);
 

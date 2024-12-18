@@ -54,13 +54,13 @@ classdef AircraftControl
             obj.yaw_rate_from_yaw = PIDControl(params.yaw_kp, params.yaw_ki, params.yaw_kd, params.Ts, params.sigma, params.yaw_rate_sat_limit);
             
             % Initialize PID controllers for angular rate to moment loops
-            obj.Mx_from_roll_rate = PIDControl(params.roll_rate_kp, params.roll_rate_ki, params.roll_rate_kd, params.Ts, params.sigma, 0);
-            obj.My_from_pitch_rate = PIDControl(params.pitch_rate_kp, params.pitch_rate_ki, params.pitch_rate_kd, params.Ts, params.sigma, 0);
-            obj.Mz_from_yaw_rate = PIDControl(params.yaw_rate_kp, params.yaw_rate_ki, params.yaw_rate_kd, params.Ts, params.sigma, 0);
+            obj.Mx_from_roll_rate = PIDControl(params.roll_rate_kp, params.roll_rate_ki, params.roll_rate_kd, params.Ts, params.sigma, params.Mx_limit);
+            obj.My_from_pitch_rate = PIDControl(params.pitch_rate_kp, params.pitch_rate_ki, params.pitch_rate_kd, params.Ts, params.sigma, params.My_limit);
+            obj.Mz_from_yaw_rate = PIDControl(params.yaw_rate_kp, params.yaw_rate_ki, params.yaw_rate_kd, params.Ts, params.sigma, params.Mz_limit);
             
             % Initialize PD controllers for roll and pitch with rate
-            obj.aileron_from_roll = PDControlWithRate(params.roll_kp, params.roll_kd, params.phi_max);
-            obj.elevator_from_pitch = PDControlWithRate(params.pitch_kp, params.pitch_kd, params.theta_max);
+            obj.aileron_from_roll = PDControlWithRate(params.roll_cruise_kp, params.roll_cruise_kd, params.phi_max);
+            obj.elevator_from_pitch = PDControlWithRate(params.pitch_cruise_kp, params.pitch_cruise_kd, params.theta_max);
             
             % Initialize PI controllers for course and altitude
             obj.roll_from_course = PIControl(params.course_kp, params.course_ki, params.Ts, params.course_max);

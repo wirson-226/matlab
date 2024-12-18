@@ -38,7 +38,8 @@ function [force, moment] = all_forces_moments(state, command, params)
     r = state(13);
 
     % Compute airspeed (magnitude of velocity)
-    Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+    % Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+    Va = 0; % 忽略空气动力学
     
     % Compute angle of attack (alpha) and sideslip angle (beta)
     if Va == 0
