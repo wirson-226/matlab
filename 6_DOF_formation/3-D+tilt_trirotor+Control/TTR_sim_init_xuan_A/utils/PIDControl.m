@@ -31,17 +31,18 @@ classdef PIDControl
         end
         
         % Update function for PID control
-        function [u_sat, obj] = update(obj, y_ref, y, reset_flag)
-            if nargin < 3
-                reset_flag = false;
-            end
-            
-            if reset_flag
-                % Reset the internal states
-                obj.integrator = 0;
-                obj.error_delay_1 = 0;
-                obj.error_dot_delay_1 = 0;
-            end
+        % function u_sat = update(obj, y_ref, y, reset_flag)
+        function u_sat = update(obj, y_ref, y)
+            % if nargin < 3
+            %     reset_flag = false;
+            % end
+            % 
+            % if reset_flag == 1
+            %     % Reset the internal states
+            %     obj.integrator = 0;
+            %     obj.error_delay_1 = 0;
+            %     obj.error_dot_delay_1 = 0;
+            % end
             
             % Compute error
             error = y_ref - y;
@@ -69,16 +70,17 @@ classdef PIDControl
         end
         
         % Update function with rate of change of output (for rate-based control)
-        function [u_sat, obj] = updateWithRate(obj, y_ref, y, ydot, reset_flag)
-            if nargin < 4
-                reset_flag = false;
-            end
-            
-            if reset_flag
-                % Reset the internal states
-                obj.integrator = 0;
-                obj.error_delay_1 = 0;
-            end
+        % function [u_sat, obj] = updateWithRate(obj, y_ref, y, ydot, reset_flag)
+        function u_sat = updateWithRate(obj, y_ref, y, ydot)
+            % if nargin < 4
+            %     reset_flag = false;
+            % end
+            % 
+            % if reset_flag==1
+            %     % Reset the internal states
+            %     obj.integrator = 0;
+            %     obj.error_delay_1 = 0;
+            % end
             
             % Compute error
             error = y_ref - y;

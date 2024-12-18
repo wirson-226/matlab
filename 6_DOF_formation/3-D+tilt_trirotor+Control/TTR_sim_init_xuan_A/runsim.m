@@ -11,7 +11,7 @@
 % 比如拿到所有的控制xy位置得到的期望姿态再次pid控制得到的期望力矩，结合控制期望z高度得到的力，解算出四个电机的油门推力
 
 
-%% 参考轨迹需要 旋翼下 pos， yaw----  固定翼下 des_state 需要添加 des_state.mode， 添加des_state.Va 
+%% 参考轨迹需要 旋翼下 pos， yaw----  固定翼下 es_state 需要添加 des_state.mode， 添加des_state.Va 
 
 
 close all;
@@ -27,12 +27,12 @@ addpath('test_airplane');
 
 %% pre-calculated trajectories
 
-trajhandle = @traj_line; % 可以运行的轨迹，与时间设定形式有关，配合simulation_3D ----- [F, M, att_des_save_A] = controlhandle(0, current_state_A, desired_state_A, params);  % s: [13 * 1]; 
+% trajhandle = @traj_line; % 可以运行的轨迹，与时间设定形式有关，配合simulation_3D ----- [F, M, att_des_save_A] = controlhandle(0, current_state_A, desired_state_A, params);  % s: [13 * 1]; 
 % trajhandle = @traj_helix;
 % trajhandle = @traj_circle; 
 % trajhandle = @traj_dubin; % 分析不同，设定单机轨迹，并拓展多机编队；
 % trajhandle = @traj_helix_adjust; % 还需调整
-% trajhandle = @traj_helix_ttr;
+trajhandle = @traj_helix_ttr;
 
 %% Trajectory generation with waypoints
 %% You need to implement this
@@ -49,9 +49,10 @@ trajhandle = @traj_line; % 可以运行的轨迹，与时间设定形式有关�
 % controlhandle = @controller_adrc;
 % controlhandle = @controller_pid_NL; % 可用
 % controlhandle = @controller_pid;
+% controlhandle = @controller_pid_ttr_test;
+controlhandle = @copter_controller_test;
 
 
-controlhandle = @controller_pid_ttr_test;
 
 % Run simulation with given trajectory generator and controller
 % state - n x 13, with each row having format [x, y, z, xdot, ydot, zdot, qw, qx, qy, qz, p, q, r]

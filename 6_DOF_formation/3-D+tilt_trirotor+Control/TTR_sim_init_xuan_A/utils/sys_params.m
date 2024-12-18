@@ -180,39 +180,6 @@ params.T_percent_min = 0.0;  % minimum throttle value
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.arm_c = atan2(params.k_f, params.l2);
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Path planner Parameters
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-params.WS_ratio = params.mass/params.S_wing; % 翼载荷
-% Calculate maximum cruise speed
-params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_0)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
-% Calculate minimum cruise speed (V_min)
-params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_0)); % 最小平飞速度和翼载荷有关 L = D
-
-
-
-% dubin path 固定翼杜宾曲线相关限制 最小转弯半径，巡航速度
-% airspeed commanded by planner
-params.Va_planner = 0.5*(params.V_max + params.V_min);
-
-% max possible roll angle
-params.phi_max = deg2rad(45);
-params.phi_min = deg2rad(-45);
-params.theta_max = deg2rad(40);
-params.theta_min = deg2rad(-40);
-params.psi_max = deg2rad(180);
-params.psi_min = deg2rad(-180);
-params.course_max = deg2rad(30);
-
-% minimum turn radius
-params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
-
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ESO Parameters (Extended State Observer)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -341,51 +308,81 @@ params.yaw_rate_kd = 0.005;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Path planner Parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+params.WS_ratio = params.mass/params.S_wing; % 翼载荷
+% Calculate maximum cruise speed
+params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_0)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
+% Calculate minimum cruise speed (V_min)
+params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_0)); % 最小平飞速度和翼载荷有关 L = D
+
+
+
+% dubin path 固定翼杜宾曲线相关限制 最小转弯半径，巡航速度
+% airspeed commanded by planner
+params.Va_planner = 0.5*(params.V_max + params.V_min);
+
+% max possible roll angle
+params.phi_max = deg2rad(45);
+params.phi_min = deg2rad(-45);
+params.theta_max = deg2rad(40);
+params.theta_min = deg2rad(-40);
+params.psi_max = deg2rad(180);
+params.psi_min = deg2rad(-180);
+params.course_max = deg2rad(30);
+
+% minimum turn radius
+params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Control parameters --- mode 2 cruise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 % ----------roll loop-------------
 % get transfer function data for delta_a to phi
-wn_roll = 6.0;  % 7 old (003) 12.0 / 18.0(004)
-zeta_roll = 1.1; %old (003) 1.15  /1.4(004)
-params.roll_kp = wn_roll^2 / TF.a_phi2;
-% roll_kp = 0.035
-params.roll_kd = (2.0 * zeta_roll * wn_roll - TF.a_phi1) / TF.a_phi2;
-% roll_kd = 0.0012
-print('roll_kp = ',params.roll_kp,'  roll_kd = ',params.roll_kd);
+% wn_roll = 6.0;  % 7 old (003) 12.0 / 18.0(004)
+% zeta_roll = 1.1; %old (003) 1.15  /1.4(004)
+% params.roll_kp = wn_roll^2 / TF.a_phi2;
+% params.roll_kd = (2.0 * zeta_roll * wn_roll - TF.a_phi1) / TF.a_phi2;
+params.roll_kp = 0.035;
+params.roll_kd = 0.0012;
+% print('roll_kp = ',params.roll_kp,'  roll_kd = ',params.roll_kd);
 
 % ----------course loop-------------
-wn_course = wn_roll / 20.0;
-zeta_course = 1.0;
-params.course_kp = 2.0 * zeta_course * wn_course * Va0 / gravity;
-params.course_ki = wn_course ^ 2 * Va0 / gravity;
-print('course_kp = ',params.course_kp,'  course_ki = ',params.course_ki);
+% wn_course = wn_roll / 20.0;
+% zeta_course = 1.0;
+% params.course_kp = 2.0 * zeta_course * wn_course * params.Va_planner / params.gravity;
+% params.course_ki = wn_course ^ 2 * params.Va_planner / params.gravity;
+params.course_kp = 0.003;
+params.course_ki = 0.001;
+% print('course_kp = ',params.course_kp,'  course_ki = ',params.course_ki);
 
 % ----------yaw damper-------------
 params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
 params.yaw_damper_kr = 0.5; % (old) 0.5
 
 % ----------pitch loop-------------
-wn_pitch = 26.0;   % old 24.0/30.0(003) /25.0(004)
-zeta_pitch = 1.25;  % old 0.707/0.95(003) /1.25(004)
-params.pitch_kp = (wn_pitch ^ 2 - TF.a_theta2) / TF.a_theta3;
-params.pitch_kd = (2.0 * zeta_pitch * wn_pitch - TF.a_theta1) / TF.a_theta3;
-% pitch_kp = -500.0
-% pitch_kd = -25.0
-params.K_theta_DC = pitch_kp * TF.a_theta3 / (TF.a_theta2 + pitch_kp * TF.a_theta3);
-print('pitch_kp = ',params.pitch_kp,'   pitch_kd = ', params.pitch_kd);
+% wn_pitch = 26.0;   % old 24.0/30.0(003) /25.0(004)
+% zeta_pitch = 1.25;  % old 0.707/0.95(003) /1.25(004)
+% params.pitch_kp = (wn_pitch ^ 2 - TF.a_theta2) / TF.a_theta3;
+% params.pitch_kd = (2.0 * zeta_pitch * wn_pitch - TF.a_theta1) / TF.a_theta3;
+params.pitch_kp = -500.0;
+params.pitch_kd = -25.0;
+% params.K_theta_DC = pitch_kp * TF.a_theta3 / (TF.a_theta2 + pitch_kp * TF.a_theta3);
+% print('pitch_kp = ',params.pitch_kp,'   pitch_kd = ', params.pitch_kd);
 
 
 % ----------altitude loop-------------
-wn_altitude = wn_pitch / 30.0;
-zeta_altitude = 1.31 ; %old 1.31(005)/
-params.altitude_kp = 2.0 * zeta_altitude * wn_altitude / K_theta_DC / Va0;
-params.altitude_ki = wn_altitude ^ 2 / K_theta_DC / Va0;
+% wn_altitude = wn_pitch / 30.0;
+% zeta_altitude = 1.31 ; %old 1.31(005)/
+% params.altitude_kp = 2.0 * zeta_altitude * wn_altitude / K_theta_DC / params.Va0;
+% params.altitude_ki = wn_altitude ^ 2 / K_theta_DC / params.Va_planner;
 params.altitude_zone = 10.0;  % moving saturation limit around current altitude
-params.altitude_kd = 0.0;
-print('altitude_kp = ',params.altitude_kp,'  altitude_ki = ',params.altitude_ki);
+% params.altitude_kd = 0.0;
+params.altitude_kp = 0.0;
+params.altitude_ki = 0.0;
+% print('altitude_kp = ',params.altitude_kp,'  altitude_ki = ',params.altitude_ki);
 
 % ---------airspeed hold using throttle---------------
 % wn_airspeed_throttle = 8.5  % old 3.0/
@@ -395,7 +392,7 @@ print('altitude_kp = ',params.altitude_kp,'  altitude_ki = ',params.altitude_ki)
 params.airspeed_throttle_kp = 0.75;
 params.airspeed_throttle_ki = 0.35;
 params.airspeed_throttle_kd = 0.0;
-print('airspeed_kp = ', params.airspeed_throttle_kp,'   airspeed_ki = ',params.airspeed_throttle_ki);
+% print('airspeed_kp = ', params.airspeed_throttle_kp,'   airspeed_ki = ',params.airspeed_throttle_ki, ' airspeed_kd = ',params.airspeed_throttle_kd);
 
 
 

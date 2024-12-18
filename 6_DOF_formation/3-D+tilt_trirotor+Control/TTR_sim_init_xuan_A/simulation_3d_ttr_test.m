@@ -128,7 +128,7 @@ for iter = 1:max_iter
         desired_state = trajhandle(tsave(i), current_all_state);
         
         % 控制器解算 执行器输入
-        [~, ~, des_from_ctrl,command] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
+        [des_from_ctrl,command] = controlhandle(tsave(i), current_all_state, desired_state, params); % 添加记录便于输出
         
         % 执行器输入记录
         des_tilt4_save(i, :) = command.arm;          % 倾转 arm_a,b

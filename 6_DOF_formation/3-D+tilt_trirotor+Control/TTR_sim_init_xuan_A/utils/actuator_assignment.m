@@ -22,13 +22,13 @@ function [actuator] = actuator_assignment(force, moment, state, params)
 
     %% 计算 aero forces and moments
     % Relative velocity components (ground speed - wind speed)
-    u_r = state(4) - params.w_ns;
-    v_r = state(5) - params.w_es;
-    w_r = state(6) - params.w_ds;
+    u_r = state.vel(1) - params.w_ns;
+    v_r = state.vel(2) - params.w_es;
+    w_r = state.vel(3) - params.w_ds;
 
-    p = state(11);
-    q = state(12);
-    r = state(13);
+    p = state.omega(1);
+    q = state.omega(2);
+    r = state.omega(3);
 
     % Compute airspeed (magnitude of velocity)
     Va = sqrt(u_r^2 + v_r^2 + w_r^2);
