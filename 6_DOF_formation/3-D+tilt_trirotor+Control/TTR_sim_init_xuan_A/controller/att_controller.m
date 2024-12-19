@@ -44,18 +44,20 @@ vs_cmd = controller.vs_from_ps.update(des_state.pos(3), state.pos(3)); % s sky �
 % vel_err_n = vn_cmd - state.vel(1);
 % vel_err_e = ve_cmd - state.vel(2);
 % vel_err_s = vs_cmd - state.vel(3);
-acc_des = [0,0,0]; %  n e s 北东天
-% acc_des(1) = controller.acc_n_from_vn.update(vn_cmd, state.vel(1)); 
-% acc_des(2) = controller.acc_e_from_ve.update(ve_cmd, state.vel(2));
-% acc_des(3) = controller.acc_s_from_vs.update(vs_cmd, state.vel(3));
+% 测试用
+% acc_des = [0,0,0]; %  n e s 北东天
+
+acc_des(1) = controller.acc_n_from_vn.update(vn_cmd, state.vel(1)); 
+acc_des(2) = controller.acc_e_from_ve.update(ve_cmd, state.vel(2));
+acc_des(3) = controller.acc_s_from_vs.update(vs_cmd, state.vel(3));
 
 
 
 
 % 加速度到角度，解算线性简化 悬停平飞假设
 
-% psi_cmd = des_state.yaw;
-psi_cmd = deg2rad(45);
+psi_cmd = des_state.yaw;
+% psi_cmd = deg2rad(45);
 psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
 
 % 第一种解算表达
@@ -82,7 +84,7 @@ thrust_s_cmd = params.mass * (acc_des(3) + params.gravity);
 
 bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
 force_cmd_body = bRw * [thrust_n_cmd; thrust_e_cmd; thrust_s_cmd]; % world to body nes --- xyz 悬停假设
-% force_cmd_body =  [0; 0; force_cmd_body(3)]; % world to body nes --- xyz 悬停假设
+force_cmd_body =  [0; 0; force_cmd_body(3)]; % world to body nes --- xyz 悬停假设
 
 disp('body_forces:');
 disp(['body_forces_x: ', num2str(force_cmd_body(1))]);
@@ -104,12 +106,12 @@ r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
 % q_err = q_cmd - state.omega(2); % pitch_rate
 % r_err = r_cmd - state.omega(3); % yaw_rate
 Mx_cmd = -controller.Mx_from_roll_rate.update(p_cmd, state.omega(1)); %  with p_err 正俯仰产生x负加速度(负反馈)，正滚转产生y正加速度（正反馈），所以加-
-My_cmd = controller.My_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err
-Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %  with r_err
+My_cmd = controller.My_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err  % Compute error  error = y_ref - y;
+Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %  with r_err  正偏航产生正力矩 没有加速度解算，合理
 
-% moment_cmd_body = [Mx_cmd; My_cmd; Mz_cmd];
+moment_cmd_body = [Mx_cmd; My_cmd; Mz_cmd];
 
-moment_cmd_body = [0; 0; 0];  % 得到控制输出但是阻断 为0的是仅显示 不接动力学
+% moment_cmd_body = [0; 0; Mz_cmd];  % 得到控制输出但是阻断 为0的是仅显示 不接动力学
 
 %% 期望状态输出 1 * 12 --- vel-att-omege-M
 des_from_ctrl = [vn_cmd, ve_cmd, vs_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];

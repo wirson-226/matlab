@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 6;
+max_time = 12;
 
 % parameters for simulation
 params = sys_params;
@@ -357,7 +357,7 @@ plot(ttraj, rad2deg(omega_des_traj(:,1)), 'r--', 'LineWidth', 1.5);
 xlabel('Time [s]');
 ylabel('p [deg/s]');
 legend('Actual p', 'Desired p');
-title('p');
+title('Omega');
 grid on;
 
 subplot(3,1,2);
