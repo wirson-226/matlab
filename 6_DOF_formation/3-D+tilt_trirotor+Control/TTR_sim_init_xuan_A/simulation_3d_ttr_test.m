@@ -178,7 +178,8 @@ for iter = 1:max_iter
     rot_4_plot = QuatToRot(x(7:10));
     [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
     att_4_plot = [phi,theta,psi];
-    planeplot_ttr_test(pos_4_plot,att_4_plot,command.arm);
+    tilt_angle = rad2deg(command.arm);
+    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
   
 
     % Plot trajectories (actual and desired)
@@ -390,7 +391,7 @@ grid on;
 subplot(3,1,2);
 plot(ttraj, M_des_traj(:,2), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('Mx N*m');
+ylabel('My N*m');
 legend('Des M_y');
 title('Moments');
 grid on;
@@ -398,7 +399,7 @@ grid on;
 subplot(3,1,3);
 plot(ttraj, M_des_traj(:,3), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('Mx N*m');
+ylabel('Mz N*m');
 legend('Des M_z');
 title('Moments');
 grid on;
