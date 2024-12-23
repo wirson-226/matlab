@@ -1,4 +1,4 @@
-function [t_out, s_out] = simulation_3d_ttr_test(trajhandle, controlhandle)
+function [t_out, s_out] = simulation_3d_ttr_simple(trajhandle, controlhandle)
 % 在1.0基础推进了步长设置调整，自适应ode45与状态输出矩阵的规格
 % NOTE: This script will not run as expected unless you fill in proper
 % code in trajhandle and controlhandle
@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 2;
+max_time = 50;
 
 % parameters for simulation
 params = sys_params;
@@ -48,8 +48,8 @@ params = sys_params;
 
 %% *********************** INITIAL CONDITIONS ***********************
 disp('Setting initial conditions...');
-tstep    = 0.01; % this determines the time step at which the solution is given
-cstep    = 0.05; % image capture time interval
+tstep    = 0.1; % this determines the time step at which the solution is given
+cstep    = 0.5; % image capture time interval
 max_iter = max_time/cstep; % max iteration
 nstep    = round(cstep/tstep); % 保证整数
 time     = 0; % current time
@@ -511,3 +511,7 @@ elseif strcmp(view, '3d')
 end
 
 end
+
+
+
+

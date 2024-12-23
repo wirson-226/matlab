@@ -183,36 +183,36 @@ function [force, moment] = all_forces_moments(state, command, params)
     %% 监视检测部分
     % 推力检测  
     % propulsion relative forces
-    disp('Prop_forces:');
-    disp(['thrust_prop_a: ', num2str(thrust_prop_a)]);
-    disp(['thrust_prop_b: ', num2str(thrust_prop_b)]);
-    disp(['thrust_prop_c: ', num2str(thrust_prop_c)]);
-
-    % 空气动力效应检测
-    % Display debug values for key parameters
-    disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
-    disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
-
-    % Display the aerodynamics results
-    disp('Aero_forces:');
-    disp(['F_lift: ', num2str(F_lift)]);
-    disp(['F_drag: ', num2str(F_drag)]);
-    disp(['F_Y: ', num2str(F_Y)]);
-
-    disp('Aero_moments:');
-    disp(['Aero_Mx: ', num2str(Aero_Mx)]);
-    disp(['Aero_My: ', num2str(Aero_My)]);
-    disp(['Aero_Mz: ', num2str(Aero_Mz)]);
-
-    % 反扭检测
-    Tail_Mx = - torque_prop_c_z + thrust_prop_c_y * MAV.l2;
-    disp('尾部电机:');
-    disp(['Tail_Mx: ', num2str(Tail_Mx)]);
-
-    % 重力
-    Fg = params.mass * params.gravity;
-    disp('Fg:');
-    disp(Fg);
+    % disp('Prop_forces:');
+    % disp(['thrust_prop_a: ', num2str(thrust_prop_a)]);
+    % disp(['thrust_prop_b: ', num2str(thrust_prop_b)]);
+    % disp(['thrust_prop_c: ', num2str(thrust_prop_c)]);
+    % 
+    % % 空气动力效应检测
+    % % Display debug values for key parameters
+    % disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
+    % disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
+    % 
+    % % Display the aerodynamics results
+    % disp('Aero_forces:');
+    % disp(['F_lift: ', num2str(F_lift)]);
+    % disp(['F_drag: ', num2str(F_drag)]);
+    % disp(['F_Y: ', num2str(F_Y)]);
+    % 
+    % disp('Aero_moments:');
+    % disp(['Aero_Mx: ', num2str(Aero_Mx)]);
+    % disp(['Aero_My: ', num2str(Aero_My)]);
+    % disp(['Aero_Mz: ', num2str(Aero_Mz)]);
+    % 
+    % % 反扭检测
+    % Tail_Mx = - torque_prop_c_z + thrust_prop_c_y * MAV.l2;
+    % disp('尾部电机:');
+    % disp(['Tail_Mx: ', num2str(Tail_Mx)]);
+    % 
+    % % 重力
+    % Fg = params.mass * params.gravity;
+    % disp('Fg:');
+    % disp(Fg);
 
 
     % Return the forces and moments in body frame

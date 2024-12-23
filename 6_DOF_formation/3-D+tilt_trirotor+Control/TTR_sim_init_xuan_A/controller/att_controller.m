@@ -45,7 +45,7 @@ vs_cmd = controller.vs_from_ps.update(des_state.pos(3), state.pos(3)); % s sky �
 % vel_err_e = ve_cmd - state.vel(2);
 % vel_err_s = vs_cmd - state.vel(3);
 % 测试用
-% acc_des = [0,0,0]; %  n e s 北东天
+% acc_des = [0,2,0]; %  n e s 北东天
 
 acc_des(1) = controller.acc_n_from_vn.update(vn_cmd, state.vel(1)); 
 acc_des(2) = controller.acc_e_from_ve.update(ve_cmd, state.vel(2));
@@ -56,8 +56,8 @@ acc_des(3) = controller.acc_s_from_vs.update(vs_cmd, state.vel(3));
 
 % 加速度到角度，解算线性简化 悬停平飞假设
 
-psi_cmd = des_state.yaw;
-% psi_cmd = deg2rad(45);
+% psi_cmd = des_state.yaw;
+psi_cmd = deg2rad(0);
 psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
 
 % 第一种解算表达
@@ -86,10 +86,10 @@ bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
 force_cmd_body = bRw * [thrust_n_cmd; thrust_e_cmd; thrust_s_cmd]; % world to body nes --- xyz 悬停假设
 force_cmd_body =  [0; 0; force_cmd_body(3)]; % world to body nes --- xyz 悬停假设
 
-disp('body_forces:');
-disp(['body_forces_x: ', num2str(force_cmd_body(1))]);
-disp(['body_forces_y: ', num2str(force_cmd_body(2))]);
-disp(['body_forces_z: ', num2str(force_cmd_body(3))]);
+% disp('body_forces:');
+% disp(['body_forces_x: ', num2str(force_cmd_body(1))]);
+% disp(['body_forces_y: ', num2str(force_cmd_body(2))]);
+% disp(['body_forces_z: ', num2str(force_cmd_body(3))]);
 
 %% attitude control -- p_cmd, q_cmd, r_cmd from accitudes error using PIDControl(class) 机体坐标系下
 
