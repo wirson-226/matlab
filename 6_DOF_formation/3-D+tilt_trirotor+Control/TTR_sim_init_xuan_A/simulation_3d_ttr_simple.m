@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 50;
+max_time = 5;
 
 % parameters for simulation
 params = sys_params;
@@ -35,21 +35,15 @@ params = sys_params;
 % zlabel('Z');
 % title('Airplane flight');
 % view(3);  % 3D视图
-% % xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
-% xlim([-10 10]); ylim([-10 10]); zlim([-3 3]); % 设置坐标轴范围
+% xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
+% % xlim([-10 10]); ylim([-10 10]); zlim([-3 3]); % 设置坐标轴范围
 % set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
-% 
-% 
-% % axis equal
-% % grid on
-% % view(3);
-% % xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]')
-% set(gcf,'Renderer','OpenGL')
+
 
 %% *********************** INITIAL CONDITIONS ***********************
 disp('Setting initial conditions...');
-tstep    = 0.1; % this determines the time step at which the solution is given
-cstep    = 0.5; % image capture time interval
+tstep    = 0.01; % this determines the time step at which the solution is given
+cstep    = 0.05; % image capture time interval
 max_iter = max_time/cstep; % max iteration
 nstep    = round(cstep/tstep); % 保证整数
 time     = 0; % current time
@@ -144,24 +138,9 @@ for iter = 1:max_iter
         des_elevon4_save(i, :) = command.elevon;     % 舵面 elevon_a,b
 
         % 状态记录 --- todo 合并保存des_from_ctrl_save  --- 300 * 12
-        % velocity_des_save(i, :) = des_from_ctrl.vel';
-        % a_des_save(i, :) = des_from_ctrl.vel';
-        % att_des_save(i, :) = des_from_ctrl.att';
-        % omega_des_save(i, :) = des_from_ctrl.vel';
         position_des_save(i, :) = desired_state.pos';
         des_from_ctrl_save(i, :) = des_from_ctrl; % vel-att-omege-M 加速度与姿态是一层，解算出来的
         desired_trajectory = [desired_trajectory; desired_state.pos']; % Store desired positions
-
-        % % aircraft plot test
-        % 清除之前绘制
-        % cla; % 只清除当前窗口的内容
-        % 
-        % 绘制飞机模型 --- done 
-        % pos_4_plot = current_all_state.pos;
-        % rot_4_plot = QuatToRot(x(7:10));
-        % [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
-        % att_4_plot = [phi,theta,psi];
-        % planeplot_ttr_test(pos_4_plot,current_all_state.rot',rad2deg(tilt_angle));
 
 
     end
@@ -185,9 +164,9 @@ for iter = 1:max_iter
     % % Plot trajectories (actual and desired)
     % plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);
     % plot3(desired_trajectory(:, 1), desired_trajectory(:, 2), desired_trajectory(:, 3), 'r-', 'LineWidth', 3);
+    % 
 
 
-   
     % % % % 更新视角：相机位置始终跟随飞机
     % camera_target = pos_4_plot;  % 相机始终跟随飞机
     % camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）

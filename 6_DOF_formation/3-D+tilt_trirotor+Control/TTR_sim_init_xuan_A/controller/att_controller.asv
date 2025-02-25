@@ -133,11 +133,11 @@ command = actuator_assignment(force_cmd_body, moment_cmd_body, state, params);
 %% mode 2 cruise 固定翼模式
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute airspeed (magnitude of velocity)
-% u_r = state.vel(1) - params.w_ns;
-% v_r = state.vel(2) - params.w_es;
-% w_r = state.vel(3) - params.w_ds;
-% 
-% Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+u_r = state.vel(1) - params.w_ns;
+v_r = state.vel(2) - params.w_es;
+w_r = state.vel(3) - params.w_ds;
+
+Va = sqrt(u_r^2 + v_r^2 + w_r^2);
 
     % while des_state.mode == 2
     %     throttle = controller.throttle_from_airspeed.update(des_state.Va, Va);

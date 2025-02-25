@@ -5,7 +5,7 @@ function sdot = vtolEOM_readonly(t, s, F, M, params)
 %   空气动力相关部分，参考：《Aerodynamic modeling of a delta‑wing UAV for model‑based navigation》 采用model B 
 %   
 %   F M，由dynamics in controller 计算得出（controller 出command delta fo actutor, 然后解算出合力与力矩） 
-%   在机身是 xyz前右上 在世界是 ned 北东地
+%   在机身是 xyz右前上 在世界是 ned 北东地
 
 % INPUTS:
 % t      - 1 x 1, time

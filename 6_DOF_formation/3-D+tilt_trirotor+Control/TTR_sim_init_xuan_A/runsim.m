@@ -10,6 +10,8 @@
 % 其中需要区分耦合与耦合，一对一还是多对一，分方向分平面分轴讨论然后 其他定零求解，因为不定零也是个des_from_control 的已知值流程相同
 % 比如拿到所有的控制xy位置得到的期望姿态再次pid控制得到的期望力矩，结合控制期望z高度得到的力，解算出四个电机的油门推力
 
+% xyz 右前上，abc电机分别 位置右左尾 转向顺逆逆 带来反扭 逆顺顺 其中逆是朝z正方向 所以是 + - -
+% 右手定则坐标系
 
 %% 参考轨迹需要 旋翼下 pos， yaw----  固定翼下 es_state 需要添加 des_state.mode， 添加des_state.Va 
 
@@ -66,9 +68,9 @@ controlhandle = @att_controller;
 % state - n x 13, with each row having format [x, y, z, xdot, ydot, zdot, qw, qx, qy, qz, p, q, r]
 
 % [t, state] = simulation_3d_att_plus_1_1_over(trajhandle, controlhandle); % 姿态跟踪完成版1_1，扩展接口实现R
-% [t, state] = simulation_3d_ttr_test(trajhandle, controlhandle); % 添加姿态跟踪效果
-[t, state] = simulation_3d_ttr_simple(trajhandle, controlhandle); % 添加姿态跟踪效果
-
+% [t, state] = simulation_3d_ttr_test(trajhandle, controlhandle); % 
+[t, state] = simulation_3d_ttr_simple(trajhandle, controlhandle); % 
+% [t, state] = simulation_simple(trajhandle, controlhandle); % 
 
 % viewer
 % planeplot_ttr_animation;

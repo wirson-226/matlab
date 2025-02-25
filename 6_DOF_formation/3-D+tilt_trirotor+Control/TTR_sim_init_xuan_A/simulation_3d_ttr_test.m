@@ -1,4 +1,4 @@
-function [t_out, s_out] = simulation_3d_ttr_test(trajhandle, controlhandle)
+function [t_out, s_out] = simulation_3d_ttr_simple(trajhandle, controlhandle)
 % 在1.0基础推进了步长设置调整，自适应ode45与状态输出矩阵的规格
 % NOTE: This script will not run as expected unless you fill in proper
 % code in trajhandle and controlhandle
@@ -19,31 +19,31 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 2;
+max_time = 5;
 
 % parameters for simulation
 params = sys_params;
 
 % %% **************************** FIGURES *****************************
-% disp('Initializing figures...');
-% figure;
-% axis equal;
-% grid on;
-% hold on;
-% xlabel('X');
-% ylabel('Y');
-% zlabel('Z');
-% title('Airplane flight');
-% view(3);  % 3D视图
-% % xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
+disp('Initializing figures...');
+figure;
+axis equal;
+grid on;
+hold on;
+xlabel('X');
+ylabel('Y');
+zlabel('Z');
+title('Airplane flight');
+view(3);  % 3D视图
+xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
 % xlim([-10 10]); ylim([-10 10]); zlim([-3 3]); % 设置坐标轴范围
-% set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
-% 
-% 
-% % axis equal
-% % grid on
-% % view(3);
-% % xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]')
+set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
+
+
+% axis equal
+% grid on
+% view(3);
+% xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]')
 % set(gcf,'Renderer','OpenGL')
 
 %% *********************** INITIAL CONDITIONS ***********************
@@ -169,29 +169,29 @@ for iter = 1:max_iter
 
 
 
-    % %% aircraft plot
-    % % 清除之前绘制
-    % cla; % 只清除当前窗口的内容
-    % 
-    % % 绘制飞机模型 --- done 
-    % pos_4_plot = x(1:3)';
-    % rot_4_plot = QuatToRot(x(7:10));
-    % [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
-    % att_4_plot = [phi,theta,psi];
-    % tilt_angle = rad2deg(command.arm);
-    % planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
-    % 
-    % 
-    % % Plot trajectories (actual and desired)
-    % plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);
-    % plot3(desired_trajectory(:, 1), desired_trajectory(:, 2), desired_trajectory(:, 3), 'r-', 'LineWidth', 3);
+    %% aircraft plot
+    % 清除之前绘制
+    cla; % 只清除当前窗口的内容
+
+    % 绘制飞机模型 --- done 
+    pos_4_plot = x(1:3)';
+    rot_4_plot = QuatToRot(x(7:10));
+    [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
+    att_4_plot = [phi,theta,psi];
+    tilt_angle = rad2deg(command.arm);
+    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
 
 
-   
-    % % % % 更新视角：相机位置始终跟随飞机
-    % camera_target = pos_4_plot;  % 相机始终跟随飞机
-    % camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
-    % campos(camera_position);          % 设置相机位置
+    % Plot trajectories (actual and desired)
+    plot3(actual_trajectory(:, 1), actual_trajectory(:, 2), actual_trajectory(:, 3), 'b-', 'LineWidth', 3);
+    plot3(desired_trajectory(:, 1), desired_trajectory(:, 2), desired_trajectory(:, 3), 'r-', 'LineWidth', 3);
+
+
+
+    % % % 更新视角：相机位置始终跟随飞机
+    camera_target = pos_4_plot;  % 相机始终跟随飞机
+    camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
+    campos(camera_position);          % 设置相机位置
 
 
     % Save to traj 每个五步一存记录
@@ -231,7 +231,7 @@ for iter = 1:max_iter
     if terminate_check(x, time, stop_pos, pos_tol, vel_tol, max_time)
         break;
     end
-    % drawnow;  % 更新图形
+    drawnow;  % 更新图形
 end
 
 
@@ -511,3 +511,7 @@ elseif strcmp(view, '3d')
 end
 
 end
+
+
+
+

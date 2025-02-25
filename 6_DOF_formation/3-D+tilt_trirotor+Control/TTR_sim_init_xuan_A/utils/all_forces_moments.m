@@ -6,7 +6,8 @@ function [force, moment] = all_forces_moments(state, command, params)
     % ground_speed - Aircraft ground speed [u, v, w] (body frame) (m/s)
     % wind_speed - Wind speed [u_w, v_w, w_w] (wind frame) (m/s)
     % delta - Control surfaces deflections (structure with aileron_l, aileron_r, throttle_a, throttle_b, etc.)
-    % xyz 前右上，abc电机分别 位置右左尾 转向顺逆逆 带来反扭 逆顺顺 其中逆是朝z正方向 所以是 + - -
+    % xyz 右前上，abc电机分别 位置右左尾 转向顺逆逆 带来反扭 逆顺顺 其中逆是朝z正方向 所以是 + - -
+    % 右手定则坐标系
     % thrust a = b 但是不一定 = c ，不过 a+b/c = l2/l1 a + b + c = F
     % params - Aircraft parameters structure (params from sys_params)
     %
@@ -38,8 +39,8 @@ function [force, moment] = all_forces_moments(state, command, params)
     r = state(13);
 
     % Compute airspeed (magnitude of velocity)
-    % Va = sqrt(u_r^2 + v_r^2 + w_r^2);
-    Va = 0; % 忽略空气动力学
+    Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+    % Va = 0; % 忽略空气动力学
     
     % Compute angle of attack (alpha) and sideslip angle (beta)
     if Va == 0
@@ -99,6 +100,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % Compute Lift and Drag Forces
     % 考虑空速为零
     rVS_2 = MAV.rho * (Va^2) * MAV.S_wing / 2;
+    
     if Va == 0
         F_lift = 0;
         F_drag = 0;
@@ -143,7 +145,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % F_Y = 0;
 
     % Compute longitudinal forces in body frame
-    fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 前右上 正向
+    fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 右前上 正向
     fz =  F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z;
 
     % Compute lateral forces in body frame

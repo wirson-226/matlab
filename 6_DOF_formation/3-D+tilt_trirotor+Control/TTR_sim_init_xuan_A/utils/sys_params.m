@@ -157,8 +157,8 @@ params.k_f = 0.01; % thrust to torque todo 修改
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.l1 = 0.09;     % m, front motor X-axis force arm 俯仰
-params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂
-params.l3 = 0.11;     % m, front motor Y-axis force arm 滚转
+params.l2 = 0.18;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂 0.18*mg = My max--0.31752
+params.l3 = 0.11;     % m, front motor Y-axis force arm 滚转            0.11*mg = Mx max--0.194  2*0.11*mg = Mz max--0.388
 params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
 params.elevon_max = deg2rad(45.0);  % max elevon deflection angle
@@ -168,7 +168,7 @@ params.elevon_min = deg2rad(-45.0);  % min elevon deflection angle
 % Thrust and Torque Limits for Motor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % params.T_max = 4.0;  % N, max thrust produced by a single motor
-params.T_max = params.maxF/3;  % 三旋翼垂起 执行器限制 single rotor thrust
+params.T_max = params.maxF/3;  % 三旋翼垂起 执行器限制 single rotor thrust --mg
 params.T_min = 0.0;
 params.T_percent_max = 1.0;  % maximum throttle value thrust abc 油门表示 目前不需要
 params.T_percent_min = 0.0;  % minimum throttle value
@@ -306,9 +306,13 @@ params.yaw_rate_kp = 4;
 params.yaw_rate_ki = 0.1;
 params.yaw_rate_kd = 0.05;
 
-params.Mx_limit = 1;
-params.My_limit = 1;
-params.Mz_limit = 1;
+% params.Mx_limit = 0.19;
+% params.My_limit = 0.32;
+% params.Mz_limit = 0.38;
+
+params.Mx_limit = 0.00019;
+params.My_limit = 0.00032;
+params.Mz_limit = 0.00038;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Path planner Parameters

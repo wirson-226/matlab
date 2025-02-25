@@ -31,8 +31,8 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     r = state.omega(3);
 
     % Compute airspeed (magnitude of velocity)
-    % Va = sqrt(u_r^2 + v_r^2 + w_r^2);
-    Va = 0; % 忽略空气动力学
+    Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+    % Va = 0; % 忽略空气动力学
     
     % Compute angle of attack (alpha) and sideslip angle (beta)
     if Va == 0

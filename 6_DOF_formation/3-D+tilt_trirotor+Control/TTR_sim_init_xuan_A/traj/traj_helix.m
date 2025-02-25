@@ -88,4 +88,5 @@ desired_state.acc = acc(:);
 desired_state.yaw = yaw;
 desired_state.yawdot = yawdot;
 desired_state.tilt_angle = tilt_angle;
+desired_state.Va = 15;
 end

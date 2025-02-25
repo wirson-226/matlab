@@ -11,7 +11,7 @@ addpath('test_airplane');
 
 %% Simulation parameters
 real_time = true;
-max_time = 4; % Maximum simulation time
+max_time = 6; % Maximum simulation time
 tstep = 0.02; % Time step for fixed-step integrator
 cstep = 0.05; % Image capture time interval
 max_iter = max_time / cstep; % Maximum iterations
