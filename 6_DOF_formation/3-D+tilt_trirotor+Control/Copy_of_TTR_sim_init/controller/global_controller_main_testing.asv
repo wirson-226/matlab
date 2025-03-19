@@ -6,7 +6,7 @@ function [des_from_ctrl,command] = global_controller_main_testing(t, state, des_
 %   state.rot = [phi; theta; psi], state.omega = [p; q; r] 
 
 %   加速度朝向顺序是[x, y, z]，分别对应东、北、天方向（ENU坐标系） 机头朝向 Y 
-%   无人机模型的机头朝向是沿着机体坐标系的Y轴正方向，这符合"右前上"(RFU)坐标系中Y轴指向前方的定义 
+%   无人机模型的机头朝向是沿着机体坐标系的Y轴正方向，这符合 "右前上" (RFU)坐标系中Y轴指向前方的定义 
 
 %%   Current state
 %   phi = state.rot(1);
@@ -29,6 +29,7 @@ function [des_from_ctrl,command] = global_controller_main_testing(t, state, des_
 % params = sys_params();
 % addpath('utils');
 % addpath(genpath('E:\documents\Codes\codes\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\TTR_sim_init_xuan_A'));
+
 controller = AircraftControl(params);
 
 % u_vx = controller.vx_from_pn.update(y_ref, y, reset_flag);
@@ -38,14 +39,15 @@ controller = AircraftControl(params);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Position control -- velocity_des from position error using PIDControl(class)世界坐标系下
-% PID gains from params..... also the limits of every virables
+% PID gains from params ..... also the limits of every virables
 % pos_err = des_state.pos - state.pos; % 123-xyz-enu
-ve_cmd = controller.ve_from_pe.update(des_state.pos(1), state.pos(1)); % n north
-vn_cmd = controller.vn_from_pn.update(des_state.pos(2), state.pos(2)); % e east
-vu_cmd = controller.vu_from_pu.update(des_state.pos(3), state.pos(3)); % s sky 这里写成d
+ve_cmd = controller.ve_from_pe.update(des_state.pos(1), state.pos(1)); % e
+vn_cmd = controller.vn_from_pn.update(des_state.pos(2), state.pos(2)); % n
+vu_cmd = controller.vu_from_pu.update(des_state.pos(3), state.pos(3)); % u
 
 
 %% velocity control -- attitudes cmd with acceleration_des from velocity error using PIDControl(class) 世界坐标系下
+
 % 123 xyz enu
 % 测试用
 % acc_des = [0,2,0]; % -- todo 修改坐标轴右手定则 东北天 enu -- done
@@ -139,9 +141,8 @@ q_cmd = controller.pitch_rate_from_pitch.update(theta_cmd, state.rot(2));
 r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
 
 %% omega control-- xyz rfu 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
-% 
+% todo -- 检查加速度方向分解对应-Done
 My_cmd = controller.Mx_from_roll_rate.update(p_cmd, state.omega(1)); %   with p_err    正滚转产生右正加速度（正反馈），所以加-
-% todo -- 检查加速度方向分解对应
 Mx_cmd = controller.My_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err    正俯仰产生前负加速度(负反馈)，
 Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %    with r_err    正偏航产生正力矩 没有加速度解算，合理
 
@@ -188,8 +189,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     %     roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3));
     %     elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
     %     aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
-    %     elevon_r = elevator_cmd + aileron_cmd;
-    %     elevon_l = elevator_cmd - aileron_cmd;
+    %     elevon_r = elevator_cmd + aileron_cmd; 
+    %     elevon_l = elevator_cmd - aileron_cmd; 
     %     arm_a = deg2rad(90);
     %     arm_b = arm_a;
     % 

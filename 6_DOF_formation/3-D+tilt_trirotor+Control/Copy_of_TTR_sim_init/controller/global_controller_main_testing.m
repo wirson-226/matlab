@@ -141,9 +141,8 @@ q_cmd = controller.pitch_rate_from_pitch.update(theta_cmd, state.rot(2));
 r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
 
 %% omega control-- xyz rfu 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
-% 
+% todo -- 检查加速度方向分解对应-Done
 My_cmd = controller.Mx_from_roll_rate.update(p_cmd, state.omega(1)); %   with p_err    正滚转产生右正加速度（正反馈），所以加-
-% todo -- 检查加速度方向分解对应
 Mx_cmd = controller.My_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err    正俯仰产生前负加速度(负反馈)，
 Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %    with r_err    正偏航产生正力矩 没有加速度解算，合理
 
@@ -177,6 +176,7 @@ w_r = state.vel(3) - params.w_us;
 
 Va = sqrt(u_r^2 + v_r^2 + w_r^2);
 
+
     % while des_state.mode == 2
     %     throttle = controller.throttle_from_airspeed.update(des_state.Va, Va);
     %     vn_cmd = des_state.vel(1);
@@ -190,8 +190,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     %     roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3));
     %     elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
     %     aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
-    %     elevon_r = elevator_cmd + aileron_cmd;
-    %     elevon_l = elevator_cmd - aileron_cmd;
+    %     elevon_r = elevator_cmd + aileron_cmd; 
+    %     elevon_l = elevator_cmd - aileron_cmd; 
     %     arm_a = deg2rad(90);
     %     arm_b = arm_a;
     % 
@@ -200,7 +200,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     %     command.elevon = [elevon_r,elevon_l]; 
     %     command.arm = [arm_a,arm_b];
     %     %% 期望状态输出 1 * 12 --- vel-att-omege-M
-    %     des_from_ctrl = [vn_cmd, ve_cmd, vs_cmd, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, 0, 0, 0];
+    %     des_from_ctrl = [vn_cmd, ve_cmd, vs_cmd, roll_cmd, pitch_cmd,
+    %     yaw_cmd, 0, 0, 0, 0, 0, 0];  --todo 待修改
     % 
     % end
     

@@ -14,10 +14,9 @@ function [force, moment] = all_forces_moments(state, command, params)
     % Outputs: 机体坐标系 xyz 前右上
     % force - Aerodynamic forces [Fx, Fy, Fz] (N)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
-    % todo --- 偏航控制讨论 --now 采用尾部电机自平衡 向y轴右偏 arm_c  rad，
+    % todo --- 偏航控制讨论 --now 采用尾部电机自平衡 向y轴右偏 arm_c  rad -- 修改中 对称倾转平衡偏航
     % 忽略所有电机倾转反扭的其他轴映射，比如尾部的俯仰投射，头部的滚转投射
-    % 这里的y轴正向为左 todo 调整为 右
-    % 机体坐标系
+    % 机体坐标系 RFU 右前上 -- 世界 ENU 东北天
 
     % 命令分配 actutor struct
 
@@ -42,7 +41,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % Compute airspeed (magnitude of velocity)
 
     Va = sqrt(u_r^2 + v_r^2 + w_r^2);
-    
+
     % Va = 0; % 忽略空气动力学
     
     % Compute angle of attack (alpha) and sideslip angle (beta)
