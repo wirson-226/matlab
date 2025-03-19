@@ -11,7 +11,8 @@ function [F, M, ATT_des] = controller(t, state, des_state, params)
 %   des_state.yawdot
 %   ATT_des = [phi_des; theta_des; psi_des];
 %   params: robot parameters
-
+%   这段代码中的加速度朝向顺序是[x, y, z]，分别对应东、北、天方向（ENU坐标系） 机头朝向 Y
+%   无人机模型的机头朝向是沿着机体坐标系的Y轴正方向，这符合"右前上"(RFU)坐标系中Y轴指向前方的定义。
 %   Using these current and desired states, you have to compute the desired
 %   controls
 %   PD mian core

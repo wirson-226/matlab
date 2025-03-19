@@ -29,7 +29,7 @@ controller = AircraftControl(params);
 % u_vx = controller.vx_from_pn.update(y_ref, y, reset_flag);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% mode 1 copter 固定翼模式
+%% mode 1 copter 旋翼模式
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Position control -- velocity_des from position error using PIDControl(class)世界坐标系下
@@ -45,7 +45,7 @@ vs_cmd = controller.vs_from_ps.update(des_state.pos(3), state.pos(3)); % s sky �
 % vel_err_e = ve_cmd - state.vel(2);
 % vel_err_s = vs_cmd - state.vel(3);
 % 测试用
-% acc_des = [0,2,0]; %  n e s 北东天
+% acc_des = [0,2,0]; %  n e s 北东天 -- todo 修改坐标轴右手定则 东北天 或者 北东地
 
 acc_des(1) = controller.acc_n_from_vn.update(vn_cmd, state.vel(1)); 
 acc_des(2) = controller.acc_e_from_ve.update(ve_cmd, state.vel(2));

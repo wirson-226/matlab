@@ -49,7 +49,7 @@ desired_trajectories = zeros(num_steps, 3, 3); % 每架飞机的预期轨迹
 current_trajectories = zeros(num_steps, 3, 3); % 每架飞机的实际轨迹
 
 % 飞机的目标视角距离
-camera_distance = -10;
+camera_distance = -1;
 
 % 设置视角目标点
 camera_target = current_positions(1, :);

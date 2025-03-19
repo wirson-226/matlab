@@ -1,0 +1,22 @@
+function [f, gf] = CostJacFcnWrapper(z, data,ref,Qp,Rp,Qt,Rt,distToCenter,safetyDistance)
+p = 70;
+nx = 3;
+nu = 2;
+nmv = 2;
+p1 = p+1;
+uz = z(p*nx+1:end-1);
+X = zeros(p1,nx);
+U = zeros(p1,nu);
+Xz = reshape(z(1:p*nx), nx, p)';
+Uz = reshape(uz,nmv,p)';
+X(1,:) = data.state;
+X(2:p1,:) = Xz;
+U(1:p1-1,:) = Uz;
+e = z(end);
+f =  parkingCostFcn(X,U,e,data,ref,Qp,Rp,Qt,Rt,distToCenter,safetyDistance);
+[Gfxu, Gfuu, gfeu] = parkingCostJacobian(X,U,e,data,ref,Qp,Rp,Qt,Rt,distToCenter,safetyDistance);
+Gfxu = Gfxu';
+Gfuu = Gfuu';
+gfu = [Gfxu(:);Gfuu(:);gfeu];
+gf = gfu(:);
+end
