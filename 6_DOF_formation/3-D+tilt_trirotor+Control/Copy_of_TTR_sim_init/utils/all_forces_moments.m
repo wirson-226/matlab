@@ -14,7 +14,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % Outputs: 机体坐标系 xyz 前右上
     % force - Aerodynamic forces [Fx, Fy, Fz] (N)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
-    % todo --- 偏航控制讨论 --now 采用尾部电机自平衡 向y轴右偏 arm_c  rad -- 修改中 对称倾转平衡偏航
+    % todo --- 偏航控制讨论 --now 采用尾部电机自平衡 向y轴右偏 arm_c  rad + 对称倾转平衡控偏航
     % 忽略所有电机倾转反扭的其他轴映射，比如尾部的俯仰投射，头部的滚转投射
     % 机体坐标系 RFU 右前上 -- 世界 ENU 东北天
 
@@ -107,11 +107,11 @@ function [force, moment] = all_forces_moments(state, command, params)
     if Va == 0
         F_lift = 0;
         F_drag = 0;
-        F_Y = 0;
+        F_R = 0;
     else
-    F_lift = rVS_2 * (C_L + C_L_q * MAV.c / (2 * Va) * q + MAV.C_L_delta_e * elevator); % 垂直合速度--空速向上
-    F_drag = rVS_2 * (C_D + C_D_q * MAV.c / (2 * Va) * q + MAV.C_D_delta_e * elevator); % 垂直合速度--空速向后
-    F_Y = rVS_2 * (C_Y_0 + C_Y_beta * beta + C_Y_p * MAV.b / (2 * Va) * p + C_Y_r * MAV.b / (2 * Va) * r + MAV.C_Y_delta_a * aileron);
+    F_lift = rVS_2 * (C_L + C_L_q * MAV.c / (2 * Va) * q + MAV.C_L_delta_e * elevator); % 垂直合速度--空速 向上
+    F_drag = rVS_2 * (C_D + C_D_q * MAV.c / (2 * Va) * q + MAV.C_D_delta_e * elevator); % 沿合速度--空速 向后
+    F_R = rVS_2 * (C_Y_0 + C_Y_beta * beta + C_Y_p * MAV.b / (2 * Va) * p + C_Y_r * MAV.b / (2 * Va) * r + MAV.C_Y_delta_a * aileron); % 垂直合速度--空速 向右
     end
 
     % Compute propeller thrust and torque
@@ -128,33 +128,33 @@ function [force, moment] = all_forces_moments(state, command, params)
     s_arm_c = sin(params.arm_c);
 
     % 倾转分量旋转矩阵 拆分捞逼形式
-    thrust_prop_a_x = thrust_prop_a * s_arm_a;
-    thrust_prop_b_x = thrust_prop_b * s_arm_b;
+    thrust_prop_a_y = thrust_prop_a * s_arm_a;
+    thrust_prop_b_y = thrust_prop_b * s_arm_b;
     thrust_prop_a_z = thrust_prop_a * c_arm_a;
     thrust_prop_b_z = thrust_prop_b * c_arm_b;
-    thrust_prop_c_y = thrust_prop_c * s_arm_c;
+    thrust_prop_c_x = thrust_prop_c * s_arm_c;
     thrust_prop_c_z = thrust_prop_c * c_arm_c;
 
-    torque_prop_a_x = torque_prop_a * s_arm_a;
-    torque_prop_b_x = torque_prop_b * s_arm_b;
+    torque_prop_a_y = torque_prop_a * s_arm_a;
+    torque_prop_b_y = torque_prop_b * s_arm_b;
     torque_prop_a_z = torque_prop_a * c_arm_a;
     torque_prop_b_z = torque_prop_b * c_arm_b;
-    torque_prop_c_y = torque_prop_c * s_arm_c;
+    torque_prop_c_x = torque_prop_c * s_arm_c;
     torque_prop_c_z = torque_prop_c * c_arm_c;
 
     %% 测试隔离 doing
     % F_lift = 0;
     % F_drag = 0;
-    % F_Y = 0;
+    % F_R = 0;
 
     % Compute longitudinal forces in body frame
-    fx = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 右前上 正向
-    fz =  F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z;
+    fy = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 机体纵轴向前
+    fz =  F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z; % 机体向上
 
     % Compute lateral forces in body frame
-    % fy = F_Y + thrust_prop_c_y; % 不忽略尾部电机倾转力的映射
-    % fy = F_Y; % 忽略尾部电机倾转力的映射 忽略侧滑角
-    fy = 0;
+    % fx = F_x + thrust_prop_c_x; % 不忽略尾部电机倾转力的映射
+    % fx = F_x; % 忽略尾部电机倾转力的映射 忽略侧滑角
+    fx = 0; % 机体侧向力
 
     
     % Compute moments (torques) in body frame 
@@ -164,22 +164,22 @@ function [force, moment] = all_forces_moments(state, command, params)
         Aero_My = 0;
         Aero_Mz = 0;
     else
-    Aero_Mx = rVS_2 * MAV.b * (C_n_0 + C_n_beta * beta + C_n_p * MAV.b / (2 * Va) * p + C_n_r * MAV.b / (2 * Va) * r + MAV.C_n_delta_a * aileron + MAV.C_n_delta_r * 0) ; % 滚转
-    Aero_My = rVS_2 * MAV.c * (C_M_0 + C_M_alpha * alpha + C_M_q * MAV.c / (2 * Va) * q + C_M_delta_e * elevator); % 俯仰
-    Aero_Mz = rVS_2 * MAV.b * (C_ell_0 + C_ell_beta * beta + C_ell_p * MAV.b / (2 * Va) * p + C_ell_r * MAV.b / (2 * Va) * r + MAV.C_ell_delta_a * aileron + MAV.C_ell_delta_r * 0);% 偏航
+    Aero_My = rVS_2 * MAV.b * (C_n_0 + C_n_beta * beta + C_n_p * MAV.b / (2 * Va) * p + C_n_r * MAV.b / (2 * Va) * r + MAV.C_n_delta_a * aileron + MAV.C_n_delta_r * 0) ; % 滚转 绕机体纵轴Y-F C_n_delta_a 负数 向下偏转为正 若横向距离不够 产生正偏差-左正右负指令-左下右上偏转-正Y滚转力矩-右转 ---Done
+    Aero_Mx = rVS_2 * MAV.c * (C_M_0 + C_M_alpha * alpha + C_M_q * MAV.c / (2 * Va) * q + C_M_delta_e * elevator); % 俯仰 绕机体横轴X-R C_M_delta_e 负数，向下偏转为正 若高度不够 产生正偏差-负指令-上偏转-正X俯仰力矩-抬头 ---Done
+    Aero_Mz = rVS_2 * MAV.b * (C_ell_0 + C_ell_beta * beta + C_ell_p * MAV.b / (2 * Va) * p + C_ell_r * MAV.b / (2 * Va) * r + MAV.C_ell_delta_a * aileron + MAV.C_ell_delta_r * 0);% 偏航  绕机体竖直轴Z-U
     end
 
-    % Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z) + torque_prop_a_x - torque_prop_b_x; % 滚转 不忽略ab反扭倾转映射
-    % My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_y * MAV.l2 - torque_prop_c_y; % 俯仰 不忽略c反扭倾转映射
+    % My = Aero_My + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z) + torque_prop_a_y - torque_prop_b_y; % 滚转 不忽略ab反扭倾转映射
+    % Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_x * MAV.l2 - torque_prop_c_x; % 俯仰 不忽略c反扭倾转映射
 
     %% 测试隔离用
     % Aero_Mx = 0;
     % Aero_My = 0;
     % Aero_Mz = 0;
 
-    Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z); % 滚转 忽略反扭倾转映射
-    My = Aero_My + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射
-    Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_x - thrust_prop_b_x) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_y * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡（0 = - torque_prop_c_z + thrust_prop_c_y * MAV.l2）
+    My = Aero_My + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z); % 滚转 忽略反扭倾转映射
+    Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射
+    Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_y - thrust_prop_b_y) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_x * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡（0 = - torque_prop_c_z + thrust_prop_c_y * MAV.l2）
     
     
     %% 测试隔离用
@@ -222,7 +222,7 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     % Return the forces and moments in body frame
     force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
-    moment = [Mx; My; Mz];  % Aerodynamic moments [Mx, My, Mz] in body frame
+    moment = [My; Mx; Mz];  % Aerodynamic moments [Mx, My, Mz] in body frame
 end
 
 function [thrust, torque] = motor_thrust_torque(delta_t, MAV)

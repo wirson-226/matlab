@@ -190,8 +190,10 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     %     roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3));
     %     elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
     %     aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
-    %     elevon_r = elevator_cmd + aileron_cmd; 
-    %     elevon_l = elevator_cmd - aileron_cmd; 
+    %     elevon_r = -(elevator_cmd + aileron_cmd);  % 力矩参数为负  需负负得正
+    %     向下偏转为正 若高度不够 产生正偏差-负指令-上偏转-正X俯仰力矩-抬头 ---Done
+    %     elevon_l = -(elevator_cmd - aileron_cmd);  % 力矩参数为负  需负负得正
+    %     向下偏转为正 若横向距离不够 产生正偏差-左正右负指令-左下右上偏转-正Y滚转力矩-右转 ---Done
     %     arm_a = deg2rad(90);
     %     arm_b = arm_a;
     % 
