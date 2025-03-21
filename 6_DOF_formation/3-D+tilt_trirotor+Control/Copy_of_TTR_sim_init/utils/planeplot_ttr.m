@@ -35,7 +35,7 @@ function planeplot_ttr(position, attitude,tilt_angle)
     ];
     
     %% 增加尺寸定义  -- 原机翼展 0.45m --图画成0.9m了
-    scale = 0.5; % 5 对应仿真
+    scale = 3.33333*0.5; % X1500
     points = scale * points;
 
     
@@ -187,7 +187,7 @@ function planeplot_ttr(position, attitude,tilt_angle)
         fill3([p1(1), p2(1), p3(1)], ...
               [p1(2), p2(2), p3(2)], ...
               [p1(3), p2(3), p3(3)], color, 'FaceAlpha', 0.7);
-    end
+        end
 
     % 绘制其他部分（例如主结构或 Rotor C）
     other_faces = [mesh(1:14, :); mesh(31:end, :)]; % 其余部分的面
