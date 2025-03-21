@@ -30,9 +30,9 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     % Relative velocity components (ground speed - wind speed) 空速 = 地速+风速
 
-    u_r = state(4) - params.w_ns;
-    v_r = state(5) - params.w_es;
-    w_r = state(6) - params.w_ds;
+    u_r = state(4) - params.w_es;
+    v_r = state(5) - params.w_ns;
+    w_r = state(6) - params.w_us;
 
     p = state(11);
     q = state(12);
@@ -148,7 +148,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % F_R = 0;
 
     % Compute longitudinal forces in body frame
-    fy = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_x + thrust_prop_b_x; % 机体纵轴向前
+    fy = -F_lift * sin(alpha) - F_drag * cos(alpha) + thrust_prop_a_y + thrust_prop_b_y; % 机体纵轴向前
     fz =  F_lift * cos(alpha) + F_drag * sin(alpha) + thrust_prop_a_z + thrust_prop_b_z + thrust_prop_c_z; % 机体向上
 
     % Compute lateral forces in body frame
@@ -166,63 +166,63 @@ function [force, moment] = all_forces_moments(state, command, params)
     else
     Aero_My = rVS_2 * MAV.b * (C_n_0 + C_n_beta * beta + C_n_p * MAV.b / (2 * Va) * p + C_n_r * MAV.b / (2 * Va) * r + MAV.C_n_delta_a * aileron + MAV.C_n_delta_r * 0) ; % 滚转 绕机体纵轴Y-F C_n_delta_a 负数 向下偏转为正 若横向距离不够 产生正偏差-左正右负指令-左下右上偏转-正Y滚转力矩-右转 ---Done
     Aero_Mx = rVS_2 * MAV.c * (C_M_0 + C_M_alpha * alpha + C_M_q * MAV.c / (2 * Va) * q + C_M_delta_e * elevator); % 俯仰 绕机体横轴X-R C_M_delta_e 负数，向下偏转为正 若高度不够 产生正偏差-负指令-上偏转-正X俯仰力矩-抬头 ---Done
-    Aero_Mz = rVS_2 * MAV.b * (C_ell_0 + C_ell_beta * beta + C_ell_p * MAV.b / (2 * Va) * p + C_ell_r * MAV.b / (2 * Va) * r + MAV.C_ell_delta_a * aileron + MAV.C_ell_delta_r * 0);% 偏航  绕机体竖直轴Z-U
+    Aero_Mz = rVS_2 * MAV.b * (C_ell_0 + C_ell_beta * beta + C_ell_p * MAV.b / (2 * Va) * p + C_ell_r * MAV.b / (2 * Va) * r + MAV.C_ell_delta_a * aileron + MAV.C_ell_delta_r * 0);% 偏航  绕机体竖直轴Z-U / C_ell_delta_a -正数 -正滚转-右转-负偏航-Done
     end
 
     % My = Aero_My + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z) + torque_prop_a_y - torque_prop_b_y; % 滚转 不忽略ab反扭倾转映射
     % Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_x * MAV.l2 - torque_prop_c_x; % 俯仰 不忽略c反扭倾转映射
 
-    %% 测试隔离用
+    % 测试隔离用
     % Aero_Mx = 0;
     % Aero_My = 0;
     % Aero_Mz = 0;
 
-    My = Aero_My + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z); % 滚转 忽略反扭倾转映射
-    Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射
+    My = Aero_My + MAV.l3 * (thrust_prop_b_z - thrust_prop_a_z); % 滚转 忽略反扭倾转映射 a r -- b l , 左正右负
+    Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射 前正 后负
     Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_y - thrust_prop_b_y) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_x * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡（0 = - torque_prop_c_z + thrust_prop_c_y * MAV.l2）
     
-    
+    % 以上检查完毕--Done
     %% 测试隔离用
     % My = 0;
 
-    %% 监视检测部分
+    % 监视检测部分
     % 推力检测  
     % propulsion relative forces
-    % disp('Prop_forces:');
-    % disp(['thrust_prop_a: ', num2str(thrust_prop_a)]);
-    % disp(['thrust_prop_b: ', num2str(thrust_prop_b)]);
-    % disp(['thrust_prop_c: ', num2str(thrust_prop_c)]);
-    % 
-    % % 空气动力效应检测
-    % % Display debug values for key parameters
-    % disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
-    % disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
-    % 
-    % % Display the aerodynamics results
-    % disp('Aero_forces:');
-    % disp(['F_lift: ', num2str(F_lift)]);
-    % disp(['F_drag: ', num2str(F_drag)]);
-    % disp(['F_Y: ', num2str(F_Y)]);
-    % 
-    % disp('Aero_moments:');
-    % disp(['Aero_Mx: ', num2str(Aero_Mx)]);
-    % disp(['Aero_My: ', num2str(Aero_My)]);
-    % disp(['Aero_Mz: ', num2str(Aero_Mz)]);
-    % 
-    % % 反扭检测
-    % Tail_Mx = - torque_prop_c_z + thrust_prop_c_y * MAV.l2;
-    % disp('尾部电机:');
-    % disp(['Tail_Mx: ', num2str(Tail_Mx)]);
-    % 
-    % % 重力
-    % Fg = params.mass * params.gravity;
-    % disp('Fg:');
-    % disp(Fg);
+    disp('Prop_forces:');
+    disp(['thrust_prop_a: ', num2str(thrust_prop_a)]);
+    disp(['thrust_prop_b: ', num2str(thrust_prop_b)]);
+    disp(['thrust_prop_c: ', num2str(thrust_prop_c)]);
+
+    % 空气动力效应检测
+    % Display debug values for key parameters
+    disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
+    disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
+
+    % Display the aerodynamics results
+    disp('Aero_forces:');
+    disp(['F_lift: ', num2str(F_lift)]);
+    disp(['F_drag: ', num2str(F_drag)]);
+    disp(['F_R: ', num2str(F_R)]);
+
+    disp('Aero_moments:');
+    disp(['Pitch Aero_Mx: ', num2str(Aero_Mx)]);
+    disp(['Roll Aero_My: ', num2str(Aero_My)]);
+    disp(['Yaw Aero_Mz: ', num2str(Aero_Mz)]);
+
+    % 反扭检测
+    Tail_Mz = - torque_prop_c_z + thrust_prop_c_x * MAV.l2;
+    disp('尾部电机:');
+    disp(['Tail_Mz: ', num2str(Tail_Mz)]);
+
+    % 重力
+    Fg = params.mass * params.gravity;
+    disp('Fg:');
+    disp(Fg);
 
 
     % Return the forces and moments in body frame
     force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
-    moment = [My; Mx; Mz];  % Aerodynamic moments [Mx, My, Mz] in body frame
+    moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 end
 
 function [thrust, torque] = motor_thrust_torque(delta_t, MAV)

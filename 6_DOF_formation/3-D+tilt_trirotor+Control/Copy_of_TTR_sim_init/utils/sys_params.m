@@ -9,13 +9,18 @@ function params = sys_params()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % kumar老机型参数 目前可用
 
-m = 0.18; % kg
+m = 2;% (X1500)  % 0.18; % kg
 g = 9.81; % m/s^2
 params.mass = m;
+% params.Jx =  0.00025;
+% params.Jy =  0.000232;
+% params.Jz =  0.0003738;
+% params.Jxz = 0.00000255; % 一般忽略，两个数量级的差 
+
 params.Jx =  0.00025;
 params.Jy =  0.000232;
 params.Jz =  0.0003738;
-params.Jxz = 0.00000255; % 一般忽略，两个数量级的差
+params.Jxz = 0.00000255; % 一般忽略，两个数量级的差 X1500
 
 % I = [0.00025,   0,          2.55e-6;
 %      0,         0.000232,   0;
@@ -79,9 +84,9 @@ params.w_us = 0.0;
 % Aerodynamic Parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.rho = 1.2682;  % kg/m^3, air density
-params.S_wing = 0.0773;  % m^2, wing area
-params.b = 0.45;  % m, wing span
-params.c = 0.00203;  % m, mean aerodynamic chord
+params.S_wing = 0.6004; % (X1500) % 0.0773;  % m^2, wing area(X450)
+params.b =1.5; % (X1500)  0.45;  % m, wing span
+params.c = 0.55; % (X1500)  % 0.00203;  % m, mean aerodynamic chord
 params.S_prop = 0.0006;  % m^2, propeller area
 params.e_os = 0.9;  % Oswald efficiency factor
 params.AR = (params.b^2) / params.S_wing;  % Aspect ratio
@@ -92,10 +97,10 @@ params.AR = (params.b^2) / params.S_wing;  % Aspect ratio
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Longitudinal Coefficients
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-params.C_L_0 = 0.15;
-params.C_D_0 = 0.059195;
+params.C_L_0 = 0.509;
+params.C_D_0 = 0.025;
 params.C_m_0 = 0.0135;
-params.C_L_alpha = 4.52;
+params.C_L_alpha = 5.61;
 params.C_D_alpha = 0.03;
 params.C_m_alpha = -2.74;
 params.C_L_q = 7.95;
@@ -105,7 +110,7 @@ params.C_L_delta_e = 0.18;
 params.C_D_delta_e = 0.0135;
 params.C_m_delta_e = -1.13;
 params.M = 50.0;
-params.alpha0 = deg2rad(5.0);  % convert degrees to radians
+params.alpha0 = deg2rad(3.0);  % convert degrees to radians
 params.epsilon = 0.16;
 params.C_D_p = 0.0;
 

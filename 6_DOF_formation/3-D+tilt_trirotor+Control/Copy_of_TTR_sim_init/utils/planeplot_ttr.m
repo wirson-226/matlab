@@ -34,8 +34,8 @@ function planeplot_ttr(position, attitude,tilt_angle)
         -1.5*l, 0, 0; -1.5*l, 0, -3*a
     ];
     
-    %% 增加尺寸定义
-    scale = 5;
+    %% 增加尺寸定义  -- 原机翼展 0.45m --图画成0.9m了
+    scale = 0.5; % 5 对应仿真
     points = scale * points;
 
     

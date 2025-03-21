@@ -4,7 +4,7 @@ params = sys_params();
 
 % Example inputs
 % state = [0, 0, -20, params.V_min, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
-state = [0, 0, -20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
+state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 % elevon_a = deg2rad(params.elevon_min);
 % elevon_b = deg2rad(params.elevon_max);
 elevon_a = deg2rad(0);
@@ -56,10 +56,10 @@ Fg = params.mass * params.gravity;
 
 
 % Display the results
-disp('Forces:');
+disp('Forces:'); % XYZ
 disp(force);
 
-disp('Moments:');
+disp('Moments:'); % YXZ Roll pitch yaw(RPY)
 disp(moment);
 
 
@@ -71,14 +71,3 @@ disp('系统设计性能计算V_max: m/s');
 disp(params.V_max);
 disp('系统设计性能计算V_min: m/s');
 disp(params.V_min);
-% disp('系统设计性能计算phi_max: deg');
-% disp(rad2deg(params.phi_max));
-% disp('系统设计性能计算R_min:  m');
-% disp(params.R_min);
-
-% % 创建一个图形窗口并设置名称
-% fig = figure('name', 'arm_a calculation reference', 'NumberTitle', 'off');
-% % figure;
-% % 在窗口中显示图像
-% imshow('E:\documents\Codes\codes\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\TTR_sim_init_xuan_A\Medias\TTR_arm_a.jpg'); % Load the image (ensure the file path is correct)
-% title('神的笔记');
