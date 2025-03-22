@@ -92,7 +92,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     C_L = (1 - sigma) * (C_L_0 + C_L_alpha * alpha) + sigma * (2 * sign(alpha) * (sin(alpha)^2) * cos(alpha));
 
     % Calculate C_D using the provided formula
-    C_D = MAV.C_D_p + (C_L_0 + C_L_alpha * alpha)^2 / (pi * MAV.e_os * MAV.AR);
+    C_D = MAV.C_D_p + (C_D_0 + C_D_alpha * alpha)^2 / (pi * MAV.e_os * MAV.AR);
 
     % Control surface deflections (elevator, aileron) 
     % 这里 elevator 与 elevon 同向 向下偏转为正产生 负向俯仰 低头力矩 增升增阻
