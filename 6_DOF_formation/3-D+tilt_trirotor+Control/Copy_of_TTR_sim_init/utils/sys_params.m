@@ -22,10 +22,6 @@ params.Jy =  0.0882566;
 params.Jz =  0.1877412;
 params.Jxz = 0.0010278; % 一般忽略，两个数量级的差 X1500
 
-% I = [0.00025,   0,          2.55e-6;
-%      0,         0.000232,   0;
-%      2.55e-6,   0,          0.0003738]; % kg m^2 
-
 I = [params.Jx,    0,            params.Jxz;
      0,            params.Jy,    0;
      params.Jxz,   0,            params.Jz]; % kg m^2 

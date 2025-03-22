@@ -5,15 +5,15 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     %   state.pos = [x; y; z], state.vel = [x_dot; y_dot; z_dot],
     %   --todo 修改 state.rot = [phi; theta; psi], state.omega = [p; q; r] --Done   
     %   refernce -- media - assignmenet
-    %   待添加空气动力学 todo --- 添加 aero --- 
-    %   --todo 添加细节参数--
+    %   待添加空气动力学 todo --- 添加 aero ---Done 
+    %   --todo 添加细节参数--舵机模型--
     
     % 分解输入的总力和力矩
     fx = force(1); % 机身右向合力 -X
     fy = force(2); % 机身前向合力 -Y
     fz = force(3); % 垂直推力
-    Mx = moment(1); % 俯仰力矩
-    My = moment(2); % 滚转力矩
+    My = moment(1); % 滚转力矩
+    Mx = moment(2); % 俯仰力矩
     Mz = moment(3); % 偏航力矩
 
     % % 副翼和升降舵的偏转角（这里假设对称，不考虑额外的滚转控制）
@@ -21,6 +21,14 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     aileron = 0;  
     elevon_r = elevator + aileron;
     elevon_l = elevator - aileron;
+
+    % references
+    % Control surface deflections (elevator, aileron) 
+    % 这里 elevator 与 elevon 同向 向下偏转为正产生 负向俯仰 低头力矩 增升增阻
+    % 这里 aileron 右边向下 （同向+r） 左边向上为正 （负向-l） 产生负滚转力矩
+    % elevator = 1/2 * (actuator.elevon_l + actuator.elevon_r);  % Equivalent deflection for elevons (flying wing)
+    % aileron = 1/2 * (actuator.elevon_r - actuator.elevon_l);   % 右滚转沿着y正轴，对应r向上偏转为正
+
 
     %% 计算 aero forces and moments -- todo ENU 修改 -- Done
     % Relative velocity components (ground speed - wind speed) uvw - enu xyz
@@ -42,13 +50,13 @@ function [actuator] = actuator_assignment(force, moment, state, params)
         alpha = 0;
         beta = 0;
     else
-        if u_r == 0
+        if v_r == 0
             alpha = pi / 2;  % If u_r is zero, set alpha to 90 degrees
         else
-            alpha = atan2(w_r, u_r);  % Angle of attack
+            alpha = atan2(w_r, v_r);  % Angle of attack
         end
         
-        beta = asin(v_r / Va);  % Sideslip angle
+        beta = asin(u_r / Va);  % Sideslip angle
     end
 
     % Get MAV parameters
@@ -84,21 +92,22 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     C_L = (1 - sigma) * (C_L_0 + C_L_alpha * alpha) + sigma * (2 * sign(alpha) * (sin(alpha)^2) * cos(alpha));
 
     % Calculate C_D using the provided formula
-    C_D = MAV.C_D_p + (C_L_0 + C_L_alpha * alpha)^2 / (pi * MAV.e_os * MAV.AR);
+    C_D = MAV.C_D_p + (C_D_0 + C_D_alpha * alpha)^2 / (pi * MAV.e_os * MAV.AR);
 
     % Compute Lift and Drag Forces
     % 考虑空速为零
     rVS_2 = MAV.rho * (Va^2) * MAV.S_wing / 2;
+    
     if Va == 0
         F_lift = 0;
         F_drag = 0;
-        F_Y = 0;
+        F_R = 0;
     else
-    F_lift = rVS_2 * (C_L + C_L_q * MAV.c / (2 * Va) * q + MAV.C_L_delta_e * elevator); % 升力垂直机身
-    F_drag = rVS_2 * (C_D + C_D_q * MAV.c / (2 * Va) * q + MAV.C_D_delta_e * elevator); % 机体后向
-    F_Y = rVS_2 * (C_Y_0 + C_Y_beta * beta + C_Y_p * MAV.b / (2 * Va) * p + C_Y_r * MAV.b / (2 * Va) * r + MAV.C_Y_delta_a * aileron); % 机体侧向
+    F_lift = rVS_2 * (C_L + C_L_q * MAV.c / (2 * Va) * q + MAV.C_L_delta_e * elevator); % 垂直合速度--空速 向上
+    F_drag = rVS_2 * (C_D + C_D_q * MAV.c / (2 * Va) * q + MAV.C_D_delta_e * elevator); % 沿合速度--空速 向后
+    F_R = rVS_2 * (C_Y_0 + C_Y_beta * beta + C_Y_p * MAV.b / (2 * Va) * p + C_Y_r * MAV.b / (2 * Va) * r + MAV.C_Y_delta_a * aileron); % 垂直合速度--空速 向右
     end
-
+    
     % Compute moments (torques) in body frame 
     % 考虑空速为零
     if Va == 0
@@ -106,9 +115,9 @@ function [actuator] = actuator_assignment(force, moment, state, params)
         Aero_My = 0;
         Aero_Mz = 0;
     else
-    Aero_My = rVS_2 * MAV.b * (C_n_0 + C_n_beta * beta + C_n_p * MAV.b / (2 * Va) * p + C_n_r * MAV.b / (2 * Va) * r + MAV.C_n_delta_a * aileron + MAV.C_n_delta_r * 0) ; % 滚转
-    Aero_Mx = rVS_2 * MAV.c * (C_M_0 + C_M_alpha * alpha + C_M_q * MAV.c / (2 * Va) * q + C_M_delta_e * elevator); % 俯仰
-    Aero_Mz = rVS_2 * MAV.b * (C_ell_0 + C_ell_beta * beta + C_ell_p * MAV.b / (2 * Va) * p + C_ell_r * MAV.b / (2 * Va) * r + MAV.C_ell_delta_a * aileron + MAV.C_ell_delta_r * 0);% 偏航
+    Aero_My = rVS_2 * MAV.b * (C_n_0 + C_n_beta * beta + C_n_p * MAV.b / (2 * Va) * p + C_n_r * MAV.b / (2 * Va) * r + MAV.C_n_delta_a * aileron + MAV.C_n_delta_r * 0) ; % 滚转 绕机体纵轴Y-F C_n_delta_a 负数 向下偏转为正 若横向距离不够 产生正偏差-左正右负指令-左下右上偏转-正Y滚转力矩-右转 ---Done
+    Aero_Mx = rVS_2 * MAV.c * (C_M_0 + C_M_alpha * alpha + C_M_q * MAV.c / (2 * Va) * q + C_M_delta_e * elevator); % 俯仰 绕机体横轴X-R C_M_delta_e 负数，向下偏转为正 若高度不够 产生正偏差-负指令-上偏转-正X俯仰力矩-抬头 ---Done
+    Aero_Mz = rVS_2 * MAV.b * (C_ell_0 + C_ell_beta * beta + C_ell_p * MAV.b / (2 * Va) * p + C_ell_r * MAV.b / (2 * Va) * r + MAV.C_ell_delta_a * aileron + MAV.C_ell_delta_r * 0);% 偏航  绕机体竖直轴Z-U / C_ell_delta_a -正数 -正滚转-右转-负偏航-Done
     end
 
     % Mx = Aero_Mx + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z) + torque_prop_a_x - torque_prop_b_x; % 滚转 不忽略ab反扭倾转映射
@@ -120,10 +129,9 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     % Aero_Mz = 0;
 
     % Compute longitudinal forces in body frame
-    fx_aero = -F_lift * sin(alpha) - F_drag * cos(alpha) ; % 右 正向
+    fy_aero = -F_lift * sin(alpha) - F_drag * cos(alpha) ; % 前 正向
     fz_aero =  F_lift * cos(alpha) + F_drag * sin(alpha) ;
-    % fy_aero = F_Y;
-    fy_aero = 0; % 忽略侧滑角
+    fx_aero = 0; % 忽略侧滑角
 
 
     %% 合并 空气动力学项 aero
@@ -137,11 +145,11 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     %% 计算电机的推力（假设推力沿着 Z 轴）
 
     % thrust_c_z = fz/3; % 假设悬停
-    thrust_c_z = (fz - (My/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (My + tcz*l2)/l1 ---- 3tcz + My/l1 = Fz;
-    thrust_b_z = (My + params.l2 * thrust_c_z)/(2*params.l1) + Mx/(2 * params.l3);
-    thrust_a_z = (My + params.l2 * thrust_c_z)/(2*params.l1) - Mx/(2 * params.l3);
-    thrust_a_x = (fx + Mz/(params.k_f + params.l3))/2;
-    thrust_b_x = (fx - Mz/(params.k_f + params.l3))/2;
+    thrust_c_z = (fz - (Mx/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (Mx + tcz*l2)/l1 ---- 3tcz + Mx/l1 = Fz;
+    thrust_b_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) + My/(2 * params.l3);
+    thrust_a_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) - My/(2 * params.l3);
+    thrust_a_x = (fy + Mz/(params.k_f + params.l3))/2;
+    thrust_b_x = (fy - Mz/(params.k_f + params.l3))/2;
 
 
 
@@ -167,14 +175,6 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     throttle_b = thrust_to_throttle(thrust_b_total, params);  % 电机 B 的油门
     throttle_c = thrust_to_throttle(thrust_c_total, params);  % 尾电机的油门
     
-
-    % % 副翼和升降舵的偏转角（这里假设对称，不考虑额外的滚转控制）
-    % elevator = 0;   % 旋翼模式
-    % aileron = 0;  
-    % elevon_r = elevator + aileron;
-    % elevon_l = elevator - aileron;
-
-
     % 执行器 限制 油门 0-1, arm [-30,120], elevon [-45,45] deg
     arm_a = saturate(arm_a, params.arm_min,params.arm_max);
     arm_b = saturate(arm_b, params.arm_min,params.arm_max);
@@ -187,7 +187,7 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     % 返回执行器的控制指令（包含推力和偏转角） 行向量
     actuator.arm = [arm_a, arm_b];  % 返回倾转角
     actuator.throttle = [throttle_a, throttle_b, throttle_c];  % 返回油门
-    actuator.elevon = [elevon_r, elevon_l];  % 返回副翼的偏转角（升降舵）r l 向上偏转为正 rad
+    actuator.elevon = [elevon_r, elevon_l];  % 返回副翼的偏转角（升降舵）r l 向下偏转为正 rad
 end
 
 function [throttle] = thrust_to_throttle(thrust, params)
@@ -199,11 +199,3 @@ function [throttle] = thrust_to_throttle(thrust, params)
     throttle = thrust / params.T_max;  % 假设油门与最大推力成比例
 end
 
-% function [thrust, torque] = motor_thrust_torque(delta_t, MAV)
-%     % Calculate the thrust and torque produced by a motor based on throttle input
-%     % delta_t: throttle input [0, 1]
-%     % MAV: Aircraft parameters from sys_params
-%     thrust = delta_t * MAV.T_max;  % Thrust is proportional to throttle
-%     torque = thrust * MAV.k_f;    % Torque is proportional to thrust and motor's thrust constant
-% end
-% torque = thrust * params.k_f

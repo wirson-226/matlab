@@ -30,9 +30,9 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     % Relative velocity components (ground speed - wind speed) 空速 = 地速+风速
 
-    u_r = state(4) - params.w_es;
-    v_r = state(5) - params.w_ns;
-    w_r = state(6) - params.w_us;
+    u_r = state(4) - params.w_es; % 侧向 侧滑角
+    v_r = state(5) - params.w_ns; % 纵向 攻角
+    w_r = state(6) - params.w_us; 
 
     p = state(11);
     q = state(12);
@@ -50,13 +50,13 @@ function [force, moment] = all_forces_moments(state, command, params)
         alpha = 0;
         beta = 0;
     else
-        if u_r == 0
+        if v_r == 0
             alpha = pi / 2;  % If u_r is zero, set alpha to 90 degrees
         else
-            alpha = atan2(w_r, u_r);  % Angle of attack
+            alpha = atan2(w_r, v_r);  % Angle of attack
         end
         
-        beta = asin(v_r / Va);  % Sideslip angle
+        beta = asin(u_r / Va);  % Sideslip angle
     end
 
     % Get MAV parameters
