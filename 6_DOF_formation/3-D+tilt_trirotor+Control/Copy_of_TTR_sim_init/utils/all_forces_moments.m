@@ -6,7 +6,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % ground_speed - Aircraft ground speed [u, v, w] (body frame) (m/s)
     % wind_speed - Wind speed [u_w, v_w, w_w] (wind frame) (m/s)
     % delta - Control surfaces deflections (structure with aileron_l, aileron_r, throttle_a, throttle_b, etc.)
-    % xyz 右前上，abc电机分别 位置右左尾 转向顺逆逆 带来反扭 逆顺顺 其中逆是朝z正方向 所以是 + - -
+    % xyz 右前上，abc电机分别 位置右左尾 转向顺逆逆 带来反扭 逆顺顺 其中逆是朝z正方向 所以是 + - - arm c 向右偏
     % 右手定则坐标系
     % thrust a = b 但是不一定 = c ，不过 a+b/c = l2/l1 a + b + c = F
     % params - Aircraft parameters structure (params from sys_params)
@@ -14,7 +14,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % Outputs: 机体坐标系 xyz 前右上
     % force - Aerodynamic forces [Fx, Fy, Fz] (N)
     % moment - Aerodynamic moments [Mx, My, Mz] (N·m)
-    % todo --- 偏航控制讨论 --now 采用尾部电机自平衡 向y轴右偏 arm_c  rad + 对称倾转平衡控偏航
+    % todo --- 偏航控制讨论 --now 采用尾部电机自平衡 向y轴右偏 arm_c  rad + 对称倾转平衡控偏航--Done
     % 忽略所有电机倾转反扭的其他轴映射，比如尾部的俯仰投射，头部的滚转投射
     % 机体坐标系 RFU 右前上 -- 世界 ENU 东北天
 
@@ -182,9 +182,12 @@ function [force, moment] = all_forces_moments(state, command, params)
     Mz = Aero_Mz + MAV.l3 * (thrust_prop_a_y - thrust_prop_b_y) + torque_prop_a_z - torque_prop_b_z - torque_prop_c_z + thrust_prop_c_x * MAV.l2; % 偏航 ab对称倾转平衡控制，尾部自平衡（0 = - torque_prop_c_z + thrust_prop_c_y * MAV.l2）
     
     % 以上检查完毕--Done
-    %% 测试隔离用
-    % My = 0;
+    % Return the forces and moments in body frame
+    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
+    moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 
+    %% 测试隔离用
+   
     % 监视检测部分
     % 推力检测  
     % propulsion relative forces
@@ -211,7 +214,7 @@ function [force, moment] = all_forces_moments(state, command, params)
 
     % 反扭检测
     Tail_Mz = - torque_prop_c_z + thrust_prop_c_x * MAV.l2;
-    disp('尾部电机:');
+    disp('尾部电机自检:');
     disp(['Tail_Mz: ', num2str(Tail_Mz)]);
 
     % 重力
@@ -219,10 +222,23 @@ function [force, moment] = all_forces_moments(state, command, params)
     disp('Fg:');
     disp(Fg);
 
+    % Display the results
+    disp('Forces（XYZ-without G）:'); % XYZ
+    disp(force);
+    
+    disp('Moments(YXZ-Roll Pitch Yaw):'); % YXZ Roll pitch yaw(RPY)
+    disp(moment);
+    
+    
+    disp('arm_c:');
+    disp(rad2deg(params.arm_c));
+    
+    %% 显示设计性能
+    disp('系统设计性能计算V_max: m/s');
+    disp(params.V_max);
+    disp('系统设计性能计算V_min: m/s');
+    disp(params.V_min);
 
-    % Return the forces and moments in body frame
-    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
-    moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 end
 
 function [thrust, torque] = motor_thrust_torque(delta_t, MAV)
