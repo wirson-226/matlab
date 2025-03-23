@@ -145,11 +145,13 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     %% 计算电机的推力（假设推力沿着 Z 轴）
 
     % thrust_c_z = fz/3; % 假设悬停
+    thrust_a_y = (fy + Mz/(params.k_f + params.l3))/2;
+    thrust_b_y = (fy - Mz/(params.k_f + params.l3))/2;
     thrust_c_z = (fz - (Mx/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (Mx + tcz*l2)/l1 ---- 3tcz + Mx/l1 = Fz;
     thrust_b_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) + My/(2 * params.l3);
     thrust_a_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) - My/(2 * params.l3);
-    thrust_a_x = (fy + Mz/(params.k_f + params.l3))/2;
-    thrust_b_x = (fy - Mz/(params.k_f + params.l3))/2;
+    % thrust_a_x = (fy + Mz/(params.k_f + params.l3))/2;
+    % thrust_b_x = (fy - Mz/(params.k_f + params.l3))/2;
 
 
 
@@ -160,15 +162,15 @@ function [actuator] = actuator_assignment(force, moment, state, params)
     % disp(thrust_a_x);
 
     % 计算总推力
-    thrust_a_total = sqrt(thrust_a_x^2 + thrust_a_z^2);  % 电机 A 的总推力
-    thrust_b_total = sqrt(thrust_b_x^2 + thrust_b_z^2);  % 电机 B 的总推力
+    thrust_a_total = sqrt(thrust_a_y^2 + thrust_a_z^2);  % 电机 A 的总推力
+    thrust_b_total = sqrt(thrust_b_y^2 + thrust_b_z^2);  % 电机 B 的总推力
 
     % 计算尾电机的侧向推力（假设推力沿着 Y 轴）
     thrust_c_total = thrust_c_z / cos(params.arm_c);
 
     % 计算 倾转角 rad
-    arm_a = atan2(thrust_a_x,thrust_a_z);
-    arm_b = atan2(thrust_b_x,thrust_b_z);
+    arm_a = atan2(thrust_a_y,thrust_a_z);
+    arm_b = atan2(thrust_b_y,thrust_b_z);
 
     % 将推力转换为油门输入
     throttle_a = thrust_to_throttle(thrust_a_total, params);  % 电机 A 的油门

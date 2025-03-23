@@ -5,7 +5,7 @@
     
     % Initialize state as a struct
     state = struct();
-    
+    Fg = params.mass * params.gravity;
     % Convert to struct
     state.pos = state_vec(1:3);        % Position
     state.vel = state_vec(4:6);        % Velocity
@@ -20,8 +20,8 @@
 
 
     %% 悬停      --- mode 1
-    force = [0; 0; 1.7658];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
-    moment = [0; 0; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)
+    force = [0; 0; Fg];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
+    moment = [1; 1; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)
     
     %% 固定翼巡航 --- mode 2
     % force = [1.5; 0; 1.7658];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
@@ -38,11 +38,11 @@
     
     % 打印执行器输出结果
     fprintf('Actuator Outputs:\n');
-    fprintf('Arm Angles (rad):\n');
+    fprintf('Arm Angles(ab-rl) (rad):\n');
     disp(rad2deg(actuator.arm));  % 显示倾转角
-    fprintf('Throttle Inputs:\n');
+    fprintf('Throttle Inputs(abc-rlt):\n');
     disp(actuator.throttle);  % 显示油门输入
-    fprintf('Elevon Deflections:\n');
+    fprintf('Elevon Deflections(rl):\n');
     disp(actuator.elevon);  % 显示副翼偏转角
 
 
@@ -50,10 +50,10 @@
     % 验证结束成功 加范围约束 1*13
     [force_test, moment_test] = all_forces_moments(state_vec, actuator, params);
     % Display the results
-    disp('Forces:');
+    disp('Forces(XYZ-RFU):');
     disp(force_test);
     
-    disp('Moments:');
+    disp('Moments(YXZ-Roll Pitch Yaw):');
     disp(moment_test);
 
 
