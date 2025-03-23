@@ -1,0 +1,10 @@
+   F=Plot_UAV_Trajectory_Dynamic(map,GS,UAV_Coordinate,TAR,OBS);
+   h=figure;
+   set(gcf,'unit','inches','position',[0,0,14,6]);
+   movie(h,F,1,10);
+   v=VideoWriter('Trajectory.mp4','MPEG-4');
+   v.FrameRate=10;
+   v.Quality=100;
+   open(v);
+   writeVideo(v,F);
+   close(v);

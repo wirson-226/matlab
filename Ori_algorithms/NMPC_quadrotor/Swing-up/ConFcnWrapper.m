@@ -1,0 +1,39 @@
+function [cineq, ceq] = ConFcnWrapper(z, data, yref)
+p = 10;
+nx = 4;
+pnx = p*nx;
+nu = 1;
+nmv = 1;
+Ts = 0.1;
+p1 = p+1;
+uz = z(p*nx+1:end-1);
+Iz2u = [eye(5);[zeros(5,4),ones(5,1)]];
+X = zeros(p1,nx);
+U = zeros(p1,nu);
+Xz = reshape(z(1:p*nx), nx, p)';
+Uz = reshape(Iz2u*uz,nmv,p)';
+X(1,:) = data.state;
+X(2:p1,:) = Xz;
+U(1:p1-1,:) = Uz;
+e = z(end);
+OV1Max = 10;
+OV1Min = -10;
+cineq = zeros(2*p,1);
+ceq = zeros(pnx,1);
+ic = 1:nx; 
+Ui = U';
+Xi = X';
+h = Ts/2;
+for i = 1:p
+    xk  = Xi(:,i+1);
+    cineq(2*(i-1)+1) = -xk(1) + OV1Min;  
+    cineq(2*(i-1)+2) =  xk(1) - OV1Max;
+end
+for i = 1:p
+    uk  = Ui(:,i);
+    xk  = Xi(:,i);
+    xk1 = pendulumStateFcn(xk, [uk,Ts]);
+    ceq(ic) = Xi(:,i+1) - xk1(:);
+    ic = ic + nx;
+end
+end

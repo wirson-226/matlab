@@ -1,0 +1,33 @@
+function [cineq, ceq] = ConFcnWrapper(z, data, yref)
+p = 18;
+nx = 12;
+pnx = p*nx;
+nu = 4;
+nmv = 4;
+Ts = 0.1;
+p1 = p+1;
+uz = z(p*nx+1:end-1);
+Iz2u = [eye(2*4);[zeros(64,4),repmat(eye(4),16,1)]];
+X = zeros(p1,nx);
+U = zeros(p1,nu);
+Xz = reshape(z(1:p*nx), nx, p)';
+Uz = reshape(Iz2u*uz,nmv,p)';
+X(1,:) = data.state;
+X(2:p1,:) = Xz;
+U(1:p1-1,:) = Uz;
+ceq = zeros(pnx,1);
+ic = 1:nx; 
+Ui = U';
+Xi = X';
+h = Ts/2;
+cineq = [];
+for i = 1:p
+    uk  = Ui(:,i);
+    xk  = Xi(:,i);
+    xk1 = Xi(:,i+1);
+    fk  = QuadrotorStateFcn(xk, uk);
+    fk1 = QuadrotorStateFcn(xk1, uk); 
+    ceq(ic) = xk+h*(fk+fk1) - xk1;
+    ic = ic + nx;
+end
+end
