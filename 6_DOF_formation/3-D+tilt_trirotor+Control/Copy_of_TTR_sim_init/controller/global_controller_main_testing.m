@@ -142,8 +142,8 @@ r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
 
 %% omega control-- xyz rfu 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
 % todo -- 检查加速度方向分解对应-Done
-My_cmd = controller.Mx_from_roll_rate.update(p_cmd, state.omega(1)); %   with p_err    正滚转产生右正加速度（正反馈），所以加-
-Mx_cmd = controller.My_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err    正俯仰产生前负加速度(负反馈)，
+My_cmd = controller.My_from_roll_rate.update(p_cmd, state.omega(1)); %   with p_err    正滚转产生右正加速度（正反馈），所以加-
+Mx_cmd = controller.Mx_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err    正俯仰产生前负加速度(负反馈)，
 Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %    with r_err    正偏航产生正力矩 没有加速度解算，合理
 
 moment_cmd_body = [My_cmd; Mx_cmd; Mz_cmd]; % roll pitch yaw

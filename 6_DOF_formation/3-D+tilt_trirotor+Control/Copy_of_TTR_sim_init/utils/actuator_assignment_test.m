@@ -1,7 +1,7 @@
     % 测试 inverse_actuator_assignment 函数
     params = sys_params();
     % Original state vector
-    state_vec = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    state_vec = [0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0];
     
     % Initialize state as a struct
     state = struct();
@@ -20,15 +20,15 @@
 
 
     %% 悬停      --- mode 1
-    force = [0; 0; Fg];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
-    moment = [1; 1; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)
+    % force = [0; 0; Fg];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
+    % moment = [0; 0; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)
     
     %% 固定翼巡航 --- mode 2
-    % force = [1.5; 0; 1.7658];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
-    % moment = [0; 0; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)   
+    force = [0; 1.5; Fg];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
+    moment = [0; 0; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)   
 
     %% 过渡 加速平飞  mode 3
-    % force = [1; 0; 1.7658];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
+    % force = [0; 1; Fg];   % [fx, fy, fz] in Newtons (侧向, 前向, 垂直)
     % moment = [0; 0; 0];     % [My, Mx, Mz] in Newton-meters (滚转, 俯仰, 偏航)
 
 

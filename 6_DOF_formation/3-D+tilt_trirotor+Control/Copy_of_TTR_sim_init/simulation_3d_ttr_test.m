@@ -179,7 +179,7 @@ for iter = 1:max_iter
     [phi,theta,psi]= RotToRPY_ZXY(rot_4_plot);
     att_4_plot = [phi,theta,psi];
     tilt_angle = rad2deg(command.arm);
-    planeplot_ttr_test(pos_4_plot,att_4_plot,tilt_angle);
+    planeplot_ttr(pos_4_plot,att_4_plot,tilt_angle);
 
 
     % Plot trajectories (actual and desired)

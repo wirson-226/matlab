@@ -186,58 +186,58 @@ function [force, moment] = all_forces_moments(state, command, params)
     force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
     moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 
-    % %% 测试隔离用
-    % 
-    % % 监视检测部分
-    % % 推力检测  
-    % % propulsion relative forces
-    % disp('Prop_forces:');
-    % disp(['thrust_prop_a: ', num2str(thrust_prop_a)]);
-    % disp(['thrust_prop_b: ', num2str(thrust_prop_b)]);
-    % disp(['thrust_prop_c: ', num2str(thrust_prop_c)]);
-    % 
-    % % 空气动力效应检测
-    % % Display debug values for key parameters
-    % disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
-    % disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
-    % 
-    % % Display the aerodynamics results
-    % disp('Aero_forces:');
-    % disp(['F_lift: ', num2str(F_lift)]);
-    % disp(['F_drag: ', num2str(F_drag)]);
-    % disp(['F_R: ', num2str(F_R)]);
-    % 
-    % disp('Aero_moments:');
-    % disp(['Pitch Aero_Mx: ', num2str(Aero_Mx)]);
-    % disp(['Roll Aero_My: ', num2str(Aero_My)]);
-    % disp(['Yaw Aero_Mz: ', num2str(Aero_Mz)]);
-    % 
-    % % 反扭检测
-    % Tail_Mz = - torque_prop_c_z + thrust_prop_c_x * MAV.l2;
-    % disp('尾部电机自检:');
-    % disp(['Tail_Mz: ', num2str(Tail_Mz)]);
-    % 
-    % % 重力
-    % Fg = params.mass * params.gravity;
-    % disp('Fg:');
-    % disp(Fg);
-    % 
-    % % Display the results
-    % disp('Forces（XYZ-without G）:'); % XYZ
-    % disp(force);
-    % 
-    % disp('Moments(YXZ-Roll Pitch Yaw):'); % YXZ Roll pitch yaw(RPY)
-    % disp(moment);
-    % 
-    % 
-    % disp('arm_c:');
-    % disp(rad2deg(params.arm_c));
-    % 
-    % %% 显示设计性能
-    % disp('系统设计性能计算V_max: m/s');
-    % disp(params.V_max);
-    % disp('系统设计性能计算V_min: m/s');
-    % disp(params.V_min);
+    %% 测试隔离用
+
+    % 监视检测部分
+    % 推力检测  
+    % propulsion relative forces
+    disp('Prop_forces:');
+    disp(['thrust_prop_a: ', num2str(thrust_prop_a)]);
+    disp(['thrust_prop_b: ', num2str(thrust_prop_b)]);
+    disp(['thrust_prop_c: ', num2str(thrust_prop_c)]);
+
+    % 空气动力效应检测
+    % Display debug values for key parameters
+    disp(['u_r: ', num2str(u_r), ', v_r: ', num2str(v_r), ', w_r: ', num2str(w_r)]);
+    disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
+
+    % Display the aerodynamics results
+    disp('Aero_forces:');
+    disp(['F_lift: ', num2str(F_lift)]);
+    disp(['F_drag: ', num2str(F_drag)]);
+    disp(['F_R: ', num2str(F_R)]);
+
+    disp('Aero_moments:');
+    disp(['Pitch Aero_Mx: ', num2str(Aero_Mx)]);
+    disp(['Roll Aero_My: ', num2str(Aero_My)]);
+    disp(['Yaw Aero_Mz: ', num2str(Aero_Mz)]);
+
+    % 反扭检测
+    Tail_Mz = - torque_prop_c_z + thrust_prop_c_x * MAV.l2;
+    disp('尾部电机自检:');
+    disp(['Tail_Mz: ', num2str(Tail_Mz)]);
+
+    % 重力
+    Fg = params.mass * params.gravity;
+    disp('Fg:');
+    disp(Fg);
+
+    % Display the results
+    disp('Forces（XYZ-without G）:'); % XYZ
+    disp(force);
+
+    disp('Moments(YXZ-Roll Pitch Yaw):'); % YXZ Roll pitch yaw(RPY)
+    disp(moment);
+
+
+    disp('arm_c:');
+    disp(rad2deg(params.arm_c));
+
+    %% 显示设计性能
+    disp('系统设计性能计算V_max: m/s');
+    disp(params.V_max);
+    disp('系统设计性能计算V_min: m/s');
+    disp(params.V_min);
 
 end
 

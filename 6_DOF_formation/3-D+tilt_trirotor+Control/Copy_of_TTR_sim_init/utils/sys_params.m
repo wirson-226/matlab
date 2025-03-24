@@ -310,9 +310,9 @@ params.yaw_rate_kd = 0.05;
 % params.Mz_limit = 0.00038; % yaw
 
 % X1500
-% params.My_limit = 6.468;   % roll
-% params.Mx_limit = 10.584; % pitch
-% params.Mz_limit = 5.874;       % yaw
+params.My_limit = 6.468;       % roll
+params.Mx_limit = 10.584;      % pitch
+params.Mz_limit = 5.874;       % yaw
 
 % 俯仰 0.54*mg = Mx max--10.584 n*m
 % 滚转 0.33*mg = My max--6.468 n*m  0.5*2*0.33*mg = Mz max--5.874
