@@ -12,7 +12,7 @@ function [t_out, s_out] = simulation_3d_ttr_test(trajhandle, controlhandle)
 addpath('utils');
 addpath('traj');
 addpath('controller');
-addpath('test_tools');
+
 addpath('test_airplane');
 
 % real-time

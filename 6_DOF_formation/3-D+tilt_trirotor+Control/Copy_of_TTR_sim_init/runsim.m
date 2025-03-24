@@ -25,7 +25,6 @@ clear;
 addpath('utils');
 addpath('traj');
 addpath('controller');
-addpath('test_tools');
 addpath('test_airplane');
 
 %% pre-calculated trajectories
