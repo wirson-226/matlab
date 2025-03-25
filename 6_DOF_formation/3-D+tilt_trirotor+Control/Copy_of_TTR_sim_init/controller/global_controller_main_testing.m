@@ -101,8 +101,8 @@ phi_cmd = atan2(R_des(3,2), R_des(3,3));
 theta_cmd = asin(R_des(3,1));
 
 %  姿态环测试用
-phi_cmd= deg2rad(15);
-theta_cmd= deg2rad(15);
+% phi_cmd= deg2rad(25);
+% theta_cmd= deg2rad(25);
 
 
 phi_cmd = wrap(phi_cmd, 4*pi/ 5);      % 滚转角，[-pi/3., pi/3.]
@@ -117,16 +117,16 @@ theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_li
 % Compute desired force  ENU-XYZ-123
 % thrust_e_cmd = params.mass * acc_des(1);
 % thrust_n_cmd = params.mass * acc_des(2);
-thrust_u_cmd = params.mass * (acc_des(3) + params.gravity);
-thrust_e_cmd = 0;
-thrust_n_cmd = 0;
+% thrust_u_cmd = params.mass * (acc_des(3) + params.gravity);
+% thrust_e_cmd = 0;
+% thrust_n_cmd = 0;
 
 bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
 % 期望合力转到机体坐标系 ENU -- RFU -- xyz 悬停假设--todo
 
 % 测试
-force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
-% force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
+% force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
+force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
 
 % disp('body_forces:');
 % disp(['body_forces_r: ', num2str(force_cmd_body(1))]);
@@ -154,9 +154,9 @@ moment_cmd_body = [My_cmd; Mx_cmd; Mz_cmd]; % roll pitch yaw
 % moment_cmd_body = [0; 0; Mz_cmd];  % 得到控制输出但是阻断 为0的是仅显示 不接动力学
 
 %% 期望状态输出 1 * 12 --- vel-att-omege-M
-des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, My_cmd, Mx_cmd, Mz_cmd];
+des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), params.gravity + acc_des(3)];
 
-
+% acc_des(1); acc_des(2); params.gravity + acc_des(3)  % 力矩改加速度测试
 %% 执行器命令结算 -- 控制分配  - 机体坐标系 phi theta psi YXZ 前右上 roll pitch yaw 储存顺序
 command = actuator_assignment(force_cmd_body, moment_cmd_body, state, params);
 

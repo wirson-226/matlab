@@ -319,6 +319,41 @@ legend('Actual Vz', 'Desired Vz');
 grid on;
 
 
+
+
+%% Plot Acc
+h_vel = figure('Name', 'Acceleration');
+subplot(3,1,1);
+plot(ttraj, xtraj(:,4), 'b', 'LineWidth', 1.5);  % Plot x velocity
+hold on;
+plot(ttraj, velocity_des_traj(:,1), 'r--', 'LineWidth', 1.5);  % Desired x velocity
+xlabel('Time [s]');
+ylabel('Vx [m/s]');
+legend('Actual Vx', 'Desired Vx');
+title('Velocity');
+grid on;
+
+subplot(3,1,2);
+plot(ttraj, xtraj(:,5), 'b', 'LineWidth', 1.5);  % Plot y velocity
+hold on;
+plot(ttraj, velocity_des_traj(:,2), 'r--', 'LineWidth', 1.5);  % Desired y velocity
+xlabel('Time [s]');
+ylabel('Vy [m/s]');
+legend('Actual Vy', 'Desired Vy');
+grid on;
+
+subplot(3,1,3);
+plot(ttraj, xtraj(:,6), 'b', 'LineWidth', 1.5);  % Plot z velocity
+hold on;
+plot(ttraj, velocity_des_traj(:,3), 'r--', 'LineWidth', 1.5);  % Desired z velocity
+xlabel('Time [s]');
+ylabel('Vz [m/s]');
+legend('Actual Vz', 'Desired Vz');
+grid on;
+
+
+
+
 %% Plot attitudes
 h_attitude = figure('Name', 'Attitude');
 subplot(3,1,1);

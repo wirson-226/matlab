@@ -29,13 +29,13 @@ desired_state = trajhandle(t, current_state); % stuct 结构
 [force, moment] = all_forces_moments(s, command, params); % s 行向量结构
 
 
-% %% 测试用 机体坐标系合力合力矩
-% % Display the results
-% disp('Forces:');
-% disp(force);
-% 
-% disp('Moments:');
-% disp(moment);
+%% 测试用 机体坐标系合力合力矩
+% Display the results
+disp('Forces:');
+disp(force);
+
+disp('Moments:');
+disp(moment);
 
 % compute derivative
 sdot = vtolEOM_readonly(t, s, force, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
