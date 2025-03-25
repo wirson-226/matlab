@@ -30,13 +30,13 @@ addpath('test_airplane');
 %% pre-calculated trajectories
 
 % trajhandle = @traj_line; % 可以运行的轨迹，与时间设定形式有关，配合simulation_3D ----- [F, M, att_des_save_A] = controlhandle(0, current_state_A, desired_state_A, params);  % s: [13 * 1]; 
-trajhandle = @traj_helix;
+% trajhandle = @traj_helix;
 % trajhandle = @traj_circle; 
 % trajhandle = @traj_dubin; % 分析不同，设定单机轨迹，并拓展多机编队；
 % trajhandle = @traj_helix_adjust; % 还需调整
 % trajhandle = @traj_helix_ttr;
 % trajhandle = @traj_4point_cruise;
-% trajhandle = @traj_4point_step;
+trajhandle = @traj_4point_step;
 
 
 

@@ -39,7 +39,7 @@ r2_des_ddot = acc_des(2);
 r3_des_ddot = acc_des(3);
 
 % Desired thrust
-u1 = params.mass * (params.gravity + r3_des_ddot);
+u1 = params.mass * (params.gravity + r3_des_ddot); % 垂直推力
 
 % Desired roll and pitch angles
 phi_des = (r1_des_ddot * sin(des_state.yaw) - r2_des_ddot * cos(des_state.yaw)) / params.gravity;

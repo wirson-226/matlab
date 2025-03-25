@@ -50,7 +50,7 @@ vu_cmd = controller.vu_from_pu.update(des_state.pos(3), state.pos(3)); % u
 
 % 123 xyz enu
 % 测试用
-% acc_des = [0,2,0]; % -- todo 修改坐标轴右手定则 东北天 enu -- done
+% acc_des = [0,2,0]; % -- todo 修改坐标轴右手定则 东北天 enu -- done--todo -- test
 
 acc_des(1) = controller.acc_e_from_ve.update(ve_cmd, state.vel(1)); 
 acc_des(2) = controller.acc_n_from_vn.update(vn_cmd, state.vel(2));
@@ -68,6 +68,9 @@ psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
 % 第一种解算表达 有测试检查文件 -- Acc2Att_coptor
 theta_cmd = (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)) / params.gravity;
 phi_cmd = (acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd)) / params.gravity;
+
+
+
 
 %% 第二种解算表达
 % theta_cmd = atan2(acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd), params.gravity + acc_des(3));
@@ -114,16 +117,19 @@ phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
 theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
 
 
+
 % Compute desired force  ENU-XYZ-123
-thrust_e_cmd = params.mass * acc_des(1);
-thrust_n_cmd = params.mass * acc_des(2);
+% thrust_e_cmd = params.mass * acc_des(1);
+% thrust_n_cmd = params.mass * acc_des(2);
 thrust_u_cmd = params.mass * (acc_des(3) + params.gravity);
+thrust_e_cmd = 0;
+thrust_n_cmd = 0;
 
 bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
-force_cmd_body = bRw * [thrust_e_cmd; thrust_n_cmd; thrust_u_cmd]; % 期望合力转到机体坐标系 ENU -- RFU -- xyz 悬停假设
+% 期望合力转到机体坐标系 ENU -- RFU -- xyz 悬停假设--todo
 
 % 测试
-% force_cmd_body =  [0; 0; force_cmd_body(3)]; % 得到控制输出但是阻断 为0的是仅显示 不接动力学
+force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
 
 % disp('body_forces:');
 % disp(['body_forces_r: ', num2str(force_cmd_body(1))]);

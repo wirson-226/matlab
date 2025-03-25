@@ -5,16 +5,16 @@ function [desired_state] = traj_4point_step(t, state)
     % Define the four points (x, y, z) in the 3D space
     points = [
         0, 0, 2.5;   % Point 1
-        5, 0, 2.5;   % Point 2
+        0, 5, 2.5;   % Point 2
         5, 5, 2.5;   % Point 3
-        0, 5, 2.5    % Point 4
+        5, 0, 2.5    % Point 4
     ];
 
     % Total number of points
     num_points = size(points, 1);
 
     % Define the time to stay at each point
-    T_stay = 2;  % Time to stay at each point (seconds)
+    T_stay = 4;  % Time to stay at each point (seconds)
     
     % Calculate the total time to complete the trajectory
     T_total = T_stay * num_points;
