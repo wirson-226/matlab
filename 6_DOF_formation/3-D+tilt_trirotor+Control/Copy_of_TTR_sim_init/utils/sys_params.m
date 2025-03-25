@@ -278,13 +278,13 @@ params.acc_z_sat_limit = 2 * params.gravity;
 params.roll_kp = 6;
 params.roll_ki = 0.0;
 params.roll_kd = 0.1;
-params.roll_input_limit = 30. * pi / 180.;  % rad
+params.roll_input_limit = 70. * pi / 180.;  % rad
 params.roll_rate_sat_limit = 180.0 * pi / 180.0 ; % rad/s
 
 params.pitch_kp = 6;
 params.pitch_ki = 0.0;
 params.pitch_kd = 0.1;
-params.pitch_input_limit = 30. * pi / 180.;  % rad
+params.pitch_input_limit = 70. * pi / 180.;  % rad
 params.pitch_rate_sat_limit = 180.0 * pi / 180.0 ; % rad/s
 
 params.yaw_kp = 4;

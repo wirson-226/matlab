@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 5;
+max_time =2;
 
 % parameters for simulation
 params = sys_params;
@@ -34,7 +34,8 @@ xlabel('X_东_右');
 ylabel('Y_北_前');
 zlabel('Z_上');
 title('TTR_VTOL flight');
-view(3);  % 3D视图
+% view(3);  % 3D视图
+view(120,30);
 xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
 % xlim([-10 10]); ylim([-10 10]); zlim([-3 3]); % 设置坐标轴范围
 % set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
@@ -383,16 +384,16 @@ h_omega = figure('Name', 'moment');
 subplot(3,1,1);
 plot(ttraj, M_des_traj(:,1), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('Mx N*m');
-legend('Des M_x');
+ylabel('My N*m');
+legend('Des M_y');
 title('Moments');
 grid on;
 
 subplot(3,1,2);
 plot(ttraj, M_des_traj(:,2), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('My N*m');
-legend('Des M_y');
+ylabel('Mx N*m');
+legend('Des M_x');
 title('Moments');
 grid on;
 

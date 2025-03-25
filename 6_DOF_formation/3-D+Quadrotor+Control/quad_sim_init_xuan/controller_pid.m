@@ -1,4 +1,4 @@
-function [F, M, ATT_des] = controller(t, state, des_state, params)
+function [F, M, ATT_des] = controller_pid(t, state, des_state, params)
 %CONTROLLER  Controller for the quadrotor
 %
 %   state: The current state of the robot with the following fields:
