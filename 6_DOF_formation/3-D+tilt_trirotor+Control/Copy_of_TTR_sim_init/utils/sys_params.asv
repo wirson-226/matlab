@@ -235,14 +235,14 @@ params.Ts = 0.01;     % 采样时间（10ms）
 params.sigma = 0.05;  % 微分低通滤波器时间常数
 
 % % ----------position loop-------------
-params.pe_kp = 0.5;
+params.pe_kp = 2.5;
 params.pe_ki = 0.0;
-params.pe_kd = 0.05;
+params.pe_kd = 0.5;
 params.vx_sat_limit = 5;  % m/s
 
-params.pn_kp = 0.5;
+params.pn_kp = 2.5;
 params.pn_ki = 0.0;
-params.pn_kd = 0.05;
+params.pn_kd = 0.5;
 params.vy_sat_limit = 5;  % m/s
 
 params.pu_kp = 3;
@@ -254,7 +254,7 @@ params.vz_sat_limit = 5;  % m/s
 % % the outputs are phi_desired and theta_desired
 params.vh_kp = 4;       % horizontal
 params.vh_ki = 0;
-params.vh_kd = 1;
+params.vh_kd = 2;
 
 params.vx_kp = params.vh_kp;
 params.vx_ki = params.vh_ki;
@@ -267,9 +267,9 @@ params.vy_kd = params.vh_kd;
 params.acc_y_sat_limit = 2 * params.gravity;
 
 % % the output is collective thrust
-params.vz_kp = 6;  % 8.0
+params.vz_kp = 4;  % 8.0
 params.vz_ki = 0 ; % 2.0
-params.vz_kd = 1.5;
+params.vz_kd = 1;
 params.acc_z_sat_limit = 2 * params.gravity;
 
 % % TODO: 加速度的限幅值和角度约束和拉力约束是有对应关系的，这个进行辨识后要算出来。
