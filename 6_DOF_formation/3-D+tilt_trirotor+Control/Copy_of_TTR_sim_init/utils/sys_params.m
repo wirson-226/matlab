@@ -12,11 +12,6 @@ function params = sys_params()
 m = 2;% (X1500)  % 0.18; % kg
 g = 9.81; % m/s^2
 params.mass = m;
-% params.Jx =  0.00025;
-% params.Jy =  0.000232;
-% params.Jz =  0.0003738;
-% params.Jxz = 0.00000255; % 一般忽略，两个数量级的差 
-
 params.Jx =  0.1015378; % kg * m^2 -- e-9-- g * mm^2
 params.Jy =  0.0882566;
 params.Jz =  0.1877412;
@@ -146,14 +141,11 @@ params.kOmega = 0.0;
 params.C_prop = 1.0;
 
 
-params.k_f = 0.02454; % thrust to torque todo 修改
+params.k_f = 0.02454; % thrust to torque todo 修改--参考Medias-Else电机模型--Done
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotor Arm Lengths and Tilt Angles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% params.l1 = 3*0.09;     % m, front motor X-axis force arm 俯仰
-% params.l2 = 3*0.18;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂 0.18*mg = Mx max--0.31752
-% params.l3 = 3*0.11;     % m, front motor Y-axis force arm 滚转            0.11*mg = My max--0.194  2*0.11*mg = Mz max--0.388
 params.l1 = 0.27;     % m, front motor X-axis force arm 俯仰
 params.l2 = 0.54;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂 0.54*mg = Mx max--10.584 n*m
 params.l3 = 0.33;     % m, front motor Y-axis force arm 滚转            0.33*mg = My max--6.468 n*m  0.5*2*0.33*mg = Mz max--5.874
@@ -166,7 +158,7 @@ params.elevon_min = deg2rad(-45.0);  % min elevon deflection angle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Thrust and Torque Limits for Motor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% params.T_max = 4.0;  % N, max thrust produced by a single motor
+
 params.T_max = params.maxF/3;  % 三旋翼垂起 执行器限制 single rotor thrust --mg
 params.T_min = 0.0;
 params.T_percent_max = 1.0;  % maximum throttle value thrust abc 油门表示 目前不需要
@@ -229,7 +221,7 @@ params.C_r_delta_r = params.gamma4 * params.C_ell_delta_r + params.gamma8 * para
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Control parameters --- mode 1 copter
+% Control parameters --- mode 1 copter --- todo 调试---
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.Ts = 0.01;     % 采样时间（10ms）
 params.sigma = 0.05;  % 微分低通滤波器时间常数
@@ -242,7 +234,7 @@ params.vx_sat_limit = 5;  % m/s
 
 params.pn_kp = 0.5;
 params.pn_ki = 0.0;
-params.pn_kd = 0.05;
+params.pn_kd = 0.1;
 params.vy_sat_limit = 5;  % m/s
 
 params.pu_kp = 3;
@@ -271,8 +263,6 @@ params.vz_kp = 6;  % 8.0
 params.vz_ki = 0 ; % 2.0
 params.vz_kd = 1.5;
 params.acc_z_sat_limit = 2 * params.gravity;
-
-% % TODO: 加速度的限幅值和角度约束和拉力约束是有对应关系的，这个进行辨识后要算出来。
 
 % % ---------- attitude loop -------------
 params.roll_kp = 6;
@@ -304,10 +294,6 @@ params.pitch_rate_kd = 0.05;
 params.yaw_rate_kp = 4;
 params.yaw_rate_ki = 0.1;
 params.yaw_rate_kd = 0.05;
-
-% params.My_limit = 0.00019; % roll
-% params.Mx_limit = 0.00032; % pitch
-% params.Mz_limit = 0.00038; % yaw
 
 % X1500
 params.My_limit = 6.468;       % roll

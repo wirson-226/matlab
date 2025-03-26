@@ -4,10 +4,10 @@ function [desired_state] = traj_4point_step(t, state)
 
     % Define the four points (x, y, z) in the 3D space
     points = [
-        0, 0, 2.5;   % Point 1
-        0, 0, 6;   % Point 2
-        0, 5, 6;   % Point 3
-        5, 5, 6;    % Point 4
+        0, 0, 2;   % Point 1
+        0, 0, 6;     % Point 2
+        0, 6, 6;     % Point 3
+        6, 6, 6;     % Point 4
     ];
 
     % Total number of points
