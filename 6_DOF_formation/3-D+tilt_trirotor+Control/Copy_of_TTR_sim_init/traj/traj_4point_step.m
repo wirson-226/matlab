@@ -53,6 +53,6 @@ function [desired_state] = traj_4point_step(t, state)
     desired_state.yaw = yaw;
     desired_state.yawdot = yawdot;
     desired_state.Va = sqrt(vel(1)^2 + vel(2)^2 + vel(3)^2);  % True airspeed (zero in step)
-    desired_state.mode = 2;  % Mode 2 for cruise
+    desired_state.mode = 1;  % Mode copter
 
 end

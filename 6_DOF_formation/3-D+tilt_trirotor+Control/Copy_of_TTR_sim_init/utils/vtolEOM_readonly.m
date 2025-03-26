@@ -72,8 +72,6 @@ accel = 1 / params.mass * (R_mapping * wRb * [0; 0; F(3)] - [0; 0; params.mass *
 disp('Acc-inertialframe:');
 disp(accel);
 
-% accel = [F(10); F(11); F(12)]; % 位置测试-加速度-
-
 % Angular velocity body xyz
 K_quat = 2; %this enforces the magnitude 1 constraint for the quaternion
 quaterror = 1 - (qW^2 + qX^2 + qY^2 + qZ^2);
@@ -104,3 +102,18 @@ sdot(12) = pqrdot(2);
 sdot(13) = pqrdot(3);
 
 end
+
+
+
+function [phi, theta, psi] = RotToRPY_ENU_to_RFS(R)
+% RotToRPY Convert rotation matrix from World ENU to Body RFS 
+% phi: Roll (rotation around X-axis in body frame)
+% theta: Pitch (rotation around Y-axis in body frame)
+% psi: Yaw (rotation around Z-axis in body frame)
+
+% Note: This implements YXZ rotation order which is equivalent to ZXY
+phi = asin(R(2,3));  % sin(pitch)
+theta = atan2(-R(2,1), R(2,2));  % roll
+psi = atan2(-R(1,3), R(3,3));   % yaw
+end
+

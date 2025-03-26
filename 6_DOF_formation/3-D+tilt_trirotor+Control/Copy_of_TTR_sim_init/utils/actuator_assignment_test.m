@@ -34,7 +34,7 @@
 
     % 调用 inverse_actuator_assignment 函数
     % 反解 struct
-    actuator = actuator_assignment(force, moment, state, params); 
+    actuator = actuator_assignment(force, moment, state, params,1); 
     
     % 打印执行器输出结果
     fprintf('Actuator Outputs:\n');

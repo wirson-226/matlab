@@ -308,20 +308,15 @@ params.Mz_limit = 5.874;       % yaw
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.WS_ratio = params.mass/params.S_wing; % 翼载荷
 % Calculate maximum cruise speed
-params.C_D_5 = params.C_D_0 + params.C_D_alpha*params.alpha0;
-params.C_L_5 = params.C_L_0 + params.C_L_alpha*params.alpha0;
-% Calculate minimum cruise speed (V_min) -- with init alpha
-params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_5)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
-params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_5)); % 最小平飞速度和翼载荷有关 L = D
-% Calculate minimum cruise speed (V_min)-- 0 alpha
-% params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_0)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
-% params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_0)); % 最小平飞速度和翼载荷有关 L = D
+params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_0)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
+% Calculate minimum cruise speed (V_min)
+params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_0)); % 最小平飞速度和翼载荷有关 L = D
 
 
 
 % dubin path 固定翼杜宾曲线相关限制 最小转弯半径，巡航速度
 % airspeed commanded by planner
-params.Va_planner = 1.2* params.V_min;
+params.Va_planner = 0.5*(params.V_max + params.V_min);
 
 % max possible roll angle
 params.phi_max = deg2rad(60);
@@ -334,7 +329,7 @@ params.course_max = deg2rad(60);
 
 % minimum turn radius
 params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
-disp(['r',params.R_min]);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Control parameters --- mode 2 cruise

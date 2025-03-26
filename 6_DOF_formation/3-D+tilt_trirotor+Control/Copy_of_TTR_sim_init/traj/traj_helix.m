@@ -4,8 +4,8 @@ function [desired_state] = traj_helix(t, state)
 
 if nargin < 4, z_max = 2.5; end
 if nargin < 3, r = 5; end
-% T       = 12;       % finishing time 快速 大角度
-T       = 12*3;       % finishing time 慢速 小角度
+T       = 12;       % finishing time 快速 大角度
+% T       = 12*3;       % finishing time 慢速 小角度
 
 T_hover = T/5; % 悬停状态
 
@@ -88,5 +88,6 @@ desired_state.acc = acc(:);
 desired_state.yaw = yaw;
 desired_state.yawdot = yawdot;
 desired_state.tilt_angle = tilt_angle;
-desired_state.Va = 15;
+% desired_state.Va = 10;
+desired_state.mode = 1;  % Mode copter
 end

@@ -1,4 +1,4 @@
-function [force, moment] = all_forces_moments(state, command, params)
+function [force, moment] = all_forces_moments(state, command, params, mode)
     % AERODYNAMIC_FORCES_MOMENTS calculates the aerodynamic forces and moments in the body axis system
     % based on the provided ground speed, wind speed, and control surfaces (delta).
     %

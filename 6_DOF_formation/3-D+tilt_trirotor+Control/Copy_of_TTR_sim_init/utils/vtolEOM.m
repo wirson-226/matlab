@@ -24,15 +24,15 @@ current_state = stateToQd(s);
 desired_state = trajhandle(t, current_state); % stuct 结构
 
 % 不介入执行器--get control outputs
-[DES_ctrl,command,copter_cmd] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
+[~,~,copter_cmd] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
 force = copter_cmd(1:3);
 moment = copter_cmd(4:6);
-
 sdot = vtolEOM_readonly(t, s, force, moment, params);  % force--z轴加速度解耦F（3），偏航独立解耦M（3）
 
-% % 介入执行器--利用 all_foreces_moments得到FM
+% 介入执行器--利用 all_foreces_moments得到FM
+% [DES_ctrl,command,copter_cmd] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
 % [force, moment] = all_forces_moments(s, command, params); % s 行向量结构
-% sdot = vtolEOM_readonly(t, s, DES_ctrl, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
+% sdot = vtolEOM_readonly(t, s, force, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
 
 % %% 测试用 机体坐标系合力合力矩
 % % Display the results

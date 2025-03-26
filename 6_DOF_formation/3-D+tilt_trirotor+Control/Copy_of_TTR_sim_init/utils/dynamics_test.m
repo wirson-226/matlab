@@ -48,19 +48,19 @@ command.arm = [arm_a,arm_b];
 Fg = params.mass * params.gravity;
 
 
-% % Display the results
-% disp('Forces:'); % XYZ
-% disp(force);
-% 
-% disp('Moments:'); % YXZ Roll pitch yaw(RPY)
-% disp(moment);
-% 
-% 
-% disp('arm_c:');
-% disp(rad2deg(params.arm_c));
-% 
-% %% 显示设计性能
-% disp('系统设计性能计算V_max: m/s');
-% disp(params.V_max);
-% disp('系统设计性能计算V_min: m/s');
-% disp(params.V_min);
+% Display the results
+disp('Forces:'); % XYZ
+disp(force);
+
+disp('Moments:'); % YXZ Roll pitch yaw(RPY)
+disp(moment);
+
+
+disp('arm_c:');
+disp(rad2deg(params.arm_c));
+
+%% 显示设计性能
+disp('系统设计性能计算V_max: m/s');
+disp(params.V_max);
+disp('系统设计性能计算V_min: m/s');
+disp(params.V_min);
