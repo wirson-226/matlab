@@ -1,4 +1,4 @@
-function sdot = vtolEOM_readonly(t, s, F, M, params)
+function sdot = vtolEOM_readonly_ori(t, s, F, M, params)
 %   QUADEOM_READONLY Solve quadrotor equation of motion
 %   quadEOM_readonly calculate the derivative of the state vector
 %   todo --坐标系检查-- Done
@@ -53,24 +53,15 @@ qZ = s(10);
 p = s(11);
 q = s(12);
 r = s(13);
+
 quat = [qW; qX; qY; qZ];
+bRw = QuatToRot(quat);
+wRb = bRw';
 
-% 转换逻辑：世界坐标系(ENU) -> 机体坐标系(RFS)
-wRb = QuatToRot(quat);  % 世界到机体的旋转矩阵
-
-% 坐标系映射变换矩阵
-% 世界系(ENU): x-East, y-North, z-Up
-% 机体系(RFS): x-Right, y-Front, z-Up
-R_mapping = [0 1 0;   % 世界x(East) -> 机体y(Front)
-             1 0 0;   % 世界y(North) -> 机体x(Right)
-             0 0 1];  % 世界z(Up) -> 机体z(Up)
-
-% 加速度世界坐标系解算
-% 使用映射矩阵确保坐标系正确变换
-accel = 1 / params.mass * (R_mapping * wRb * [0; 0; F(3)] - [0; 0; params.mass * params.gravity]);
-% Display the results
-disp('Acc-inertialframe:');
-disp(accel);
+% Acceleration world nes
+%动力学解算过程
+accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % ENU 变换为世界坐标系 位置与世界相关，姿态与机体相关
+% accel = 1 / params.mass * (wRb * [0; 0; F(3)] - [0; 0; params.mass * params.gravity]); % ENU 变换为世界坐标系 位置与世界相关，姿态与机体相关
 
 % accel = [F(10); F(11); F(12)]; % 位置测试-加速度-
 

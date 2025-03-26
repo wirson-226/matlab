@@ -25,8 +25,8 @@ desired_state = trajhandle(t, current_state); % stuct 结构
 
 % 不介入执行器--get control outputs
 [DES_ctrl,command,copter_cmd] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
-force = copter_cmd(1:3);
-moment = copter_cmd(4:6);
+force = copter_cmd[1:3];
+moment = copter_cmd[4:6];
 
 sdot = vtolEOM_readonly(t, s, force, moment, params);  % force--z轴加速度解耦F（3），偏航独立解耦M（3）
 

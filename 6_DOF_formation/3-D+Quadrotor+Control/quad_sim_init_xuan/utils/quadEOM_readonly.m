@@ -32,6 +32,15 @@ B = [                 1,                 1,                 1,                  
 F = B(1,:)*prop_thrusts_clamped;
 M = [B(2:3,:)*prop_thrusts_clamped; M(3)];
 
+
+%% 添加变化测试--不受限就完全等于控制器源头输出
+% if all(prop_thrusts == prop_thrusts_clamped)
+%     disp('F and M are unchanged.');
+% else
+%     disp('F and M have been modified due to clamping.');
+% end
+% 
+
 % Assign states
 x = s(1);
 y = s(2);

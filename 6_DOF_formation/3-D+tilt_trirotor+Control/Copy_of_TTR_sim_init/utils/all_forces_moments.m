@@ -183,11 +183,11 @@ function [force, moment] = all_forces_moments(state, command, params)
     
     % 以上检查完毕--Done
     % Return the forces and moments in body frame
-    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
-    moment = [0; 0; 0];  % Aerodynamic moments [My, Mx, Mz] in body frame
-
     % force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
-    % moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
+    % moment = [0; 0; 0];  % Aerodynamic moments [My, Mx, Mz] in body frame
+
+    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
+    moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 
 
     % %% 测试隔离用

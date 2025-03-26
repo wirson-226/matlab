@@ -15,7 +15,7 @@ addpath('utils');
 real_time = true;
 
 % max time
-max_time = 2;
+max_time = 20;
 
 % parameters for simulation
 params = sys_params;

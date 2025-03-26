@@ -238,17 +238,17 @@ params.sigma = 0.05;  % 微分低通滤波器时间常数
 params.pe_kp = 3;
 params.pe_ki = 0.0;
 params.pe_kd = 0;
-params.vx_sat_limit = 10;  % m/s
+params.vx_sat_limit = 5;  % m/s
 
 params.pn_kp = 3;
 params.pn_ki = 0.0;
 params.pn_kd = 0;
-params.vy_sat_limit = 10;  % m/s
+params.vy_sat_limit = 5;  % m/s
 
 params.pu_kp = 3;
 params.pu_ki = 0.00;
 params.pu_kd = 0;
-params.vz_sat_limit = 10;  % m/s
+params.vz_sat_limit = 5;  % m/s
 
 % % ---------- velocity loop -------------
 % % the outputs are phi_desired and theta_desired

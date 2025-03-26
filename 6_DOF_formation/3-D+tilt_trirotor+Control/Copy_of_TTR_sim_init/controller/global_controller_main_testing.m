@@ -1,4 +1,4 @@
-function [des_from_ctrl,command] = global_controller_main_testing(t, state, des_state, params)
+function [des_from_ctrl,command,copter_cmd] = global_controller_main_testing(t, state, des_state, params)
 %   CONTROLLER  Controller for the quadrotor 
 %   todo -- 整体修改检查--加速度分解检查--Done 
 %   state: The current state of the robot with the following fields:
@@ -50,12 +50,12 @@ vu_cmd = controller.vu_from_pu.update(des_state.pos(3), state.pos(3)); % u
 
 % 123 xyz enu
 % 测试用
-% acc_des = [0,2,0]; % -- todo 修改坐标轴右手定则 东北天 enu -- done--todo -- test
+% acc_des = [2,2,2]; % -- todo 修改坐标轴右手定则 东北天 enu -- done--todo --
+% test--done
 
 acc_des(1) = controller.acc_e_from_ve.update(ve_cmd, state.vel(1)); 
 acc_des(2) = controller.acc_n_from_vn.update(vn_cmd, state.vel(2));
 acc_des(3) = controller.acc_u_from_vu.update(vu_cmd, state.vel(3));
-
 
 
 
@@ -91,8 +91,8 @@ theta_cmd = asin(R_des(3,1));
  % 姿态环测试用
 % phi_cmd= deg2rad(25);
 % theta_cmd= deg2rad(25);
-phi_cmd = wrap(phi_cmd, 4*pi/ 5);      % 滚转角，[-pi/3., pi/3.]
-theta_cmd = wrap(theta_cmd, 4*pi/5);  % 俯仰角，[-pi/3., pi/3.]
+phi_cmd = wrap(phi_cmd, pi/ 4);      % 滚转角，[-pi/3., pi/3.]
+theta_cmd = wrap(theta_cmd, pi/4);  % 俯仰角，[-pi/3., pi/3.]
 
 
 % 避免奇异后限制范围
@@ -124,8 +124,8 @@ force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
 
 
 
-% %% 线性简化 加速度到角度，解算，悬停平飞假设
-% 
+%% 线性简化 加速度到角度，解算，悬停平飞假设
+
 % %% psi_cmd = des_state.yaw;
 % psi_cmd = deg2rad(0);
 % psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
@@ -139,7 +139,8 @@ force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
 % % % phi_cmd = atan2(cos(theta_cmd) * (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)), params.gravity + acc_des(3));
 % 
 % % 期望总推力向量（ENU坐标）
-% F_des = params.mass * [acc_des(1); acc_des(2); params.gravity + acc_des(3)];
+% % F_des = params.mass * [acc_des(1); acc_des(2); params.gravity + acc_des(3)];
+% F_des = params.mass * [0; 0; params.gravity + acc_des(3)];
 % 
 % %  姿态环测试用
 % % phi_cmd= deg2rad(25);
@@ -156,7 +157,7 @@ force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
 % 
 % % force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
 % force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
-% 
+
 
 
 
@@ -185,6 +186,8 @@ moment_cmd_body = [My_cmd; Mx_cmd; Mz_cmd]; % roll pitch yaw
 % 可选替换 - ACC--Moment
 % des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, M_y, M_x, M_z];
 des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), params.gravity + acc_des(3)];
+copter_cmd = [F_des; moment_cmd_body]; % 力与力矩期望
+
 
 % acc_des(1); acc_des(2); params.gravity + acc_des(3)  % 力矩改加速度测试
 %% 执行器命令结算 -- 控制分配  - 机体坐标系 phi theta psi YXZ 前右上 roll pitch yaw 储存顺序

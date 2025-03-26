@@ -7,7 +7,7 @@ g = 9.81;              % 重力加速度(m/s^2)
 m = 3;                 % 质心质量 (kg)
 
 % 期望加速度（示例值）
-acc_des = [1; 5; 0];  % [ax; ay; az]
+acc_des = [0; 2; 0];  % [ax; ay; az]
 
 %% ====================== 小角度近似方法 ======================
 theta_cmd_approx = (acc_des(1)*sin(psi_cmd) - acc_des(2)*cos(psi_cmd)) / g;
