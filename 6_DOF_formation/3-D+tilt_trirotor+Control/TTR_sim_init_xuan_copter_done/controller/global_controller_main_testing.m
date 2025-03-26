@@ -1,0 +1,247 @@
+function [des_from_ctrl,command,copter_cmd] = global_controller_main_testing(t, state, des_state, params)
+%   CONTROLLER  Controller for the quadrotor 
+%   todo -- 整体修改检查--加速度分解检查--Done 
+%   state: The current state of the robot with the following fields:
+%   state.pos = [x; y; z], state.vel = [x_dot; y_dot; z_dot] 
+%   state.rot = [phi; theta; psi], state.omega = [p; q; r] 
+
+%   加速度朝向顺序是[x, y, z]，分别对应东、北、天方向（ENU坐标系） 机头朝向 Y 
+%   无人机模型的机头朝向是沿着机体坐标系的Y轴正方向，这符合 "右前上" (RFU)坐标系中Y轴指向前方的定义 
+
+%%   Current state
+%   phi = state.rot(1);
+%   theta = state.rot(2);
+%   psi = state.rot(3);
+%   p = state.omega(1);
+%   q = state.omega(2);
+%   r = state.omega(3);
+
+
+%%  des_state: The desired states are:
+%   des_state.pos = [x; y; z], yaw_cmd = des_state.yaw，Va_cmd = des_state.Va
+%   des_state.mode = [1]; 1 -- hovering  or 2 -- cruise or 3 -- transition
+%   Using these current and desired states, you have to compute the desired
+%   controls：des_from_ctrl = [vn_cmd, ve_cmd, vd_cmd, phi_cmd, theta_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, Mx_cmd, My_cmd, Mz_cmd];
+
+
+
+%% Application
+% params = sys_params();
+% addpath('utils');
+% addpath(genpath('E:\documents\Codes\codes\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\TTR_sim_init_xuan_A'));
+
+controller = AircraftControl(params);
+
+% u_vx = controller.vx_from_pn.update(y_ref, y, reset_flag);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% mode 1 copter 旋翼模式
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Position control -- velocity_des from position error using PIDControl(class)世界坐标系下
+% PID gains from params ..... also the limits of every virables
+% pos_err = des_state.pos - state.pos; % 123-xyz-enu
+ve_cmd = controller.ve_from_pe.update(des_state.pos(1), state.pos(1)); % e
+vn_cmd = controller.vn_from_pn.update(des_state.pos(2), state.pos(2)); % n
+vu_cmd = controller.vu_from_pu.update(des_state.pos(3), state.pos(3)); % u
+
+
+%% velocity control -- attitudes cmd with acceleration_des from velocity error using PIDControl(class) 世界坐标系下
+
+% 123 xyz enu
+% 测试用
+% acc_des = [2,2,2]; % -- todo 修改坐标轴右手定则 东北天 enu -- done--todo --
+% test--done
+
+acc_des(1) = controller.acc_e_from_ve.update(ve_cmd, state.vel(1)); 
+acc_des(2) = controller.acc_n_from_vn.update(vn_cmd, state.vel(2));
+acc_des(3) = controller.acc_u_from_vu.update(vu_cmd, state.vel(3));
+
+
+
+%% 非线性 加速度到角度，解算
+% psi_cmd = des_state.yaw;
+psi_cmd = deg2rad(0);
+psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
+
+% -- 完整非线性
+% 期望总推力向量（ENU坐标）
+F_des = params.mass * [acc_des(1); acc_des(2); params.gravity + acc_des(3)];
+
+% 期望机体Z轴方向 (Up)
+zb_des = F_des / norm(F_des);
+
+% 期望机体X轴水平投影方向
+xc = [sin(psi_cmd); cos(psi_cmd); 0];
+
+% 期望机体Y轴方向
+yb_des = cross(zb_des, xc);
+yb_des = yb_des / norm(yb_des);
+
+% 重新计算期望机体X轴方向，确保正交
+xb_des = cross(yb_des, zb_des);
+
+% 构造期望旋转矩阵
+R_des = [xb_des, yb_des, zb_des];
+
+% 解算欧拉角（ZXY顺序）
+phi_cmd = atan2(R_des(3,2), R_des(3,3));
+theta_cmd = asin(R_des(3,1));
+
+ % 姿态环测试用
+% phi_cmd= deg2rad(25);
+% theta_cmd= deg2rad(25);
+phi_cmd = wrap(phi_cmd, pi/ 4);      % 滚转角，[-pi/3., pi/3.]
+theta_cmd = wrap(theta_cmd, pi/4);  % 俯仰角，[-pi/3., pi/3.]
+
+
+% 避免奇异后限制范围
+phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
+theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
+
+
+% Compute desired force  ENU-XYZ-123
+% thrust_e_cmd = params.mass * acc_des(1);
+% thrust_n_cmd = params.mass * acc_des(2);
+% thrust_u_cmd = params.mass * (acc_des(3) + params.gravity);
+% thrust_e_cmd = 0;
+% thrust_n_cmd = 0;
+
+bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
+% 期望合力转到机体坐标系 ENU -- RFU -- xyz--todo
+
+% 测试
+force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
+% force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
+
+% disp('body_forces:');
+% disp(['body_forces_r: ', num2str(force_cmd_body(1))]);
+% disp(['body_forces_f: ', num2str(force_cmd_body(2))]);
+% disp(['body_forces_u: ', num2str(force_cmd_body(3))]);
+
+
+
+
+
+
+%% 线性简化 加速度到角度，解算，悬停平飞假设
+
+% %% psi_cmd = des_state.yaw;
+% psi_cmd = deg2rad(0);
+% psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
+% 
+% % 第一种解算表达 有测试检查文件 -- Acc2Att_coptor
+% theta_cmd = (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)) / params.gravity;
+% phi_cmd = (acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd)) / params.gravity;
+% 
+% % % 第二种解算表达
+% % % theta_cmd = atan2(acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd), params.gravity + acc_des(3));
+% % % phi_cmd = atan2(cos(theta_cmd) * (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)), params.gravity + acc_des(3));
+% 
+% % 期望总推力向量（ENU坐标）
+% % F_des = params.mass * [acc_des(1); acc_des(2); params.gravity + acc_des(3)];
+% F_des = params.mass * [0; 0; params.gravity + acc_des(3)];
+% 
+% %  姿态环测试用
+% % phi_cmd= deg2rad(25);
+% % theta_cmd= deg2rad(25);
+% phi_cmd = wrap(phi_cmd, 4*pi/ 5);      % 滚转角，[-pi/3., pi/3.]
+% theta_cmd = wrap(theta_cmd, 4*pi/5);  % 俯仰角，[-pi/3., pi/3.]
+% 
+% % 避免奇异后限制范围
+% phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
+% theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
+% 
+% bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
+% % 期望合力转到机体坐标系 ENU -- RFU -- xyz 悬停假设--todo
+% 
+% % force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
+% force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
+
+
+
+
+
+%% attitude control -- p_cmd, q_cmd, r_cmd from accitudes error using PIDControl(class) 机体坐标系下
+
+
+% phi_cmd= deg2rad(15);
+% theta_cmd= deg2rad(15);
+% psi_cmd= deg2rad(0);
+p_cmd = controller.roll_rate_from_roll.update(phi_cmd, state.rot(1));
+q_cmd = controller.pitch_rate_from_pitch.update(theta_cmd, state.rot(2));
+r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
+
+%% omega control-- xyz rfu 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
+% todo -- 检查加速度方向分解对应-Done
+My_cmd = controller.My_from_roll_rate.update(p_cmd, state.omega(1)); %   with p_err    正滚转产生右正加速度（正反馈），所以加-
+Mx_cmd = controller.Mx_from_pitch_rate.update(q_cmd, state.omega(2)); %  with q_err    正俯仰产生前负加速度(负反馈)，
+Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3)); %    with r_err    正偏航产生正力矩 没有加速度解算，合理
+
+moment_cmd_body = [My_cmd; Mx_cmd; Mz_cmd]; % roll pitch yaw
+
+% moment_cmd_body = [0; 0; Mz_cmd];  % 得到控制输出但是阻断 为0的是仅显示 不接动力学
+
+%% 期望状态输出 1 * 12 --- vel-att-omege-M
+% 可选替换 - ACC--Moment
+% des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, M_y, M_x, M_z];
+des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), params.gravity + acc_des(3)];
+copter_cmd = [F_des; moment_cmd_body]; % 力与力矩期望
+
+
+% acc_des(1); acc_des(2); params.gravity + acc_des(3)  % 力矩改加速度测试
+%% 执行器命令结算 -- 控制分配  - 机体坐标系 phi theta psi YXZ 前右上 roll pitch yaw 储存顺序
+command = actuator_assignment(force_cmd_body, moment_cmd_body, state, params);
+
+%% 测试用
+% command.throttle = [ta,tb,tc];
+% command.elevon = [0,0]; 
+% command.arm = [arm_a,arm_b];
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% mode 2 cruise 固定翼模式
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compute airspeed (magnitude of velocity) ENU -- Done
+u_r = state.vel(1) - params.w_es;
+v_r = state.vel(2) - params.w_ns;
+w_r = state.vel(3) - params.w_us;
+
+Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+
+
+    % while des_state.mode == 2
+    %     throttle = controller.throttle_from_airspeed.update(des_state.Va, Va);
+    %     vn_cmd = des_state.vel(1);
+    %     ve_cmd = des_state.vel(2);
+    %     vs_cmd = des_state.vel(3);
+    %     ta = throttle/2;
+    %     tb = ta;
+    %     tc = 0;
+    %     yaw_cmd = atan2(des_state.pos(1) - state.pos(1), des_state.pos(2) - state.pos(2)); % 期望偏航角
+    %     pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));
+    %     roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3));
+    %     elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
+    %     aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
+    %     elevon_r = -(elevator_cmd + aileron_cmd);  % 力矩参数为负  需负负得正
+    %     向下偏转为正 若高度不够 产生正偏差-负指令-上偏转-正X俯仰力矩-抬头 ---Done
+    %     elevon_l = -(elevator_cmd - aileron_cmd);  % 力矩参数为负  需负负得正
+    %     向下偏转为正 若横向距离不够 产生正偏差-左正右负指令-左下右上偏转-正Y滚转力矩-右转 ---Done
+    %     arm_a = deg2rad(90);
+    %     arm_b = arm_a;
+    % 
+    %     %% 测试用
+    %     command.throttle = [ta,tb,tc];
+    %     command.elevon = [elevon_r,elevon_l]; 
+    %     command.arm = [arm_a,arm_b];
+    %     %% 期望状态输出 1 * 12 --- vel-att-omege-M
+    %     des_from_ctrl = [vn_cmd, ve_cmd, vs_cmd, roll_cmd, pitch_cmd,
+    %     yaw_cmd, 0, 0, 0, 0, 0, 0];  --todo 待修改
+    % 
+    % end
+    
+
+end
