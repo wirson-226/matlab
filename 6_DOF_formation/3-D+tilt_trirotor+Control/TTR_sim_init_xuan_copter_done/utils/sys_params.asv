@@ -308,8 +308,11 @@ params.Mz_limit = 5.874;       % yaw
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.WS_ratio = params.mass/params.S_wing; % 翼载荷
 % Calculate maximum cruise speed
-params.C_D_5 = params.C_D_0 + params.C_D_alpha*params.alpha0;
-params.C_L_5 = params.C_L_0 + params.C_L_alpha*params.alpha0;
+params.C_D_5 = params.C_L_0 + params.C_L_alpha* ;
+params.C_D_0 = ;
+params.C_L_5 = ;
+params.C_L_alpha = 7.61;
+params.C_D_alpha = 0.13;
 % Calculate minimum cruise speed (V_min) -- with init alpha
 params.V_max = sqrt((4 * params.T_max) / (params.rho * params.S_wing * params.C_D_5)); % 最大平飞速度 和推重比有关， T = D, 螺旋桨的话还和桨叶尺寸和转速有关
 params.V_min = sqrt((2 * m * params.gravity) / (params.rho * params.S_wing * params.C_L_5)); % 最小平飞速度和翼载荷有关 L = D
