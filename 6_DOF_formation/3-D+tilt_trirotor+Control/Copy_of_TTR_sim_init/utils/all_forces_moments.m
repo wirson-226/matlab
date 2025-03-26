@@ -172,7 +172,7 @@ function [force, moment] = all_forces_moments(state, command, params)
     % My = Aero_My + MAV.l3 * (thrust_prop_a_z - thrust_prop_b_z) + torque_prop_a_y - torque_prop_b_y; % 滚转 不忽略ab反扭倾转映射
     % Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_x * MAV.l2 - torque_prop_c_x; % 俯仰 不忽略c反扭倾转映射
 
-    % 测试隔离用
+    % % 测试隔离用
     % Aero_Mx = 0;
     % Aero_My = 0;
     % Aero_Mz = 0;
@@ -183,11 +183,11 @@ function [force, moment] = all_forces_moments(state, command, params)
     
     % 以上检查完毕--Done
     % Return the forces and moments in body frame
+    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
+    moment = [0; 0; 0];  % Aerodynamic moments [My, Mx, Mz] in body frame
+
     % force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
     % moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
-
-    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
-    moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 
 
     % %% 测试隔离用

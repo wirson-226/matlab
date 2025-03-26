@@ -124,39 +124,59 @@ force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
 
 
 
-% %% 线性简化 加速度到角度，解算，悬停平飞假设
-% 
-% %% psi_cmd = des_state.yaw;
-% psi_cmd = deg2rad(0);
-% psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
-% 
-% % 第一种解算表达 有测试检查文件 -- Acc2Att_coptor
+%% 线性简化 加速度到角度，解算，悬停平飞假设
+
+% psi_cmd = des_state.yaw;
+psi_cmd = deg2rad(0);
+psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
+
+% 第一种解算表达 有测试检查文件 -- Acc2Att_coptor
 % theta_cmd = (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)) / params.gravity;
 % phi_cmd = (acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd)) / params.gravity;
-% 
-% % % 第二种解算表达
-% % % theta_cmd = atan2(acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd), params.gravity + acc_des(3));
-% % % phi_cmd = atan2(cos(theta_cmd) * (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)), params.gravity + acc_des(3));
-% 
-% % 期望总推力向量（ENU坐标）
-% F_des = params.mass * [acc_des(1); acc_des(2); params.gravity + acc_des(3)];
-% 
-% %  姿态环测试用
-% % phi_cmd= deg2rad(25);
-% % theta_cmd= deg2rad(25);
-% phi_cmd = wrap(phi_cmd, 4*pi/ 5);      % 滚转角，[-pi/3., pi/3.]
-% theta_cmd = wrap(theta_cmd, 4*pi/5);  % 俯仰角，[-pi/3., pi/3.]
-% 
-% % 避免奇异后限制范围
-% phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
-% theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
-% 
-% bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
-% % 期望合力转到机体坐标系 ENU -- RFU -- xyz 悬停假设--todo
-% 
-% % force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
-% force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
-% 
+
+
+
+
+%% 第二种解算表达
+theta_cmd = atan2(acc_des(1) * cos(psi_cmd) + acc_des(2) * sin(psi_cmd), params.gravity + acc_des(3));
+phi_cmd = atan2(cos(theta_cmd) * (acc_des(1) * sin(psi_cmd) - acc_des(2) * cos(psi_cmd)), params.gravity + acc_des(3));
+
+% 期望总推力向量（ENU坐标）
+F_des = params.mass * [acc_des(1); acc_des(2); params.gravity + acc_des(3)];
+
+%  姿态环测试用
+% phi_cmd= deg2rad(25);
+% theta_cmd= deg2rad(25);
+phi_cmd = wrap(phi_cmd, 4*pi/ 5);      % 滚转角，[-pi/3., pi/3.]
+theta_cmd = wrap(theta_cmd, 4*pi/5);  % 俯仰角，[-pi/3., pi/3.]
+
+% 避免奇异后限制范围
+phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
+theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
+
+% Compute desired force  ENU-XYZ-123
+% thrust_e_cmd = params.mass * acc_des(1);
+% thrust_n_cmd = params.mass * acc_des(2);
+% thrust_u_cmd = params.mass * (acc_des(3) + params.gravity);
+% thrust_e_cmd = 0;
+% thrust_n_cmd = 0;
+
+bRw = RPYtoRot_ZXY(state.rot(1),state.rot(2),state.rot(3));
+% 期望合力转到机体坐标系 ENU -- RFU -- xyz 悬停假设--todo
+
+% 测试 --todo--检查解算传导
+% force_cmd_body =  bRw *[0; 0; thrust_u_cmd ]; % 高度控制映射机体坐标系
+force_cmd_body =  bRw *F_des; % 高度控制映射机体坐标系
+
+% disp('body_forces:');
+% disp(['body_forces_r: ', num2str(force_cmd_body(1))]);
+% disp(['body_forces_f: ', num2str(force_cmd_body(2))]);
+% disp(['body_forces_u: ', num2str(force_cmd_body(3))]);
+
+
+
+
+
 
 
 
