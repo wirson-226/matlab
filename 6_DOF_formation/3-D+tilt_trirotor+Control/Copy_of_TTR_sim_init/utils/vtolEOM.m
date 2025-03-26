@@ -24,21 +24,24 @@ current_state = stateToQd(s);
 desired_state = trajhandle(t, current_state); % stuct 结构
 
 % get control outputs
-[~,command] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
+[DES_ctrl,command] = controlhandle(t, current_state, desired_state, params);  % s: [13 * 1]; 这里的输出应该是执行器command 
 %   而后 利用 all_foreces_moments得到FM
 [force, moment] = all_forces_moments(s, command, params); % s 行向量结构
 
 
-%% 测试用 机体坐标系合力合力矩
-% Display the results
-disp('Forces:');
-disp(force);
-
-disp('Moments:');
-disp(moment);
+% %% 测试用 机体坐标系合力合力矩
+% % Display the results
+% disp('Forces:');
+% disp(force);
+% 
+% disp('Moments:');
+% disp(moment);
 
 % compute derivative
-sdot = vtolEOM_readonly(t, s, force, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
+% sdot = vtolEOM_readonly(t, s, force, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
+sdot = vtolEOM_readonly(t, s, DES_ctrl, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
+
+
 
 end
 

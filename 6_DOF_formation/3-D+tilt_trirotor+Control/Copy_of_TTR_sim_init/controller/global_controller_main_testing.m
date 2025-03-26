@@ -154,6 +154,8 @@ moment_cmd_body = [My_cmd; Mx_cmd; Mz_cmd]; % roll pitch yaw
 % moment_cmd_body = [0; 0; Mz_cmd];  % 得到控制输出但是阻断 为0的是仅显示 不接动力学
 
 %% 期望状态输出 1 * 12 --- vel-att-omege-M
+% 可选替换 - ACC--Moment
+% des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, M_y, M_x, M_z];
 des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), params.gravity + acc_des(3)];
 
 % acc_des(1); acc_des(2); params.gravity + acc_des(3)  % 力矩改加速度测试

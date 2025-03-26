@@ -60,8 +60,9 @@ wRb = bRw';
 
 % Acceleration world nes
 %动力学解算过程
-accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % ENU 变换为世界坐标系 位置与世界相关，姿态与机体相关
-% accel = 1 / params.mass * (wRb * [0; 0; F] - [0; 0; params.mass * params.gravity]);
+% accel = 1 / params.mass * (wRb * [F(1); F(2); F(3)] - [0; 0; params.mass * params.gravity]); % ENU 变换为世界坐标系 位置与世界相关，姿态与机体相关
+
+accel = [F(10); F(11); F(12)]; % 位置测试-加速度-
 
 % Angular velocity body xyz
 K_quat = 2; %this enforces the magnitude 1 constraint for the quaternion

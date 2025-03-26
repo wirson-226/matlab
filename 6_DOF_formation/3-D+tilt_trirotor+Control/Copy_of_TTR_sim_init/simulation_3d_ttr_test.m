@@ -382,32 +382,63 @@ ylabel('r [deg/s]');
 legend('Actual r', 'Desired r');
 grid on;
 
-%% Plot moment
-h_omega = figure('Name', 'moment');
+
+%% Plot Acceleration
+h_omega = figure('Name', 'ACC');
 subplot(3,1,1);
 plot(ttraj, M_des_traj(:,1), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('My N*m');
-legend('Des M_y');
-title('Moments');
+ylabel('Acc_x m/s^2');
+legend('Des Acc_x');
+title('Acceleration');
 grid on;
 
 subplot(3,1,2);
 plot(ttraj, M_des_traj(:,2), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('Mx N*m');
-legend('Des M_x');
-title('Moments');
+ylabel('Acc_y m/s^2');
+legend('Des ACC_y');
+title('Acceleration');
 grid on;
 
 subplot(3,1,3);
 plot(ttraj, M_des_traj(:,3), 'b', 'LineWidth', 1.5);
 xlabel('Time [s]');
-ylabel('Mz N*m');
-legend('Des M_z');
-title('Moments');
+ylabel('Acc_z m/s^2');
+legend('Des ACC_z');
+title('Acceleration');
 grid on;
 
+
+
+
+
+% %% Plot moment
+% h_omega = figure('Name', 'moment');
+% subplot(3,1,1);
+% plot(ttraj, M_des_traj(:,1), 'b', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('My N*m');
+% legend('Des M_y');
+% title('Moments');
+% grid on;
+% 
+% subplot(3,1,2);
+% plot(ttraj, M_des_traj(:,2), 'b', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Mx N*m');
+% legend('Des M_x');
+% title('Moments');
+% grid on;
+% 
+% subplot(3,1,3);
+% plot(ttraj, M_des_traj(:,3), 'b', 'LineWidth', 1.5);
+% xlabel('Time [s]');
+% ylabel('Mz N*m');
+% legend('Des M_z');
+% title('Moments');
+% grid on;
+% 
 
 
 %% Plot 7 input -- thrust abc + tilt ab + elevon ab
