@@ -38,8 +38,8 @@ desired_state = trajhandle(t, current_state); % stuct 结构
 % disp(moment);
 
 % compute derivative
-% sdot = vtolEOM_readonly(t, s, force, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
-sdot = vtolEOM_readonly(t, s, DES_ctrl, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
+sdot = vtolEOM_readonly(t, s, force, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
+% sdot = vtolEOM_readonly(t, s, DES_ctrl, moment, params);  % sdot : [13 * 1]; att_des_save: [3 * 1];
 
 
 

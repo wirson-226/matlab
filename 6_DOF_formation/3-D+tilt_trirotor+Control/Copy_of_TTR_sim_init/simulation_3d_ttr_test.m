@@ -36,8 +36,8 @@ zlabel('Z_上');
 title('TTR-VTOL flight');
 % view(3);  % 3D视图
 view(120,30);
-xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
-% xlim([-10 10]); ylim([-10 10]); zlim([-3 3]); % 设置坐标轴范围
+% xlim([-100 100]); ylim([-100 100]); zlim([-10 10]); % 设置坐标轴范围
+xlim([-10 10]); ylim([-10 10]); zlim([-10 10]); % 设置坐标轴范围
 % set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
 
 
@@ -190,9 +190,11 @@ for iter = 1:max_iter
 
 
     % % % 更新视角：相机位置始终跟随飞机
-    camera_target = pos_4_plot;  % 相机始终跟随飞机
-    camera_position = camera_target + [-22, -10, 20];  % 设置相机位置，稍微偏离目标（例如20单位远）
-    campos(camera_position);          % 设置相机位置
+    % % % 轨迹跟随视角（第三人称跟随模式）
+    camera_target = pos_4_plot;  % 目标始终为飞机中心
+    camera_position = camera_target + [-0.8, -0.4, 0.6];  % 相机位于飞机后方稍高处
+    campos(camera_position);  % 设置相机位置
+    camtarget(camera_target); % 让相机朝向飞机
 
 
     % Save to traj 每个五步一存记录
