@@ -3,7 +3,7 @@
 % Get aircraft parameters from sys_params
 params = sys_params();
 
-% Example inputs
+% Example inputs 大风悬停
 % state = [0, 0, -20, params.V_min, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 state = [0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 % elevon_a = deg2rad(params.elevon_min);

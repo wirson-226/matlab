@@ -16,13 +16,15 @@ function [actuator] = actuator_assignment(force, moment, state, params, mode)
     Mx = moment(2); % 俯仰力矩
     Mz = moment(3); % 偏航力矩
 
-    %% 模式切换设置
-    if mode == 1
-        elevator = 0;   % 旋翼模式
-        aileron = 0;        
-
-    end
-    % % 副翼和升降舵的偏转角（这里假设对称，不考虑额外的滚转控制）   
+    % %% 模式切换设置
+    % if mode == 1 & mode ==2
+    %     elevator = 0;   % 旋翼模式
+    %     aileron = 0;        
+    % 
+    % end
+    % % 副翼和升降舵的偏转角（这里假设对称，不考虑额外的滚转控制）  
+    elevator = 0;   % 旋翼模式
+    aileron = 0; 
     elevon_r = elevator + aileron;
     elevon_l = elevator - aileron;
 
@@ -148,38 +150,38 @@ function [actuator] = actuator_assignment(force, moment, state, params, mode)
     Mz = Mz - Aero_Mz;
 
     %% 计算电机的推力（假设推力沿着 Z 轴）   
-    if mode == 1
-        thrust_a_y = (fy + Mz/(params.k_f + params.l3))/2;
-        thrust_b_y = (fy - Mz/(params.k_f + params.l3))/2;
-        thrust_c_z = (fz - (Mx/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (Mx + tcz*l2)/l1 ---- 3tcz + Mx/l1 = Fz;
-        thrust_b_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) + My/(2 * params.l3);
-        thrust_a_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) - My/(2 * params.l3);
+
+    thrust_a_y = (fy + Mz/(params.k_f + params.l3))/2;
+    thrust_b_y = (fy - Mz/(params.k_f + params.l3))/2;
+    thrust_c_z = (fz - (Mx/params.l1))/3; % 细化求解 taz + tbz + tcz = Fz (-fz_aero); taz + tbz  = (Mx + tcz*l2)/l1 ---- 3tcz + Mx/l1 = Fz;
+    thrust_b_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) + My/(2 * params.l3);
+    thrust_a_z = (Mx + params.l2 * thrust_c_z)/(2*params.l1) - My/(2 * params.l3);
+
+    % 计算总推力
+    thrust_a_total = sqrt(thrust_a_y^2 + thrust_a_z^2);  % 电机 A 的总推力
+    thrust_b_total = sqrt(thrust_b_y^2 + thrust_b_z^2);  % 电机 B 的总推力
+
+    % 计算尾电机的侧向推力（假设推力沿着 Y 轴）
+    thrust_c_total = thrust_c_z / cos(params.arm_c);
+
+    % 计算 倾转角 rad
+    arm_a = atan2(thrust_a_y,thrust_a_z);
+    arm_b = atan2(thrust_b_y,thrust_b_z);
+
+    % 将推力转换为油门输入
+    throttle_a = thrust_to_throttle(thrust_a_total, params);  % 电机 A 的油门
+    throttle_b = thrust_to_throttle(thrust_b_total, params);  % 电机 B 的油门
+    throttle_c = thrust_to_throttle(thrust_c_total, params);  % 尾电机的油门
     
-        % 计算总推力
-        thrust_a_total = sqrt(thrust_a_y^2 + thrust_a_z^2);  % 电机 A 的总推力
-        thrust_b_total = sqrt(thrust_b_y^2 + thrust_b_z^2);  % 电机 B 的总推力
-    
-        % 计算尾电机的侧向推力（假设推力沿着 Y 轴）
-        thrust_c_total = thrust_c_z / cos(params.arm_c);
-    
-        % 计算 倾转角 rad
-        arm_a = atan2(thrust_a_y,thrust_a_z);
-        arm_b = atan2(thrust_b_y,thrust_b_z);
-    
-        % 将推力转换为油门输入
-        throttle_a = thrust_to_throttle(thrust_a_total, params);  % 电机 A 的油门
-        throttle_b = thrust_to_throttle(thrust_b_total, params);  % 电机 B 的油门
-        throttle_c = thrust_to_throttle(thrust_c_total, params);  % 尾电机的油门
-        
-        % 执行器 限制 油门 0-1, arm [-30,120], elevon [-45,45] deg
-        arm_a = saturate(arm_a, params.arm_min,params.arm_max);
-        arm_b = saturate(arm_b, params.arm_min,params.arm_max);
-        throttle_a = saturate(throttle_a, params.T_percent_min,params.T_percent_max);  % 电机 A 的油门
-        throttle_b = saturate(throttle_b, params.T_percent_min,params.T_percent_max);  % 电机 B 的油门
-        throttle_c = saturate(throttle_c, params.T_percent_min,params.T_percent_max);  % 尾电机的油门
-        elevon_r = saturate(elevon_r, params.elevon_min, params.elevon_max);
-        elevon_l = saturate(elevon_l, params.elevon_min, params.elevon_max);
-    end
+    % 执行器 限制 油门 0-1, arm [-30,120], elevon [-45,45] deg
+    arm_a = saturate(arm_a, params.arm_min,params.arm_max);
+    arm_b = saturate(arm_b, params.arm_min,params.arm_max);
+    throttle_a = saturate(throttle_a, params.T_percent_min,params.T_percent_max);  % 电机 A 的油门
+    throttle_b = saturate(throttle_b, params.T_percent_min,params.T_percent_max);  % 电机 B 的油门
+    throttle_c = saturate(throttle_c, params.T_percent_min,params.T_percent_max);  % 尾电机的油门
+    elevon_r = saturate(elevon_r, params.elevon_min, params.elevon_max);
+    elevon_l = saturate(elevon_l, params.elevon_min, params.elevon_max);
+
 
 
     % 返回执行器的控制指令（包含推力和偏转角） 行向量

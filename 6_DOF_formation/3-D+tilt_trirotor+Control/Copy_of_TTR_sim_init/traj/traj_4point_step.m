@@ -4,7 +4,7 @@ function [desired_state] = traj_4point_step(t, state)
 
     % Define the four points (x, y, z) in the 3D space
     points = [
-        0, 0, 2;   % Point 1
+        0, 0, 0;   % Point 1
         0, 0, 6;     % Point 2
         0, 6, 6;     % Point 3
         6, 6, 6;     % Point 4
@@ -52,7 +52,7 @@ function [desired_state] = traj_4point_step(t, state)
     desired_state.acc = acc(:);
     desired_state.yaw = yaw;
     desired_state.yawdot = yawdot;
-    desired_state.Va = sqrt(vel(1)^2 + vel(2)^2 + vel(3)^2);  % True airspeed (zero in step)
-    desired_state.mode = 1;  % Mode copter
+    desired_state.Va = 10;  % True airspeed (zero in step)
+    desired_state.mode = 2;  % 
 
 end

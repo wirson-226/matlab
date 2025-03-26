@@ -27,7 +27,7 @@ addpath('traj');
 addpath('controller');
 addpath('test_airplane');
 
-%% copter mode -- pre-calculated trajectories 顶层-位置与偏航期望
+%% copter mode 1-- pre-calculated trajectories 顶层-位置与偏航期望
 
 % trajhandle = @traj_helix;
 % trajhandle = @traj_line; 
@@ -38,7 +38,7 @@ trajhandle = @traj_4point_step;
 
 
 
-%% cruise mode -- pre-calculated trajectories--dubin based 顶层-偏航角 高度 空速
+%% cruise mode 3-- pre-calculated trajectories--dubin based 顶层-偏航角 高度 空速
 %% You need to implement this
 % trajhandle = @traj_generator;
 % trajhandle = @traj_dubin; 

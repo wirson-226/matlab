@@ -1,6 +1,4 @@
 function sdot = vtolEOM_readonly(t, s, F, M, params)
-%   QUADEOM_READONLY Solve quadrotor equation of motion
-%   quadEOM_readonly calculate the derivative of the state vector
 %   todo --坐标系检查-- Done
 %   空气动力相关部分，参考：《Aerodynamic modeling of a delta‑wing UAV for model‑based navigation》 采用model B 
 %   
@@ -67,7 +65,8 @@ R_mapping = [0 1 0;   % 世界x(East) -> 机体y(Front)
 
 % 加速度世界坐标系解算
 % 使用映射矩阵确保坐标系正确变换
-accel = 1 / params.mass * (R_mapping * wRb * [0; 0; F(3)] - [0; 0; params.mass * params.gravity]);
+% accel = 1 / params.mass * (R_mapping * wRb * [0; 0; F(3)] - [0; 0; params.mass * params.gravity]);
+accel = 1 / params.mass * (R_mapping * wRb * F - [0; 0; params.mass * params.gravity]);
 % Display the results
 disp('Acc-inertialframe:');
 disp(accel);
@@ -101,19 +100,5 @@ sdot(11) = pqrdot(1);
 sdot(12) = pqrdot(2);
 sdot(13) = pqrdot(3);
 
-end
-
-
-
-function [phi, theta, psi] = RotToRPY_ENU_to_RFS(R)
-% RotToRPY Convert rotation matrix from World ENU to Body RFS 
-% phi: Roll (rotation around X-axis in body frame)
-% theta: Pitch (rotation around Y-axis in body frame)
-% psi: Yaw (rotation around Z-axis in body frame)
-
-% Note: This implements YXZ rotation order which is equivalent to ZXY
-phi = asin(R(2,3));  % sin(pitch)
-theta = atan2(-R(2,1), R(2,2));  % roll
-psi = atan2(-R(1,3), R(3,3));   % yaw
 end
 
