@@ -83,18 +83,18 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     R_des = [xb_des, yb_des, zb_des];
     
     % 解算欧拉角（ZXY顺序）
-    phi_cmd = atan2(R_des(3,2), R_des(3,3));
-    theta_cmd = asin(R_des(3,1));
+    roll_cmd = atan2(R_des(3,2), R_des(3,3));
+    pitch_cmd = asin(R_des(3,1));
     
      % 姿态环测试用
     % phi_cmd= deg2rad(25);
     % theta_cmd= deg2rad(25);
-    phi_cmd = wrap(phi_cmd, pi/3);      % 滚转角，[-pi/3., pi/3.]
-    theta_cmd = wrap(theta_cmd, pi/3);  % 俯仰角，[-pi/3., pi/3.]
+    roll_cmd = wrap(roll_cmd, pi/3);      % 滚转角，[-pi/3., pi/3.]
+    pitch_cmd = wrap(pitch_cmd, pi/3);  % 俯仰角，[-pi/3., pi/3.]
     
     % 避免奇异后限制范围
-    phi_cmd = saturate(phi_cmd, -params.roll_input_limit, params.roll_input_limit);
-    theta_cmd = saturate(theta_cmd, -params.pitch_input_limit, params.pitch_input_limit);
+    roll_cmd = saturate(roll_cmd, -params.roll_input_limit, params.roll_input_limit);
+    pitch_cmd = saturate(pitch_cmd, -params.pitch_input_limit, params.pitch_input_limit);
     
     % 期望合力转到机体坐标系 ENU -- RFU -- xyz--todo--Done
     % 测试
@@ -106,8 +106,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     % phi_cmd= deg2rad(15);
     % theta_cmd= deg2rad(15);
     % psi_cmd= deg2rad(0);
-    p_cmd = controller.roll_rate_from_roll.update(phi_cmd, state.rot(1));
-    q_cmd = controller.pitch_rate_from_pitch.update(theta_cmd, state.rot(2));
+    p_cmd = controller.roll_rate_from_roll.update(roll_cmd, state.rot(1));
+    q_cmd = controller.pitch_rate_from_pitch.update(pitch_cmd, state.rot(2));
     r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
     
     %% omega control-- xyz rfu 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
@@ -123,7 +123,7 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     %% 期望状态输出 1 * 12 --- vel-att-omege-M
     % 可选替换 - ACC--Moment
     % des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, M_y, M_x, M_z];
-    des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), acc_des(3)];
+    des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, roll_cmd, pitch_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), acc_des(3)];
     copter_cmd = [force_cmd_body; moment_cmd_body]; % 力与力矩期望
     
     % %% 执行器命令结算 -- 控制分配  - 机体坐标系 phi theta psi YXZ 前右上 roll pitch yaw 储存顺序
@@ -139,8 +139,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     if mode == 2
     % 测试用
     acc_des = [0,4,0]; % --todo--定高切换 + 倾转切换 + 姿态稳定
-    phi_cmd = 0;
-    theta_cmd = 0; 
+    roll_cmd = 0;
+    pitch_cmd = 0; 
     % psi_cmd = des_state.yaw;
     psi_cmd = deg2rad(0);
     psi_cmd = wrap(psi_cmd, pi);  % 偏航角，[-pi, pi]
@@ -151,8 +151,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     
     %% attitude control -- p_cmd, q_cmd, r_cmd from accitudes error using PIDControl(class) 机体坐标系下
-    p_cmd = controller.roll_rate_from_roll.update(phi_cmd, state.rot(1));
-    q_cmd = controller.pitch_rate_from_pitch.update(theta_cmd, state.rot(2));
+    p_cmd = controller.roll_rate_from_roll.update(roll_cmd, state.rot(1));
+    q_cmd = controller.pitch_rate_from_pitch.update(pitch_cmd, state.rot(2));
     r_cmd = controller.yaw_rate_from_yaw.update(psi_cmd, state.rot(3));
     
     %% omega control-- xyz rfu 轴力矩 Mx_cmd, My_cmd, Mz_cmd from omega error using PIDControl(class) 机体坐标系下
@@ -166,15 +166,12 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     %% 期望状态输出 1 * 12 --- vel-att-omege-M
     % 可选替换 - ACC--Moment
     % des_from_ctrl = [ve_cmd, vn_cmd, vu_cmd, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, M_y, M_x, M_z];
-    des_from_ctrl = [v_r, u_r, Va, phi_cmd, theta_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), acc_des(3)];
+    des_from_ctrl = [v_r, u_r, Va, roll_cmd, pitch_cmd, psi_cmd, p_cmd, q_cmd, r_cmd, acc_des(1), acc_des(2), acc_des(3)];
     copter_cmd = [force_cmd_body; moment_cmd_body]; % 力与力矩期望
 
     
     % %% 执行器命令结算 -- 控制分配  - 机体坐标系 phi theta psi YXZ 前右上 roll pitch yaw 储存顺序
     command = actuator_assignment(force_cmd_body, moment_cmd_body, state, params, mode);
-        if Va >= des_state.Va
-            mode = 3;
-        end
 
     end
 
@@ -188,22 +185,23 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
         if nargin < 6
             prev_altitude_error = 0;
         end
-        
+    % 测试
+
     % 期望航向角计算（使用更稳定的导航算法）
     dx = des_state.pos(1) - state.pos(1);
     dy = des_state.pos(2) - state.pos(2);
     
     % 使用 atan2 计算期望航向角，并处理特殊情况
-    yaw_cmd = wrapToPi(atan2(dy, dx));
-    
+    yaw_cmd = -wrapToPi(atan2(dx, dy));
+
     % 路径跟踪增强
     % 引入交叉误差和航向误差
     path_distance = sqrt(dx^2 + dy^2);
-    cross_track_error = -sin(yaw_cmd - state.rot(3)) * path_distance;
+    cross_track_error = sin(yaw_cmd - state.rot(3)) * path_distance;
     % heading_error = wrapToPi(yaw_cmd - state.rot(3));
     
     % 速度控制（增加饱和和平滑）
-    throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 1);
+    throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
     ta = throttle/2;
     tb = ta;
     tc = 0;
@@ -215,41 +213,124 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
         0.05 * (altitude_error - prev_altitude_error) / t; % 微分项
     
     % 横滚角控制（引入交叉误差）
-    roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3)) + ...
-        0.5 * cross_track_error; % 交叉误差补偿
+    k_track_error = 0.5; % 直线平飞测试 取消跟踪 
+    roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3)) + ...
+        k_track_error * cross_track_error); % 交叉误差补偿
     
     % 限制横滚角在合理范围
     roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
     
     % 升降舵和副翼控制
-    elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
-    aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
+    Mx_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
+    My_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
     
     % 升降舵和副翼混合控制
-    elevon_r = -(elevator_cmd + aileron_cmd);
-    elevon_l = -(elevator_cmd - aileron_cmd);
+    elevon_r = -(Mx_cmd + My_cmd);
+    elevon_l = -(Mx_cmd - My_cmd);
     
     % 控制面限幅
-    elevon_r = saturate(elevon_r, deg2rad(-20), deg2rad(20));
-    elevon_l = saturate(elevon_l, deg2rad(-20), deg2rad(20));
+    elevon_r = saturate(elevon_r, deg2rad(-45), deg2rad(45));
+    elevon_l = saturate(elevon_l, deg2rad(-45), deg2rad(45));
     
-    % 舵机角度
+    % 倾转角度
     arm_a = deg2rad(90);
     arm_b = arm_a;
     
+    roll_cmd = wrap(roll_cmd, pi/3);      % 滚转角，[-pi/3., pi/3.]
+    pitch_cmd = wrap(pitch_cmd, pi/3);  % 俯仰角，[-pi/3., pi/3.]
+    
+    % 避免奇异后限制范围
+    roll_cmd = saturate(roll_cmd, -params.roll_input_limit, params.roll_input_limit);
+    pitch_cmd = saturate(pitch_cmd, -params.pitch_input_limit, params.pitch_input_limit);
     % 命令输出
     command.throttle = [ta, tb, tc];
     command.elevon = [elevon_r, elevon_l];
     command.arm = [arm_a, arm_b];
     
     % 输出期望状态 (1 * 12)
-    des_from_ctrl = [Va, 0, 0, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, 0, 0, 0];
+
     s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
     [force, moment] = all_forces_moments(s, command, params);
+    moment = [My_cmd; 0.5*Mx_cmd; 0]; % roll pitch yaw;
     copter_cmd = [force; moment]; % 
-
+    des_from_ctrl = [0, Va, 0, roll_cmd, pitch_cmd, yaw_cmd, moment(1), moment(2), moment(3), 0, 0, 0];
 
     end
+    disp(mode);
+
+
+
+
+    % % 期望航向角计算（使用更稳定的导航算法）
+    % dx = des_state.pos(1) - state.pos(1);
+    % dy = des_state.pos(2) - state.pos(2);
+    % 
+    % % 使用 atan2 计算期望航向角，并处理特殊情况
+    % yaw_cmd = wrapToPi(atan2(dy, dx));
+    % % yaw_cmd = deg2rad(0); % 测试偏航 稳定直线
+    % % 路径跟踪增强
+    % % 引入交叉误差和航向误差
+    % path_distance = 0; % sqrt(dx^2 + dy^2);
+    % cross_track_error = -sin(yaw_cmd - state.rot(3)) * path_distance;
+    % % heading_error = wrapToPi(yaw_cmd - state.rot(3));
+    % 
+    % % 速度控制（增加饱和和平滑）
+    % throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
+    % ta = throttle/2;
+    % tb = ta;
+    % tc = 0;
+    % 
+    % % 高度控制（增加前馈和微分项）
+    % altitude_error = des_state.pos(3) - state.pos(3);
+    % pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3)) + ...
+    %     0.1 * altitude_error + ... % 比例项
+    %     0.05 * (altitude_error - prev_altitude_error) / t; % 微分项
+    % 
+    % % 横滚角控制（引入交叉误差）
+    % k_track_error = 0.5; % 直线平飞测试 取消跟踪 
+    % roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3)) + ...
+    %     k_track_error * cross_track_error; % 交叉误差补偿
+    % 
+    % % 限制横滚角在合理范围
+    % roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
+    % 
+    % % 升降舵和副翼控制
+    % elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
+    % aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
+    % 
+    % % 升降舵和副翼混合控制
+    % elevon_r = -(elevator_cmd + aileron_cmd);
+    % elevon_l = -(elevator_cmd - aileron_cmd);
+    % 
+    % % 控制面限幅
+    % elevon_r = saturate(elevon_r, deg2rad(-45), deg2rad(45));
+    % elevon_l = saturate(elevon_l, deg2rad(-45), deg2rad(45));
+    % 
+    % % 倾转角度
+    % arm_a = deg2rad(90);
+    % arm_b = arm_a;
+    % 
+    % roll_cmd = wrap(roll_cmd, pi/3);      % 滚转角，[-pi/3., pi/3.]
+    % pitch_cmd = wrap(pitch_cmd, pi/3);  % 俯仰角，[-pi/3., pi/3.]
+    % 
+    % % 避免奇异后限制范围
+    % roll_cmd = saturate(roll_cmd, -params.roll_input_limit, params.roll_input_limit);
+    % pitch_cmd = saturate(pitch_cmd, -params.pitch_input_limit, params.pitch_input_limit);
+    % % 命令输出
+    % command.throttle = [ta, tb, tc];
+    % command.elevon = [elevon_r, elevon_l];
+    % command.arm = [arm_a, arm_b];
+    % 
+    % % 输出期望状态 (1 * 12)
+    % 
+    % s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
+    % [force, moment] = all_forces_moments(s, command, params);
+    % copter_cmd = [force; moment]; % 
+    % des_from_ctrl = [0, Va, 0, roll_cmd, pitch_cmd, yaw_cmd, moment(1), moment(2), moment(3), 0, 0, 0];
+    % 
+    % end
+    % disp(mode);
+
 end
 
 % 辅助函数：数值饱和

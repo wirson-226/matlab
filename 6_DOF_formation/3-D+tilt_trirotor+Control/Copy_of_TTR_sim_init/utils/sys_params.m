@@ -7,7 +7,7 @@ function params = sys_params()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Physical Parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% kumar老机型参数 目前可用
+% X1500 新参数
 
 m = 2;% (X1500)  % 0.18; % kg
 g = 9.81; % m/s^2
@@ -168,7 +168,7 @@ params.l1 = 0.27;     % m, front motor X-axis force arm 俯仰
 params.l2 = 0.54;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂 0.54*mg = Mx max--10.584 n*m
 params.l3 = 0.33;     % m, front motor Y-axis force arm 滚转            0.33*mg = My max--6.468 n*m  0.5*2*0.33*mg = Mz max--5.874
 
-params.arm_max = deg2rad(120.0);  % max motor arm tilt angle in radians  执行器限制
+params.arm_max = deg2rad(90.0);  % max motor arm tilt angle in radians  执行器限制
 params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
 params.elevon_max = deg2rad(45.0);  % max elevon deflection angle
 params.elevon_min = deg2rad(-45.0);  % min elevon deflection angle
@@ -286,13 +286,13 @@ params.acc_z_sat_limit = 2 * params.gravity;
 params.roll_kp = 6;
 params.roll_ki = 0.0;
 params.roll_kd = 0.1;
-params.roll_input_limit = 70. * pi / 180.;  % rad
+params.roll_input_limit = 60. * pi / 180.;  % rad
 params.roll_rate_sat_limit = 180.0 * pi / 180.0 ; % rad/s
 
 params.pitch_kp = 6;
 params.pitch_ki = 0.0;
 params.pitch_kd = 0.1;
-params.pitch_input_limit = 70. * pi / 180.;  % rad
+params.pitch_input_limit = 60. * pi / 180.;  % rad
 params.pitch_rate_sat_limit = 180.0 * pi / 180.0 ; % rad/s
 
 params.yaw_kp = 4;
@@ -357,62 +357,94 @@ params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Control parameters --- mode 2 cruise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% TF调参-head
+TF = extract_TF_from_params(params);
+% ------ Roll loop (aileron to roll angle) ------
+wn_roll = 10.0;           % 横滚自然频率 [rad/s]
+zeta_roll = 0.707;        % 阻尼比
+params.roll_kp = wn_roll^2 / TF.a_phi2;
+params.roll_kd = (2*zeta_roll*wn_roll - TF.a_phi1) / TF.a_phi2;
+
+% ------ Course loop (outer loop of roll) ------
+wn_course = wn_roll / 20.0;
+zeta_course = 1.0;
+params.course_kp = 2 * zeta_course * wn_course * params.Va_planner / 9.81;
+params.course_ki = wn_course^2 * params.Va_planner / 9.81;
+
+% ------ Pitch loop (elevator to pitch angle) ------
+wn_pitch = 6.0;
+zeta_pitch = 0.707;
+params.pitch_kp = (wn_pitch^2 - TF.a_theta2) / TF.a_theta3;
+params.pitch_kd = (2*zeta_pitch*wn_pitch - TF.a_theta1) / TF.a_theta3;
+
+% DC gain for altitude loop
+K_theta_DC = params.pitch_kp * TF.a_theta3 / (TF.a_theta2 + params.pitch_kp * TF.a_theta3);
+
+% ------ Altitude loop ------
+wn_altitude = wn_pitch / 30.0;
+zeta_altitude = 1.0;
+params.altitude_kp = 2*zeta_altitude*wn_altitude / (K_theta_DC * params.Va_planner);
+params.altitude_ki = wn_altitude^2 / (K_theta_DC * params.Va_planner);
+
+% ------ Airspeed throttle loop ------
+wn_airspeed = 1.0;
+zeta_airspeed = 1.0;
+params.airspeed_throttle_kp = (2*zeta_airspeed*wn_airspeed - TF.a_V1) / TF.a_V2;
+params.airspeed_throttle_ki = wn_airspeed^2 / TF.a_V2;
+params.airspeed_throttle_kd = 0;
+
+% ------ Yaw damper ------
+params.yaw_damper_p_wo = 1.0;
+params.yaw_damper_kr = 0.5;
+
+%%%%% TF调参-end
+
+%%%%% 手动调参
 
 % ----------roll loop-------------
-% get transfer function data for delta_a to phi
-% wn_roll = 6.0;  % 7 old (003) 12.0 / 18.0(004)
-% zeta_roll = 1.1; %old (003) 1.15  /1.4(004)
-% params.roll_kp = wn_roll^2 / TF.a_phi2;
-% params.roll_kd = (2.0 * zeta_roll * wn_roll - TF.a_phi1) / TF.a_phi2;
-params.roll_cruise_kp = 0.035;
-params.roll_cruise_kd = 0.0012;
-% print('roll_kp = ',params.roll_kp,'  roll_kd = ',params.roll_kd);
+params.roll_cruise_kp = 0.5;
+params.roll_cruise_kd = 0.012;
 
 % ----------course loop-------------
-% wn_course = wn_roll / 20.0;
-% zeta_course = 1.0;
-% params.course_kp = 2.0 * zeta_course * wn_course * params.Va_planner / params.gravity;
-% params.course_ki = wn_course ^ 2 * params.Va_planner / params.gravity;
-params.course_kp = 0.003;
-params.course_ki = 0.001;
-% print('course_kp = ',params.course_kp,'  course_ki = ',params.course_ki);
+params.course_kp = 0.3;
+params.course_ki = 0.01;
 
 % ----------yaw damper-------------
 params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
 params.yaw_damper_kr = 0.5; % (old) 0.5
 
 % ----------pitch loop-------------
-% wn_pitch = 26.0;   % old 24.0/30.0(003) /25.0(004)
-% zeta_pitch = 1.25;  % old 0.707/0.95(003) /1.25(004)
-% params.pitch_kp = (wn_pitch ^ 2 - TF.a_theta2) / TF.a_theta3;
-% params.pitch_kd = (2.0 * zeta_pitch * wn_pitch - TF.a_theta1) / TF.a_theta3;
-params.pitch_cruise_kp = -500.0;
-params.pitch_cruise_kd = -25.0;
-% params.K_theta_DC = pitch_kp * TF.a_theta3 / (TF.a_theta2 + pitch_kp * TF.a_theta3);
-% print('pitch_kp = ',params.pitch_kp,'   pitch_kd = ', params.pitch_kd);
-
+params.pitch_cruise_kp = 1.0;
+params.pitch_cruise_kd = 0.05;
 
 % ----------altitude loop-------------
-% wn_altitude = wn_pitch / 30.0;
-% zeta_altitude = 1.31 ; %old 1.31(005)/
-% params.altitude_kp = 2.0 * zeta_altitude * wn_altitude / K_theta_DC / params.Va0;
-% params.altitude_ki = wn_altitude ^ 2 / K_theta_DC / params.Va_planner;
 params.altitude_zone = 10.0;  % moving saturation limit around current altitude
-% params.altitude_kd = 0.0;
-params.altitude_kp = 0.0;
-params.altitude_ki = 0.0;
-% print('altitude_kp = ',params.altitude_kp,'  altitude_ki = ',params.altitude_ki);
+params.altitude_kp = 1.0;
+params.altitude_ki = 0.05;
 
 % ---------airspeed hold using throttle---------------
-% wn_airspeed_throttle = 8.5  % old 3.0/
-% zeta_airspeed_throttle = 7.5    % 0.707
-% airspeed_throttle_kp = (2.0 * zeta_airspeed_throttle * wn_airspeed_throttle - TF.a_V1) / TF.a_V2
-% airspeed_throttle_ki = wn_airspeed_throttle ^ 2 / TF.a_V2
-params.airspeed_throttle_kp = 0.75;
-params.airspeed_throttle_ki = 0.35;
+params.airspeed_throttle_kp = 7.5;
+params.airspeed_throttle_ki = 0.035;
 params.airspeed_throttle_kd = 0.0;
-% print('airspeed_kp = ', params.airspeed_throttle_kp,'   airspeed_ki = ',params.airspeed_throttle_ki, ' airspeed_kd = ',params.airspeed_throttle_kd);
 
+
+
+%%%% transition 测试用
+
+% params.max_cruise_deviation = 5.0;        % 最大巡航偏差 (m)
+% params.min_cruise_velocity = 7.0;         % 最小巡航速度 (m/s)
+% params.position_gain = 0.5;               % 位置控制增益
+% params.velocity_gain = 0.3;               % 速度控制增益
+% params.max_acceleration = 5.0;            % 最大加速度 (m/s²)
+% params.max_hover_velocity = 5;
+% params.altitude_tolerance = 0.3;
+% params.transition_distance_threshold = 0.3;
+% params.hover_velocity_threshold = 5;
+% params.hover_position_tolerance = 0.5;
+% params.transition_duration = 4;
+% params.cruise_acceleration = 4;
 
 
 end
+
+
