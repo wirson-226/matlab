@@ -6,16 +6,16 @@ params = sys_params();
 % Example inputs 大风悬停
 % state = [0, 0, -20, params.V_min, 0, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 state = [0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
-% elevon_a = deg2rad(params.elevon_min);
-% elevon_b = deg2rad(params.elevon_max);
-elevon_a = deg2rad(0);
-elevon_b = deg2rad(0);
+
 
 %% 满油平飞 测试用
-% command.throttle = [1,1,0];
-% command.arm = [pi/2,pi/2];
-% command.elevon = [elevon_a, elevon_b];
+elevon_a = deg2rad(45);
+elevon_b = deg2rad(45);
+command.throttle = [1,1,0];
+command.arm = [pi/2,pi/2];
+command.elevon = [elevon_a, elevon_b];
 % command.elevon = [params.elevon_max, params.elevon_max];
+
 
 %% 过渡 hovering to cruise 定高加速 测试用 
 % command.throttle = [2/3,2/3,1/3];
@@ -26,16 +26,16 @@ elevon_b = deg2rad(0);
 
 %% 旋翼定高悬停平衡计算测试 参考Media--TTR_arm_a
 
-arm_a = 0;
-arm_b = -arm_a;
-tc = ((params.mass * params.gravity) * 1/3) / (params.T_max * cos(params.arm_c));
-% tc = (1/3) / cos(params.arm_c);
-ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
-tb = ta;
-
-command.throttle = [ta,tb,tc];
-command.elevon = [elevon_a,elevon_b]; 
-command.arm = [arm_a,arm_b];
+% arm_a = 0;
+% arm_b = -arm_a;
+% tc = ((params.mass * params.gravity) * 1/3) / (params.T_max * cos(params.arm_c));
+% % tc = (1/3) / cos(params.arm_c);
+% ta = 2 * (params.l1/params.l2) * tc * cos(params.arm_c);
+% tb = ta;
+% 
+% command.throttle = [ta,tb,tc];
+% command.elevon = [0,0]; 
+% command.arm = [arm_a,arm_b];
 
 
 
