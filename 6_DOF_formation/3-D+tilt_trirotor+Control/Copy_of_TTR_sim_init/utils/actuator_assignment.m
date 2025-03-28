@@ -173,9 +173,20 @@ function [actuator] = actuator_assignment(force, moment, state, params, mode)
     throttle_b = thrust_to_throttle(thrust_b_total, params);  % 电机 B 的油门
     throttle_c = thrust_to_throttle(thrust_c_total, params);  % 尾电机的油门
     
-    % 执行器 限制 油门 0-1, arm [-30,120], elevon [-45,45] deg
-    arm_a = saturate(arm_a, params.arm_min,params.arm_max);
-    arm_b = saturate(arm_b, params.arm_min,params.arm_max);
+    % 执行器 限制 油门 0-1, arm [-45,90], elevon [-45,45] deg
+    if mode == 1
+        arm_a = saturate(arm_a, params.arm_min,0.5*params.arm_max);
+        arm_b = saturate(arm_b, params.arm_min,0.5*params.arm_max);
+    
+    elseif mode == 2    
+        arm_a = saturate(arm_a, params.arm_min,params.arm_max);
+        arm_b = saturate(arm_b, params.arm_min,params.arm_max);
+
+    elseif mode == 3    
+        arm_a = saturate(arm_a, deg2rad(90.0),deg2rad(90.0));
+        arm_b = saturate(arm_b, deg2rad(90.0),deg2rad(90.0));
+    end
+
     throttle_a = saturate(throttle_a, params.T_percent_min,params.T_percent_max);  % 电机 A 的油门
     throttle_b = saturate(throttle_b, params.T_percent_min,params.T_percent_max);  % 电机 B 的油门
     throttle_c = saturate(throttle_c, params.T_percent_min,params.T_percent_max);  % 尾电机的油门

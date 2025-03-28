@@ -169,7 +169,7 @@ params.l2 = 0.54;     % m, rear motor X-axis force arm  俯仰 大屁股 力臂 
 params.l3 = 0.33;     % m, front motor Y-axis force arm 滚转            0.33*mg = My max--6.468 n*m  0.5*2*0.33*mg = Mz max--5.874
 
 params.arm_max = deg2rad(90.0);  % max motor arm tilt angle in radians  执行器限制
-params.arm_min = deg2rad(-30.0);  % min motor arm tilt angle in radians
+params.arm_min = deg2rad(-45.0);  % min motor arm tilt angle in radians
 params.elevon_max = deg2rad(45.0);  % max elevon deflection angle
 params.elevon_min = deg2rad(-45.0);  % min elevon deflection angle
 
