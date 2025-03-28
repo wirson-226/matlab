@@ -208,14 +208,15 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     % 高度控制（增加前馈和微分项）
     altitude_error = des_state.pos(3) - state.pos(3);
-    pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3)) + ...
-        0.1 * altitude_error + ... % 比例项
-        0.05 * (altitude_error - prev_altitude_error) / t; % 微分项
+    pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));
+    % + ...
+    %     0.1 * altitude_error + ... % 比例项
+    %     0.05 * (altitude_error - prev_altitude_error) / t; % 微分项
     
-    % 横滚角控制（引入交叉误差）
-    k_track_error = 0.5; % 直线平飞测试 取消跟踪 
-    roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3)) + ...
-        k_track_error * cross_track_error); % 交叉误差补偿
+    % 横滚角控制（引入交叉误差） % 坐标系补偿修正 正滚转 负偏航
+    k_track_error = 0.5; % 直线平飞测试 取消跟踪  
+    roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3))) ;% + ...
+        %k_track_error * cross_track_error); % 交叉误差补偿
     
     % 限制横滚角在合理范围
     roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
@@ -251,85 +252,12 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
 
     s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
     [force, moment] = all_forces_moments(s, command, params);
-    moment = [My_cmd; 0.5*Mx_cmd; 0]; % roll pitch yaw;
+    % % moment = [My_cmd; Mx_cmd; 0]; % roll pitch yaw;
     copter_cmd = [force; moment]; % 
-    des_from_ctrl = [0, Va, 0, roll_cmd, pitch_cmd, yaw_cmd, moment(1), moment(2), moment(3), 0, 0, 0];
+    des_from_ctrl = [Va, des_state.Va, 0, roll_cmd, pitch_cmd, yaw_cmd, moment(1), moment(2), moment(3), 0, 0, 0];
 
     end
     disp(mode);
-
-
-
-
-    % % 期望航向角计算（使用更稳定的导航算法）
-    % dx = des_state.pos(1) - state.pos(1);
-    % dy = des_state.pos(2) - state.pos(2);
-    % 
-    % % 使用 atan2 计算期望航向角，并处理特殊情况
-    % yaw_cmd = wrapToPi(atan2(dy, dx));
-    % % yaw_cmd = deg2rad(0); % 测试偏航 稳定直线
-    % % 路径跟踪增强
-    % % 引入交叉误差和航向误差
-    % path_distance = 0; % sqrt(dx^2 + dy^2);
-    % cross_track_error = -sin(yaw_cmd - state.rot(3)) * path_distance;
-    % % heading_error = wrapToPi(yaw_cmd - state.rot(3));
-    % 
-    % % 速度控制（增加饱和和平滑）
-    % throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
-    % ta = throttle/2;
-    % tb = ta;
-    % tc = 0;
-    % 
-    % % 高度控制（增加前馈和微分项）
-    % altitude_error = des_state.pos(3) - state.pos(3);
-    % pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3)) + ...
-    %     0.1 * altitude_error + ... % 比例项
-    %     0.05 * (altitude_error - prev_altitude_error) / t; % 微分项
-    % 
-    % % 横滚角控制（引入交叉误差）
-    % k_track_error = 0.5; % 直线平飞测试 取消跟踪 
-    % roll_cmd = controller.roll_from_course.update(yaw_cmd, state.rot(3)) + ...
-    %     k_track_error * cross_track_error; % 交叉误差补偿
-    % 
-    % % 限制横滚角在合理范围
-    % roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
-    % 
-    % % 升降舵和副翼控制
-    % elevator_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
-    % aileron_cmd = controller.aileron_from_roll.update(roll_cmd, state.rot(1), state.omega(1));
-    % 
-    % % 升降舵和副翼混合控制
-    % elevon_r = -(elevator_cmd + aileron_cmd);
-    % elevon_l = -(elevator_cmd - aileron_cmd);
-    % 
-    % % 控制面限幅
-    % elevon_r = saturate(elevon_r, deg2rad(-45), deg2rad(45));
-    % elevon_l = saturate(elevon_l, deg2rad(-45), deg2rad(45));
-    % 
-    % % 倾转角度
-    % arm_a = deg2rad(90);
-    % arm_b = arm_a;
-    % 
-    % roll_cmd = wrap(roll_cmd, pi/3);      % 滚转角，[-pi/3., pi/3.]
-    % pitch_cmd = wrap(pitch_cmd, pi/3);  % 俯仰角，[-pi/3., pi/3.]
-    % 
-    % % 避免奇异后限制范围
-    % roll_cmd = saturate(roll_cmd, -params.roll_input_limit, params.roll_input_limit);
-    % pitch_cmd = saturate(pitch_cmd, -params.pitch_input_limit, params.pitch_input_limit);
-    % % 命令输出
-    % command.throttle = [ta, tb, tc];
-    % command.elevon = [elevon_r, elevon_l];
-    % command.arm = [arm_a, arm_b];
-    % 
-    % % 输出期望状态 (1 * 12)
-    % 
-    % s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
-    % [force, moment] = all_forces_moments(s, command, params);
-    % copter_cmd = [force; moment]; % 
-    % des_from_ctrl = [0, Va, 0, roll_cmd, pitch_cmd, yaw_cmd, moment(1), moment(2), moment(3), 0, 0, 0];
-    % 
-    % end
-    % disp(mode);
 
 end
 
