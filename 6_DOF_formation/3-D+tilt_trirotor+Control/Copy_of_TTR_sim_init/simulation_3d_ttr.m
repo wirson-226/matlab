@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 15;
+max_time = 12;
 
 % parameters for simulation
 params = sys_params;
@@ -68,7 +68,7 @@ err = []; % runtime errors
 des_start = trajhandle(0, []);
 des_stop  = trajhandle(inf, []);
 stop_pos  = des_stop.pos;
-x0    = init_state(des_start.pos, 0); % pos + yaw 初始在这可调其余params中定义
+x0    = init_state(des_start.pos, params.psi0); % pos + yaw 初始在这可调其余params中定义
 xtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];

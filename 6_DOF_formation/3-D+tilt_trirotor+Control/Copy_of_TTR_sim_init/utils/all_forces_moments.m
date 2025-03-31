@@ -56,7 +56,8 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
             alpha = atan2(w_r, v_r);  % Angle of attack
         end
         
-        beta = asin(u_r / Va);  % Sideslip angle
+        % beta = asin(u_r / Va);  % Sideslip angle
+        beta  = 0;
     end
 
     % Get MAV parameters
@@ -175,7 +176,7 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
     % % 测试隔离用
     % Aero_Mx = 0;
     % Aero_My = 0;
-    % Aero_Mz = 0;
+    Aero_Mz = 0;
 
     My = Aero_My + MAV.l3 * (thrust_prop_b_z - thrust_prop_a_z); % 滚转 忽略反扭倾转映射 a r -- b l , 左正右负
     Mx = Aero_Mx + MAV.l1 * (thrust_prop_a_z + thrust_prop_b_z) - thrust_prop_c_z * MAV.l2; % 俯仰 忽略c反扭倾转映射 前正 后负
@@ -186,7 +187,7 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
     % force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
     % moment = [0; 0; 0];  % Aerodynamic moments [My, Mx, Mz] in body frame
 
-    force = [fx; fy; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
+    force = [fy; fx; fz];   % Aerodynamic forces [Fx, Fy, Fz] in body frame
     moment = [My; Mx; Mz];  % Aerodynamic moments [My, Mx, Mz] in body frame
 
 
@@ -222,9 +223,9 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
     % disp(['Tail_Mz: ', num2str(Tail_Mz)]);
     % 
     % 重力
-    Fg = params.mass * params.gravity;
-    disp('Fg:');
-    disp(Fg);
+    % Fg = params.mass * params.gravity;
+    % disp('Fg:');
+    % disp(Fg);
     % 
     % % Display the results
     % disp('Forces（XYZ-without G）:'); % XYZ

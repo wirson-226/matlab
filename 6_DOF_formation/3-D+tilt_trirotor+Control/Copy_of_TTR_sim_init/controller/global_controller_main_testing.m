@@ -191,7 +191,7 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     % 使用 atan2 计算期望航向角，东北天与右前上坐标系框架
     yaw_cmd = -wrapToPi(atan2(dx, dy));
-    yaw_cmd = 0; % test
+    yaw_cmd = deg2rad(0); % test
     % 速度控制（增加饱和和平滑）
     throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
     ta = throttle/2;
@@ -200,10 +200,10 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     % 高度控制（增加前馈和微分项）
     pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));    
-    pitch_cmd = 0;% test
+    % pitch_cmd = deg2rad(10);% test--done
     % 横滚角控制（引入交叉误差） % 坐标系补偿修正 正滚转 负偏航  
     roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3))) ;
-    roll_cmd =0; % test
+    % roll_cmd =  deg2rad(10); % test--done
     % 限制横滚角在合理范围
     roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
     
@@ -233,6 +233,7 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     % 命令输出
     command.throttle = [ta, tb, tc];
     command.elevon = [elevon_r, elevon_l];
+    % command.elevon = [0, 0];
     command.arm = [arm_a, arm_b];
     
     % 输出期望状态 (1 * 12)
@@ -243,7 +244,7 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     des_from_ctrl = [Va, des_state.Va, 0, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, moment(1), moment(2), moment(3)];
 
     end
-    disp(mode);
+    % disp(mode);
 
 end
 
@@ -259,3 +260,4 @@ end
 
 
 % % moment = [My_cmd; Mx_cmd; 0]; % roll pitch yaw;
+% moment(3) = 0.1*roll_cmd_1;

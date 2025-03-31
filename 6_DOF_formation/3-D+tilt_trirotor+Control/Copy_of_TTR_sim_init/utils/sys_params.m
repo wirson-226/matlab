@@ -35,12 +35,12 @@ params.north0 = 0.0;  % initial north position
 params.east0 = 0.0;   % initial east position
 params.up = 0.0;  % initial down position
 params.u0 = 0.0;  % initial velocity along body x-axis
-params.v0 = 15.0;  % initial velocity along body y-axis -- todo--测试cruise
+params.v0 = 10.0;  % initial velocity along body y-axis -- todo--测试cruise
 params.w0 = 0.0;  % initial velocity along body z-axis
 
-params.phi0 = 0.0;  % initial roll angle
-params.theta0 = 0.0;  % initial pitch angle
-params.psi0 = 0.0;  % initial yaw angle
+params.phi0 = deg2rad(0);  % initial roll angle
+params.theta0 = deg2rad(0);  % initial pitch angle
+params.psi0 = deg2rad(0);  % initial yaw angle
 params.p0 = 0.0;  % initial roll rate
 params.q0 = 0.0;  % initial pitch rate
 params.r0 = 0.0;  % initial yaw rate
@@ -91,7 +91,7 @@ params.C_D_q = 0.318;
 params.C_m_q = -25.21;
 params.C_L_delta_e = 0.18;
 params.C_D_delta_e = 0.0135;
-params.C_m_delta_e = -1.21;
+params.C_m_delta_e = -2.21;
 params.M = 50.0;
 params.alpha0 = deg2rad(3.0);  % convert degrees to radians
 params.epsilon = 0.16;
@@ -106,6 +106,13 @@ params.C_Y_p = 0.0;
 params.C_Y_r = 0.0;
 params.C_Y_delta_a = 0.075;
 params.C_Y_delta_r = 0.19;
+
+% params.C_n_0 = 0.0;
+% params.C_n_beta = -0.044;
+% params.C_n_p = 0.069;
+% params.C_n_r = -0.095;
+% params.C_n_delta_a = -0.011;
+% params.C_n_delta_r = -0.068; % -0.069固定翼
 
 params.C_n_0 = 0.0;
 params.C_n_beta = -0.044;
@@ -414,8 +421,8 @@ params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
 params.yaw_damper_kr = 0.5; % (old) 0.5
 
 % ----------pitch loop-------------
-params.pitch_cruise_kp = 0.60;
-params.pitch_cruise_kd = 0.15;
+params.pitch_cruise_kp = 5.0;
+params.pitch_cruise_kd = 0.35;
 
 % ----------altitude loop-------------
 params.altitude_zone = 10.0;  % moving saturation limit around current altitude

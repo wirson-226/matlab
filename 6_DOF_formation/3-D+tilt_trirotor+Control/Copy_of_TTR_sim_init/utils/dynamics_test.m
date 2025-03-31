@@ -9,8 +9,8 @@ state = [0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0];  % m/s (ground speed)
 
 
 %% 满油平飞 测试用
-elevon_a = deg2rad(45);
-elevon_b = deg2rad(45);
+elevon_a = deg2rad(0);
+elevon_b = deg2rad(0);
 command.throttle = [1,1,0];
 command.arm = [pi/2,pi/2];
 command.elevon = [elevon_a, elevon_b];
