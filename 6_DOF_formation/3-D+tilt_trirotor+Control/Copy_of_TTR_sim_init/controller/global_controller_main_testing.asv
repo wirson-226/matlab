@@ -183,15 +183,23 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     if mode == 3 
         if nargin < 6
+            prev_altitude_error = 0;
         end
+    % 测试
 
     % 期望航向角计算（使用更稳定的导航算法）
     dx = des_state.pos(1) - state.pos(1);
     dy = des_state.pos(2) - state.pos(2);
     
-    % 使用 atan2 计算期望航向角，东北天与右前上坐标系框架
+    % 使用 atan2 计算期望航向角，并处理特殊情况
     yaw_cmd = -wrapToPi(atan2(dx, dy));
-    yaw_cmd = 0; % test
+
+    % 路径跟踪增强
+    % 引入交叉误差和航向误差
+    path_distance = sqrt(dx^2 + dy^2);
+    cross_track_error = sin(yaw_cmd - state.rot(3)) * path_distance;
+    % heading_error = wrapToPi(yaw_cmd - state.rot(3));
+    
     % 速度控制（增加饱和和平滑）
     throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
     ta = throttle/2;
@@ -199,11 +207,16 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     tc = 0;
     
     % 高度控制（增加前馈和微分项）
-    pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));    
-    pitch_cmd = 0;% test
-    % 横滚角控制（引入交叉误差） % 坐标系补偿修正 正滚转 负偏航  
+    altitude_error = des_state.pos(3) - state.pos(3);
+    pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));
+    % + ...
+    %     0.1 * altitude_error + ... % 比例项
+    %     0.05 * (altitude_error - prev_altitude_error) / t; % 微分项
+    
+    % 横滚角控制（引入交叉误差） % 坐标系补偿修正 正滚转 负偏航
+    k_track_error = 0.5; % 直线平飞测试 取消跟踪  
     roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3))) ;
-    roll_cmd =0; % test
+    
     % 限制横滚角在合理范围
     roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
     
@@ -221,9 +234,8 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     % 倾转角度
     arm_a = deg2rad(90);
-    arm_b = arm_a;    
-
-    % 避免奇异
+    arm_b = arm_a;
+    
     roll_cmd = wrap(roll_cmd, pi/3);      % 滚转角，[-pi/3., pi/3.]
     pitch_cmd = wrap(pitch_cmd, pi/3);  % 俯仰角，[-pi/3., pi/3.]
     
@@ -236,9 +248,9 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     command.arm = [arm_a, arm_b];
     
     % 输出期望状态 (1 * 12)
+
     s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
     [force, moment] = all_forces_moments(s, command, params);
-
     copter_cmd = [force; moment]; % 
     des_from_ctrl = [Va, des_state.Va, 0, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, moment(1), moment(2), moment(3)];
 
@@ -257,5 +269,3 @@ function angle = wrapToPi(angle)
     angle = mod(angle + pi, 2*pi) - pi;
 end
 
-
-% % moment = [My_cmd; Mx_cmd; 0]; % roll pitch yaw;

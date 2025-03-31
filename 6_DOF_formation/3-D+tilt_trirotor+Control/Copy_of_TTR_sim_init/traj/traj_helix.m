@@ -70,24 +70,11 @@ else
     end
 end
 
-    %tilt angle duration
-if t>T_hover && t<(T-T_hover)
-
-    tilt_angle = [90,90];
-    
-else
-    tilt_angle = [0,0];
-
-end
-
-
 % output desired state
 desired_state.pos = pos(:);
 desired_state.vel = vel(:);
 desired_state.acc = acc(:);
 desired_state.yaw = yaw;
 desired_state.yawdot = yawdot;
-desired_state.tilt_angle = tilt_angle;
-% desired_state.Va = 10;
 desired_state.mode = 1;  % Mode copter
 end

@@ -67,15 +67,17 @@ classdef AircraftControl
             obj.roll_from_course = PIControl(params.course_kp, params.course_ki, params.Ts, params.course_max);
             obj.pitch_from_altitude = PIControl(params.altitude_kp, params.altitude_ki, params.Ts, deg2rad(30));
 
-            % % Initialize yaw damper transfer function
-            % obj.yaw_damper = TransferFunction(params.yaw_damper_kr, [1, params.yaw_damper_p_wo], params.Ts);
-            % 
             % Initialize PID controller for airspeed
             obj.throttle_from_airspeed = PIDControl(params.airspeed_throttle_kp, params.airspeed_throttle_ki, ...
                                                      params.airspeed_throttle_kd, params.Ts, params.sigma, 1.0);
         end
     end
 end
+
+% % Initialize yaw damper transfer function
+% obj.yaw_damper = TransferFunction(params.yaw_damper_kr, [1, params.yaw_damper_p_wo], params.Ts);
+
+
 
 % Helper function for degree-to-radian conversion
 function r = deg2rad(deg)

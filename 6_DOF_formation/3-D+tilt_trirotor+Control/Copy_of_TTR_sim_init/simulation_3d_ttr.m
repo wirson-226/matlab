@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 40;
+max_time = 20;
 
 % parameters for simulation
 params = sys_params;
@@ -44,6 +44,7 @@ y2= 100*scale;
 z1= -100*scale;
 z2= 100*scale;
 xlim([x1 x2]); ylim([y1 y2]); zlim([z1 z2]); % 设置坐标轴范围
+view(3);
 % xlim([-10 10]); ylim([-10 10]); zlim([-10 10]); % 设置坐标轴范围
 % set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转
 
@@ -67,7 +68,7 @@ err = []; % runtime errors
 des_start = trajhandle(0, []);
 des_stop  = trajhandle(inf, []);
 stop_pos  = des_stop.pos;
-x0    = init_state(des_start.pos, 0);
+x0    = init_state(des_start.pos, 0); % pos + yaw 初始在这可调其余params中定义
 xtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];

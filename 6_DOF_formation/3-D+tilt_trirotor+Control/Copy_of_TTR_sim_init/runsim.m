@@ -32,9 +32,9 @@ addpath('test_airplane');
 % trajhandle = @traj_helix;
 % trajhandle = @traj_line; 
 % trajhandle = @traj_circle; 
-% trajhandle = @traj_4point_step;
-trajhandle = @traj_vtol_global;
-
+trajhandle = @traj_4point_step;
+% trajhandle = @traj_vtol_global;
+% trajhandle = @traj_cruise;
 
 
 
@@ -58,4 +58,6 @@ controlhandle = @global_controller_main_testing;
 % Run simulation with given trajectory generator and controller
 % state - n x 13, with each row having format [x, y, z, xdot, ydot, zdot, qw, qx, qy, qz, p, q, r]
 [t, state] = simulation_3d_ttr(trajhandle, controlhandle); % 
+
+
 

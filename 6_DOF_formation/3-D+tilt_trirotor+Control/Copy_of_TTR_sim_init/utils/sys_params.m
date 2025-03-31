@@ -35,7 +35,7 @@ params.north0 = 0.0;  % initial north position
 params.east0 = 0.0;   % initial east position
 params.up = 0.0;  % initial down position
 params.u0 = 0.0;  % initial velocity along body x-axis
-params.v0 = 0.0;  % initial velocity along body y-axis
+params.v0 = 10.0;  % initial velocity along body y-axis -- todo--测试cruise
 params.w0 = 0.0;  % initial velocity along body z-axis
 
 params.phi0 = 0.0;  % initial roll angle
@@ -101,14 +101,14 @@ params.C_D_p = 0.0;
 % Lateral Coefficients Y 侧向力 n偏航 ell滚转
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.C_Y_0 = 0.0;
-params.C_Y_beta = -0.98;
+params.C_Y_beta = -0.98;% 3 ;%
 params.C_Y_p = 0.0;
 params.C_Y_r = 0.0;
 params.C_Y_delta_a = 0.075;
 params.C_Y_delta_r = 0.19;
 
 params.C_n_0 = 0.0;
-params.C_n_beta = 0.044;
+params.C_n_beta = -0.044;
 params.C_n_p = 0.069;
 params.C_n_r = -0.095;
 params.C_n_delta_a = -0.011;
@@ -362,8 +362,8 @@ TF = extract_TF_from_params(params);
 % ------ Roll loop (aileron to roll angle) ------
 wn_roll = 10.0;           % 横滚自然频率 [rad/s]
 zeta_roll = 0.707;        % 阻尼比
-params.roll_kp = wn_roll^2 / TF.a_phi2;
-params.roll_kd = (2*zeta_roll*wn_roll - TF.a_phi1) / TF.a_phi2;
+params.roll_cruise_kp = wn_roll^2 / TF.a_phi2;
+params.roll_cruise_kd = (2*zeta_roll*wn_roll - TF.a_phi1) / TF.a_phi2;
 
 % ------ Course loop (outer loop of roll) ------
 wn_course = wn_roll / 20.0;
@@ -374,8 +374,8 @@ params.course_ki = wn_course^2 * params.Va_planner / 9.81;
 % ------ Pitch loop (elevator to pitch angle) ------
 wn_pitch = 6.0;
 zeta_pitch = 0.707;
-params.pitch_kp = (wn_pitch^2 - TF.a_theta2) / TF.a_theta3;
-params.pitch_kd = (2*zeta_pitch*wn_pitch - TF.a_theta1) / TF.a_theta3;
+params.pitch_cruise_kp = (wn_pitch^2 - TF.a_theta2) / TF.a_theta3;
+params.pitch_cruise_kd = (2*zeta_pitch*wn_pitch - TF.a_theta1) / TF.a_theta3;
 
 % DC gain for altitude loop
 K_theta_DC = params.pitch_kp * TF.a_theta3 / (TF.a_theta2 + params.pitch_kp * TF.a_theta3);
@@ -399,33 +399,33 @@ params.yaw_damper_kr = 0.5;
 
 %%%%% TF调参-end
 
-%%%%% 手动调参
-
-% ----------roll loop-------------
-params.roll_cruise_kp = 0.5;
-params.roll_cruise_kd = 0.012;
-
-% ----------course loop-------------
-params.course_kp = 0.3;
-params.course_ki = 0.01;
-
-% ----------yaw damper-------------
-params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
-params.yaw_damper_kr = 0.5; % (old) 0.5
-
-% ----------pitch loop-------------
-params.pitch_cruise_kp = 1.0;
-params.pitch_cruise_kd = 0.05;
-
-% ----------altitude loop-------------
-params.altitude_zone = 10.0;  % moving saturation limit around current altitude
-params.altitude_kp = 1.0;
-params.altitude_ki = 0.05;
-
-% ---------airspeed hold using throttle---------------
-params.airspeed_throttle_kp = 7.5;
-params.airspeed_throttle_ki = 0.035;
-params.airspeed_throttle_kd = 0.0;
+% %%%%% 手动调参
+% 
+% % ----------roll loop-------------
+% params.roll_cruise_kp = 0.5;
+% params.roll_cruise_kd = 0.012;
+% 
+% % ----------course loop-------------
+% params.course_kp = 0.3;
+% params.course_ki = 0.01;
+% 
+% % ----------yaw damper-------------
+% params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
+% params.yaw_damper_kr = 0.5; % (old) 0.5
+% 
+% % ----------pitch loop-------------
+% params.pitch_cruise_kp = 1.0;
+% params.pitch_cruise_kd = 0.05;
+% 
+% % ----------altitude loop-------------
+% params.altitude_zone = 10.0;  % moving saturation limit around current altitude
+% params.altitude_kp = 1.0;
+% params.altitude_ki = 0.05;
+% 
+% % ---------airspeed hold using throttle---------------
+% params.airspeed_throttle_kp = 7.5;
+% params.airspeed_throttle_ki = 0.035;
+% params.airspeed_throttle_kd = 0.0;
 
 
 
