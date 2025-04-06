@@ -19,7 +19,7 @@ addpath('test_airplane');
 real_time = true;
 
 % max time
-max_time = 12;
+max_time = 5;
 
 % parameters for simulation
 params = sys_params;
@@ -34,16 +34,14 @@ xlabel('X_东_右');
 ylabel('Y_北_前');
 zlabel('Z_上');
 title('TTR-VTOL flight');
-% view(3);  % 3D视图
-scale = 10;
-% view(120,30);
-x1= -100*scale;
-x2= 100*scale;
-y1= -100*scale;
-y2= 100*scale;
-z1= -100*scale;
-z2= 100*scale;
-xlim([x1 x2]); ylim([y1 y2]); zlim([z1 z2]); % 设置坐标轴范围
+scale = 1;
+% x1= -100*scale;
+% x2= 100*scale;
+% y1= -100*scale;
+% y2= 100*scale;
+% z1= -100*scale;
+% z2= 100*scale;
+% xlim([x1 x2]); ylim([y1 y2]); zlim([z1 z2]); % 设置坐标轴范围
 view(3);
 % xlim([-10 10]); ylim([-10 10]); zlim([-10 10]); % 设置坐标轴范围
 % set(gca, 'YDir', 'reverse');  % 'reverse' 将 y 轴正向反转

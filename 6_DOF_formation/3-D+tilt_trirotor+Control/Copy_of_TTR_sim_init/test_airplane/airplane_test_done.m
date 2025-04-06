@@ -63,7 +63,7 @@ points = [
 ];
 
 % 最小转弯半径
-r = 2;
+r = 8;
 h = 0; % 高度（平面内保持不变）
 % 步长（决定路径精细程度）
 stepsize = 0.1;
@@ -116,7 +116,7 @@ for t = 1:num_steps
         
         % 将四元数转换为旋转矩阵
         R = quat2rotm(q_current(i, :)); % 使用四元数生成旋转矩阵
-        att = [0,0,desired_yaw];
+        att = [0,0,desired_yaw + deg2rad(-90)];
         tilt = [90,90];
 
         % 清除之前绘制

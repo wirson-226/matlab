@@ -24,9 +24,10 @@ classdef AircraftControl
         aileron_from_roll
         elevator_from_pitch
 
-        % PI controllers for course, altitude
+        % PI controllers for course, altitude + 侧滑角
         roll_from_course
         pitch_from_altitude
+        delta_from_beta
         
         % Transfer function for yaw damper
         yaw_damper
@@ -53,6 +54,7 @@ classdef AircraftControl
             obj.roll_rate_from_roll  = PIDControl(params.roll_kp, params.roll_ki, params.roll_kd, params.Ts, params.sigma, params.roll_rate_sat_limit);
             obj.pitch_rate_from_pitch = PIDControl(params.pitch_kp, params.pitch_ki, params.pitch_kd, params.Ts, params.sigma, params.pitch_rate_sat_limit);
             obj.yaw_rate_from_yaw    = PIDControl(params.yaw_kp, params.yaw_ki, params.yaw_kd, params.Ts, params.sigma, params.yaw_rate_sat_limit);
+            % obj.delta_from_beta = PIDControl(params.delta_kp, params.delta_ki, params.delta_kd, params.Ts, params.sigma,params.delta_input_limit);
 
             % Initialize PID controllers for angular rate to moment loops (ENU)
             obj.My_from_roll_rate = PIDControl(params.roll_rate_kp, params.roll_rate_ki, params.roll_rate_kd, params.Ts, params.sigma, params.My_limit);
@@ -63,13 +65,17 @@ classdef AircraftControl
             obj.aileron_from_roll = PDControlWithRate(params.roll_cruise_kp, params.roll_cruise_kd, params.phi_max);
             obj.elevator_from_pitch = PDControlWithRate(params.pitch_cruise_kp, params.pitch_cruise_kd, params.theta_max);
 
-            % Initialize PI controllers for course and altitude
+            % Initialize PI controllers for course and altitude -- 侧滑角添加
             obj.roll_from_course = PIControl(params.course_kp, params.course_ki, params.Ts, params.course_max);
             obj.pitch_from_altitude = PIControl(params.altitude_kp, params.altitude_ki, params.Ts, deg2rad(30));
+            obj.delta_from_beta = PIControl(params.delta_kp, params.delta_ki, params.Ts, params.delta_input_limit);
+
 
             % Initialize PID controller for airspeed
             obj.throttle_from_airspeed = PIDControl(params.airspeed_throttle_kp, params.airspeed_throttle_ki, ...
                                                      params.airspeed_throttle_kd, params.Ts, params.sigma, 1.0);
+
+
         end
     end
 end

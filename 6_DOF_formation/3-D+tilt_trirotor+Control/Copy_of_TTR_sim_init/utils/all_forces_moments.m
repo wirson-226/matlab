@@ -56,8 +56,8 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
             alpha = atan2(w_r, v_r);  % Angle of attack
         end
         
-        % beta = asin(u_r / Va);  % Sideslip angle
-        beta  = 0;
+        beta = asin(u_r / Va);  % Sideslip angle
+        % beta  = 0;
     end
 
     % Get MAV parameters

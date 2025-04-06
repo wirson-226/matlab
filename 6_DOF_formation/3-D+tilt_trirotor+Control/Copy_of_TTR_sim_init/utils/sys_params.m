@@ -35,7 +35,7 @@ params.north0 = 0.0;  % initial north position
 params.east0 = 0.0;   % initial east position
 params.up = 0.0;  % initial down position
 params.u0 = 0.0;  % initial velocity along body x-axis
-params.v0 = 10.0;  % initial velocity along body y-axis -- todo--测试cruise
+params.v0 = 15.0;  % initial velocity along body y-axis -- todo--测试cruise
 params.w0 = 0.0;  % initial velocity along body z-axis
 
 params.phi0 = deg2rad(0);  % initial roll angle
@@ -101,10 +101,10 @@ params.C_D_p = 0.0;
 % Lateral Coefficients Y 侧向力 n偏航 ell滚转
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 params.C_Y_0 = 0.0;
-params.C_Y_beta = -0.98;% 3 ;%
+params.C_Y_beta = 0;% -0.98 ;%
 params.C_Y_p = 0.0;
 params.C_Y_r = 0.0;
-params.C_Y_delta_a = 0.075;
+params.C_Y_delta_a = 0.00;
 params.C_Y_delta_r = 0.19;
 
 % params.C_n_0 = 0.0;
@@ -419,6 +419,11 @@ params.course_ki = 0.01;
 % ----------yaw damper-------------
 params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
 params.yaw_damper_kr = 0.5; % (old) 0.5
+params.r_damp = 0.12; % 推理差动偏航控制 0.05--0.2
+params.delta_input_limit = 0.05; % 油门偏差 0.05*2 = 0.1,
+params.delta_kp = 0.06 ;
+params.delta_ki = 0.01;
+params.delta_kd = 0.01;
 
 % ----------pitch loop-------------
 params.pitch_cruise_kp = 5.0;

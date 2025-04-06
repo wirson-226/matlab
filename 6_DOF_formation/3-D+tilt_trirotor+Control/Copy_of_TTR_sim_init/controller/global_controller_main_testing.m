@@ -30,6 +30,21 @@ u_r = state.vel(1) - params.w_es;
 v_r = state.vel(2) - params.w_ns;
 w_r = state.vel(3) - params.w_us;
 Va = sqrt(u_r^2 + v_r^2 + w_r^2);
+if Va == 0
+        % Handle case when airspeed is zero (avoid NaN)
+        alpha = 0;
+        beta = 0;
+    else
+        if v_r == 0
+            alpha = pi / 2;  % If u_r is zero, set alpha to 90 degrees
+        else
+            alpha = atan2(w_r, v_r);  % Angle of attack
+        end
+        
+        beta = asin(u_r / Va);  % Sideslip angle
+        % beta  = 0;
+end
+
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% mode 1 copter 旋翼模式 
@@ -191,7 +206,7 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     
     % 使用 atan2 计算期望航向角，东北天与右前上坐标系框架
     yaw_cmd = -wrapToPi(atan2(dx, dy));
-    yaw_cmd = deg2rad(0); % test
+    yaw_cmd = deg2rad(-10); % test
     % 速度控制（增加饱和和平滑）
     throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
     ta = throttle/2;
@@ -205,7 +220,7 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3))) ;
     % roll_cmd =  deg2rad(10); % test--done
     % 限制横滚角在合理范围
-    roll_cmd = saturate(roll_cmd, deg2rad(-30), deg2rad(30));
+    roll_cmd = saturate(roll_cmd, deg2rad(-60), deg2rad(60));
     
     % 升降舵和副翼控制
     Mx_cmd = controller.elevator_from_pitch.update(pitch_cmd, state.rot(2), state.omega(2));
@@ -230,18 +245,31 @@ Va = sqrt(u_r^2 + v_r^2 + w_r^2);
     % 避免奇异后限制范围
     roll_cmd = saturate(roll_cmd, -params.roll_input_limit, params.roll_input_limit);
     pitch_cmd = saturate(pitch_cmd, -params.pitch_input_limit, params.pitch_input_limit);
+
+    % % 推力差动 -- 正补偿 -- 负反馈力矩 -- 油门左大右小
+    % delta_T = -controller.delta_from_beta.update(yaw_cmd, state.rot(3)) + params.r_damp * state.omega(3); 
+    delta_T = -controller.delta_from_beta.update(0, beta) + params.r_damp * state.omega(3);  % 侧滑角清零
+    delta_T = saturate(delta_T, -params.delta_input_limit, params.delta_input_limit);
+    ta = ta - delta_T;
+    tb = tb + delta_T;
+    
+    % 限制范围
+    ta = saturate(ta, 0, 1);
+    tb = saturate(tb, 0, 1);
+
     % 命令输出
     command.throttle = [ta, tb, tc];
     command.elevon = [elevon_r, elevon_l];
     % command.elevon = [0, 0];
-    command.arm = [arm_a, arm_b];
-    
+    command.arm = [arm_a, arm_b];  
+
+
     % 输出期望状态 (1 * 12)
     s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
     [force, moment] = all_forces_moments(s, command, params);
 
     copter_cmd = [force; moment]; % 
-    des_from_ctrl = [Va, des_state.Va, 0, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, moment(1), moment(2), moment(3)];
+    des_from_ctrl = [Va, des_state.Va, beta, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, moment(1), moment(2), moment(3)];
 
     end
     % disp(mode);

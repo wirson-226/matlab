@@ -34,8 +34,9 @@ addpath('test_airplane');
 % trajhandle = @traj_circle; 
 % trajhandle = @traj_4point_step;
 % trajhandle = @traj_vtol_global;
-trajhandle = @traj_vtol_cruise;
-% trajhandle = @traj_cruise;
+trajhandle = @traj_vtol_cruise; % --todo
+% trajhandle = @traj_vtol_cruise_circle; % -- todo
+% trajhandle = @traj_cruise;  % -- todo
 
 
 
