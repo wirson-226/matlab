@@ -39,7 +39,7 @@ function ttr_gui_launcher()
         real_time = realtimeCheck.Value;
         sim_time = timeBox.Value;
 
-        traj_map = {@traj_formation_circle_lift, @traj_line, @traj_helix, @traj_4point_step};
+        traj_map = {@traj_formation_circle_lift, @traj_formation_line, @traj_helix, @traj_4point_step};
         trajhandle = traj_map{find(strcmp(trajPopup.Items, traj_choice))};
 
         ctrl_map = {@global_controller_main_testing, @copter_controller_Done, @cruise_controller_needtodo};
