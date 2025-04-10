@@ -1,0 +1,192 @@
+function [t_out, s_out] = simulation_formation_ttr(trajhandle, controlhandle, num_agents)
+% 多智能体 TTR-VTOL 仿真框架，支持多架无人机（如六架）同时运行
+
+addpath('utils');
+addpath('traj');
+addpath('controller');
+addpath('test_airplane');
+
+% ====== SIMULATION CONFIG ======
+real_time = true;
+max_time = 5;
+tstep    = 0.01;
+cstep    = 0.05;
+max_iter = max_time / cstep;
+nstep    = round(cstep / tstep);
+
+% ====== SYSTEM PARAMS ======
+params = sys_params;
+
+% ====== FIGURE SETUP ======
+disp('Initializing figure...');
+figure(1);
+axis equal; grid on; hold on;
+xlabel('X_东_右'); ylabel('Y_北_前'); zlabel('Z_上');
+title('Multi-TTR-VTOL Flight');
+view(3);
+
+colors = lines(num_agents);
+
+% ====== STATE INITIALIZATION ======
+disp('Setting initial conditions...');
+state_dim = 13;
+X = zeros(state_dim, num_agents); % 所有无人机的状态
+
+% 初始化状态
+for i = 1:num_agents
+    des_i = trajhandle(0, i);
+    X(:, i) = init_state(des_i.pos, params.psi0);
+end
+
+% 初始化记录结构（用 cell 储存每架无人机数据）
+xtraj = cell(1, num_agents);
+ttraj = cell(1, num_agents);
+actual_trajectory = cell(1, num_agents);
+desired_trajectory = cell(1, num_agents);
+
+attitudetraj = cell(1, num_agents);
+omegatraj = cell(1, num_agents);
+
+attitude_des_traj = cell(1, num_agents);
+omega_des_traj = cell(1, num_agents);
+position_des_traj = cell(1, num_agents);
+velocity_des_traj = cell(1, num_agents);
+M_des_traj = cell(1, num_agents);
+
+tilt_des_traj = cell(1, num_agents);
+throttle_des_traj = cell(1, num_agents);
+elevon_des_traj = cell(1, num_agents);
+
+% ====== SIMULATION LOOP ======
+disp('Simulation Running...');
+time = 0;
+for iter = 1:max_iter
+    timeint = time:tstep:time+cstep;
+    tic;
+
+    figure(1); cla; % 主画面清除
+    formation_positions = zeros(num_agents, 3); % 当前帧所有无人机位置
+
+    for i = 1:num_agents
+        % 当前状态
+        x = X(:, i);
+
+        % 动力学积分
+        [tsave, xsave] = ode45(@(t,s) vtolEOM(t, s, controlhandle, @(t,~) trajhandle(t,i), params), timeint, x);
+        X(:, i) = xsave(end, :)';
+
+        % 存储轨迹
+        if iter == 1
+            xtraj{i} = xsave(1:end-1, :);
+            ttraj{i} = tsave(1:end-1);
+        else
+            xtraj{i} = [xtraj{i}; xsave(1:end-1,:)];
+            ttraj{i} = [ttraj{i}; tsave(1:end-1)];
+        end
+
+        % 当前状态结构体
+        qd_i = stateToQd(X(:, i));
+        des_i = trajhandle(time, i);
+
+        [des_ctrl_i, command_i, ~] = controlhandle(time, qd_i, des_i, params);
+
+        % 姿态提取
+        R = QuatToRot(X(7:10, i));
+        [phi, theta, psi] = RotToRPY_ZXY(R);
+        att_i = [phi, theta, psi];
+        tilt_deg = rad2deg(command_i.arm);
+
+        % 绘图
+        figure(1);
+        planeplot_ttr(X(1:3, i)', att_i, tilt_deg);
+
+        % 绘制轨迹
+        actual_trajectory{i} = [actual_trajectory{i}; X(1:3, i)'];
+        desired_trajectory{i} = [desired_trajectory{i}; des_i.pos'];
+        plot3(actual_trajectory{i}(:,1), actual_trajectory{i}(:,2), actual_trajectory{i}(:,3), '-', 'Color', colors(i,:), 'LineWidth', 2);
+        plot3(desired_trajectory{i}(:,1), desired_trajectory{i}(:,2), desired_trajectory{i}(:,3), '--', 'Color', colors(i,:), 'LineWidth', 1);
+
+        % 存储当前帧的位置用于连线
+        formation_positions(i, :) = X(1:3, i)';
+
+        % 状态记录
+        attitudetraj{i} = [attitudetraj{i}; att_i];
+        omegatraj{i} = [omegatraj{i}; qd_i.omega'];
+        position_des_traj{i} = [position_des_traj{i}; des_i.pos'];
+        velocity_des_traj{i} = [velocity_des_traj{i}; des_ctrl_i(1:3)];
+        attitude_des_traj{i} = [attitude_des_traj{i}; des_ctrl_i(4:6)];
+        omega_des_traj{i} = [omega_des_traj{i}; des_ctrl_i(7:9)];
+        M_des_traj{i} = [M_des_traj{i}; des_ctrl_i(10:12)];
+
+        tilt_des_traj{i} = [tilt_des_traj{i}; command_i.arm];
+        throttle_des_traj{i} = [throttle_des_traj{i}; command_i.throttle];
+        elevon_des_traj{i} = [elevon_des_traj{i}; command_i.elevon];
+    end
+
+    % 绘制六边形连接线
+    figure(1);
+    for j = 1:num_agents
+        idx_next = mod(j, num_agents) + 1;
+        plot3([formation_positions(j,1), formation_positions(idx_next,1)], ...
+              [formation_positions(j,2), formation_positions(idx_next,2)], ...
+              [formation_positions(j,3), formation_positions(idx_next,3)], ...
+              'k-', 'LineWidth', 1);
+    end
+
+    t = toc;
+    if real_time && (t < cstep)
+        pause(cstep - t);
+    end
+
+    time = time + cstep;
+    drawnow;
+end
+
+% ====== POST-PROCESSING ======
+t_out = ttraj{1};
+s_out = [];
+for i = 1:num_agents
+    s_out = [s_out, xtraj{i}];
+end
+
+disp('Simulation complete.');
+
+% ====== UNIFIED PLOTTING USING plot_results ======
+all_actual.att = []; all_actual.omega = [];
+all_desired.pos = []; all_desired.vel = [];
+all_desired.att = []; all_desired.omega = [];
+all_desired.M = [];
+all_actuator.tilt = []; all_actuator.throttle = []; all_actuator.elevon = [];
+
+for i = 1:num_agents
+    all_actual.att = [all_actual.att; attitudetraj{i}];
+    all_actual.omega = [all_actual.omega; omegatraj{i}];
+    all_desired.pos = [all_desired.pos; position_des_traj{i}];
+    all_desired.vel = [all_desired.vel; velocity_des_traj{i}];
+    all_desired.att = [all_desired.att; attitude_des_traj{i}];
+    all_desired.omega = [all_desired.omega; omega_des_traj{i}];
+    all_desired.M = [all_desired.M; M_des_traj{i}];
+    all_actuator.tilt = [all_actuator.tilt; tilt_des_traj{i}];
+    all_actuator.throttle = [all_actuator.throttle; throttle_des_traj{i}];
+    all_actuator.elevon = [all_actuator.elevon; elevon_des_traj{i}];
+end
+
+plot_results(t_out, s_out, all_desired, all_actual, all_actuator, num_agents, colors);
+
+% 自动导出所有绘图窗口为 PNG 图像
+figHandles = findall(0, 'Type', 'figure');
+for i = 1:length(figHandles)
+    figure(figHandles(i));
+    figName = get(figHandles(i), 'Name');
+    if isempty(figName)
+        figName = ['Figure' num2str(figHandles(i).Number)];
+    end
+    save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\TTR_formation_sim_init\Medias\Results';
+if ~exist(save_dir, 'dir')
+    mkdir(save_dir);
+end
+saveas(figHandles(i), fullfile(save_dir, [figName '.png']));
+
+end
+
+end

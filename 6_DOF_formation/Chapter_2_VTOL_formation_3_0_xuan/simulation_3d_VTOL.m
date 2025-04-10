@@ -1,4 +1,4 @@
-function [t_out, s_out] = simulation_3d_basic(trajhandle, controlhandle, num_agents)
+function [t_out, s_out] = simulation_3d_VTOL(trajhandle, controlhandle, num_agents)
 % NOTE: This script will not run as expected unless you fill in proper
 % code in trajhandle and controlhandle
 % You should not modify any part of this script except for the

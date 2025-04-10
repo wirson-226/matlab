@@ -206,7 +206,9 @@ end
     
     % 使用 atan2 计算期望航向角，东北天与右前上坐标系框架
     yaw_cmd = -wrapToPi(atan2(dx, dy));
-    yaw_cmd = deg2rad(-10); % test
+    % yaw_cmd = deg2rad(-10); % test
+    % yaw_cmd = deg2rad(0-0.3*t); % test      
+
     % 速度控制（增加饱和和平滑）
     throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
     ta = throttle/2;
