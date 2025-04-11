@@ -38,6 +38,16 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
     q = state(12);
     r = state(13);
 
+    qW = state(7);
+    qX = state(8);
+    qY = state(9);
+    qZ = state(10);
+    
+    quat = [qW; qX; qY; qZ];
+
+    % 转换逻辑：世界坐标系(ENU) -> 机体坐标系(RFS)
+    R = QuatToRot(quat);  % 世界到机体的旋转矩阵
+    [phi,theta,psi] = RotToRPY_ZXY(R);
     % Compute airspeed (magnitude of velocity)
 
     Va = sqrt(u_r^2 + v_r^2 + w_r^2);
@@ -53,7 +63,8 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
         if v_r == 0
             alpha = pi / 2;  % If u_r is zero, set alpha to 90 degrees
         else
-            alpha = atan2(w_r, v_r);  % Angle of attack
+            alpha = 0 + atan2(w_r, v_r);  % Angle of attack攻角是来流速度方向与飞行器参考轴线（如机翼弦线或机身纵轴）之间的夹角，表达式为：
+            % α=θ−γ 其中：θ：俯仰角（Pitch Angle，飞行器轴线与水平线的夹角），γ：航迹角（Flight Path Angle，来流速度与水平线的夹角）。
         end
         
         beta = asin(u_r / Va);  % Sideslip angle

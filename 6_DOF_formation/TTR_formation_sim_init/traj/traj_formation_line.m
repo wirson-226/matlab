@@ -3,7 +3,7 @@ function [desired_state] = traj_formation_line(t, agent_index)
 
     % Parameters
     radius = 8; % Radius of the hexagon
-    velocity = 1; % Speed of the formation along y-axis
+    velocity = 15; % Speed of the formation along y-axis
     
     % Calculate the angle for each agent in the hexagon
     angle = 2 * pi * (agent_index - 1) / 6;
@@ -18,7 +18,8 @@ function [desired_state] = traj_formation_line(t, agent_index)
     
     % Output desired state
     desired_state.pos = pos;
+    desired_state.Va = velocity;
     desired_state.yaw = 0;
     desired_state.yawdot = 0;
-    desired_state.mode = 1;
+    desired_state.mode = 3;
 end

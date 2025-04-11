@@ -1,7 +1,7 @@
 % TTR-VTOL Multi-Agent GUI Launcher with dynamic layout
 function ttr_gui_launcher()
     % 创建主界面窗口和布局容器
-    fig = uifigure('Name','TTR-VTOL Multi-Agent Sim Launcher','Position',[500 300 420 450]);
+    fig = uifigure('Name','TTR-VTOL Multi-Agent Sim Launcher','Position',[1000 300 420 450]);
     gl = uigridlayout(fig, [8, 2]);
     gl.RowHeight = {40, 40, 40, 40, 40, 60, 60, '1x'};
     gl.ColumnWidth = {'1x','2x'};

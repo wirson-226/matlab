@@ -201,13 +201,13 @@ end
         end
 
     % 期望航向角计算（使用更稳定的导航算法）
+    % 协调弯：偏航角偏差--滚转角命令φ_命令 = K × (ψ_目标 - ψ_当前)--向心力换算转弯半径(R) = V²/(g × tan(φ)) 偏航角速率r = (g/V) × tan(φ)
+    % ψ_目标 = atan2(ΔE, ΔN) 其中ΔE和ΔN分别是目标点与当前位置的东向和北向距离差
     dx = des_state.pos(1) - state.pos(1);
     dy = des_state.pos(2) - state.pos(2);
     
     % 使用 atan2 计算期望航向角，东北天与右前上坐标系框架
-    yaw_cmd = -wrapToPi(atan2(dx, dy));
-    % yaw_cmd = deg2rad(-10); % test
-    % yaw_cmd = deg2rad(0-0.3*t); % test      
+    yaw_cmd = -wrapToPi(atan2(dx, dy));  
 
     % 速度控制（增加饱和和平滑）
     throttle = saturate(controller.throttle_from_airspeed.update(des_state.Va, Va), 0, 2);
@@ -217,10 +217,10 @@ end
     
     % 高度控制（增加前馈和微分项）
     pitch_cmd = controller.pitch_from_altitude.update(des_state.pos(3), state.pos(3));    
-    % pitch_cmd = deg2rad(10);% test--done
+
     % 横滚角控制（引入交叉误差） % 坐标系补偿修正 正滚转 负偏航  
-    roll_cmd = -(controller.roll_from_course.update(yaw_cmd, state.rot(3))) ;
-    % roll_cmd =  deg2rad(10); % test--done
+    roll_cmd = -3*(controller.roll_from_course.update(yaw_cmd, state.rot(3))) ;
+
     % 限制横滚角在合理范围
     roll_cmd = saturate(roll_cmd, deg2rad(-60), deg2rad(60));
     
@@ -248,9 +248,13 @@ end
     roll_cmd = saturate(roll_cmd, -params.roll_input_limit, params.roll_input_limit);
     pitch_cmd = saturate(pitch_cmd, -params.pitch_input_limit, params.pitch_input_limit);
 
+    % 测试侧滑角
+    r_cmd = -2*(params.gravity/Va)*tan(roll_cmd);
+    % Mz_cmd = controller.Mz_from_yaw_rate.update(r_cmd, state.omega(3));
+
     % % 推力差动 -- 正补偿 -- 负反馈力矩 -- 油门左大右小
     % delta_T = -controller.delta_from_beta.update(yaw_cmd, state.rot(3)) + params.r_damp * state.omega(3); 
-    delta_T = -controller.delta_from_beta.update(0, beta) + params.r_damp * state.omega(3);  % 侧滑角清零
+    delta_T = -controller.delta_from_beta.update(r_cmd, state.omega(3)) + params.r_damp * state.omega(3);  % 侧滑角清零
     delta_T = saturate(delta_T, -params.delta_input_limit, params.delta_input_limit);
     ta = ta - delta_T;
     tb = tb + delta_T;
@@ -258,6 +262,7 @@ end
     % 限制范围
     ta = saturate(ta, 0, 1);
     tb = saturate(tb, 0, 1);
+
 
     % 命令输出
     command.throttle = [ta, tb, tc];
@@ -269,9 +274,10 @@ end
     % 输出期望状态 (1 * 12)
     s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
     [force, moment] = all_forces_moments(s, command, params);
+    % moment(3) = Mz_cmd;
 
     copter_cmd = [force; moment]; % 
-    des_from_ctrl = [Va, des_state.Va, beta, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, 0, moment(1), moment(2), moment(3)];
+    des_from_ctrl = [Va, des_state.Va, beta, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, r_cmd, moment(1), moment(2), moment(3)];
 
     end
     % disp(mode);

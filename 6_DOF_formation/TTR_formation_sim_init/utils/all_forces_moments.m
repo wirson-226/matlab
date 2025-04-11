@@ -207,15 +207,15 @@ function [force, moment] = all_forces_moments(state, command, params, mode)
     % disp(['Va: ', num2str(Va), ', alpha: ', num2str(alpha), ', beta: ', num2str(beta)]);
     % 
     % Display the aerodynamics results
-    disp('Aero_forces:');
-    disp(['F_lift: ', num2str(F_lift)]);
-    disp(['F_drag: ', num2str(F_drag)]);
-    disp(['F_R: ', num2str(F_R)]);
-
-    disp('Aero_moments:');
-    disp(['Roll Aero_My: ', num2str(Aero_My)]);
-    disp(['Pitch Aero_Mx: ', num2str(Aero_Mx)]);
-    disp(['Yaw Aero_Mz: ', num2str(Aero_Mz)]);
+    % disp('Aero_forces:');
+    % disp(['F_lift: ', num2str(F_lift)]);
+    % disp(['F_drag: ', num2str(F_drag)]);
+    % disp(['F_R: ', num2str(F_R)]);
+    % 
+    % disp('Aero_moments:');
+    % disp(['Roll Aero_My: ', num2str(Aero_My)]);
+    % disp(['Pitch Aero_Mx: ', num2str(Aero_Mx)]);
+    % disp(['Yaw Aero_Mz: ', num2str(Aero_Mz)]);
     % 
     % % 反扭检测
     % Tail_Mz = - torque_prop_c_z + thrust_prop_c_x * MAV.l2;

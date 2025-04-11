@@ -16,17 +16,26 @@ addpath('controller');
 addpath('test_airplane');
 
 % real-time
-real_time = true;
+real_time = evalin('base', 'exist(''real_time'', ''var'') && real_time');
+if evalin('base', 'exist(''max_time'', ''var'')')
+    max_time = evalin('base', 'max_time');
+else
+    max_time = 5;  % 默认值
+end
 
-% max time
-max_time = 5;
+% Initialize stop flag if not exists
+if ~evalin('base', 'exist(''stop_simulation'', ''var'')')
+    assignin('base', 'stop_simulation', false);
+end
+
 
 % parameters for simulation
 params = sys_params;
 
 % %% **************************** FIGURES *****************************
 disp('Initializing figures...');
-figure;
+figure('Name', 'TTR Tracking Flight Simulation', 'NumberTitle', 'off');
+set(gcf, 'Position', [200, 200, 800, 600]);
 axis equal;
 grid on;
 hold on;
@@ -66,7 +75,7 @@ err = []; % runtime errors
 des_start = trajhandle(0, []);
 des_stop  = trajhandle(inf, []);
 stop_pos  = des_stop.pos;
-x0    = init_state(des_start.pos, params.psi0); % pos + yaw 初始在这可调其余params中定义
+x0    = init_state(); % pos + yaw 初始在这可调其余params中定义
 xtraj = zeros(max_iter*nstep, length(x0));
 ttraj = zeros(max_iter*nstep, 1);
 % pos_4_plot = [0,0,0];
@@ -105,10 +114,18 @@ disp('Simulation Running....');
 
 % Main loop
 for iter = 1:max_iter
+        % Check stop flag from base workspace
+    if evalin('base', 'stop_simulation')
+        disp('Simulation stopped by user request.');
+        break;
+    end
 
     timeint = time:tstep:time+cstep;
     tic;
-
+    % Check stop flag again in case it changed during iteration
+    if evalin('base', 'stop_simulation')
+        break;
+    end
     % Run simulation
     [tsave, xsave] = ode45(@(t,s) vtolEOM(t, s, controlhandle, trajhandle, params), timeint, x); % added att
     x    = xsave(end, :)'; % x =  [13 * 1] transform of each loop final result of xasve = [6 * 13] 0; 0.01; 0.02; 0.03; 0.04; 0.05;
@@ -214,7 +231,10 @@ for iter = 1:max_iter
         err = 'Ode45 Unstable';
         break;
     end
-
+    % Check if we broke out of the agent loop due to stop request
+    if evalin('base', 'stop_simulation')
+        break;
+    end
     % Pause to make real-time
     if real_time && (t < cstep)
         pause(cstep - t);
@@ -227,6 +247,8 @@ for iter = 1:max_iter
     drawnow;  % 更新图形
 end
 
+% Reset stop flag for next simulation
+assignin('base', 'stop_simulation', false);
 
 %% ************************* POST PROCESSING *************************
 % --- todo---plot 单独函数封装
@@ -264,6 +286,8 @@ actuator_struct.tilt = tilt_des_traj;
 actuator_struct.throttle = throttle_des_traj;
 actuator_struct.elevon = elevon_des_traj;
 
+t_out = ttraj;
+s_out = xtraj;
 
 % 数据显示
 plot_results(ttraj, xtraj, desired_struct, actual_struct, actuator_struct);
@@ -273,10 +297,22 @@ if(~isempty(err))
     error(err);
 end
 
-disp('finished.')
+% 图像导出
+save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\Copy_of_TTR_sim_init\Medias\Results';
+if ~exist(save_dir, 'dir')
+    mkdir(save_dir);
+end
+figHandles = findall(0, 'Type', 'figure');
+for i = 1:length(figHandles)
+    figure(figHandles(i));
+    figName = get(figHandles(i), 'Name');
+    if isempty(figName)
+        figName = ['Figure' num2str(figHandles(i).Number)];
+    end
+    saveas(figHandles(i), fullfile(save_dir, [figName '.png']));
+end
 
-t_out = ttraj;
-s_out = xtraj;
+disp('Simulation complete.');
 
 end
 

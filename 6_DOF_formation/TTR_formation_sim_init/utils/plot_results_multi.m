@@ -119,6 +119,7 @@ end
 
 % 计算位置误差
 figure('Name', 'Position Error', 'NumberTitle', 'off');
+set(gcf, 'Position', [250, 250, 800, 600]);
 subplot(3, 1, 1);
 hold on; grid on;
 title('X Position Error');
@@ -382,6 +383,7 @@ end
 
 % 三维轨迹图
 figure('Name', '3D Trajectory', 'NumberTitle', 'off');
+set(gcf, 'Position', [200, 200, 800, 600]);
 hold on; grid on;
 title('3D Trajectory');
 xlabel('X (m)');
@@ -418,11 +420,11 @@ for i = 1:length(handles)
     end
 end
 
-% 调整轨迹图的大小
-figure('Name', '3D Trajectory');
-set(gcf, 'Position', [200, 200, 800, 600]);
-figure('Name', 'Position Error');
-set(gcf, 'Position', [250, 250, 800, 600]);
+% % 调整轨迹图的大小
+% figure('Name', '3D Trajectory');
+% set(gcf, 'Position', [200, 200, 800, 600]);
+% figure('Name', 'Position Error');
+% set(gcf, 'Position', [250, 250, 800, 600]);
 
 % 优化所有图的显示
 for i = 1:length(handles)

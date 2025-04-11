@@ -29,7 +29,10 @@ params = sys_params;
 
 % ====== FIGURE SETUP（首次只初始化一次） ======
 disp('Initializing figure...');
-figure(1); clf;
+figure('Name', 'TTR Formation Flight Simulation', 'NumberTitle', 'off');
+set(gcf, 'Position', [200, 200, 800, 600]);
+
+clf;
 axis equal; grid on; hold on;
 xlabel('X_东_右'); ylabel('Y_北_前'); zlabel('Z_上');
 title('Multi-TTR-VTOL Flight');
@@ -47,7 +50,7 @@ X = zeros(state_dim, num_agents); % 所有无人机的状态矩阵
 
 for i = 1:num_agents
     des_i = trajhandle(0, i);
-    X(:, i) = init_state(des_i.pos, params.psi0);
+    X(:, i) = init_state();
 end
 
 % Initialize trajectory storage
@@ -101,14 +104,31 @@ for iter = 1:max_iter
         att_i = [phi, theta, psi];
         tilt_deg = rad2deg(command_i.arm);
 
-        % Delete old plane plot if it exists
-        if ~isempty(h_planes{i}) && all(isgraphics(h_planes{i}))
-            delete(h_planes{i});
+        
+        % Delete old plane plot if it exists - 更强健的删除方式
+        if ~isempty(h_planes{i})
+            if iscell(h_planes{i})
+                % 如果h_planes{i}是cell数组，遍历并删除每个有效的句柄
+                cellfun(@(h) delete(h(ishandle(h))), h_planes{i});
+            else
+                % 删除所有有效的句柄
+                delete(h_planes{i}(ishandle(h_planes{i})));
+            end
+            h_planes{i} = []; % 清空句柄
         end
-
+        
         % Plot current state
         h_planes{i} = planeplot_ttr(X(1:3, i)', att_i, tilt_deg);
-        
+        % % Delete old plane plot if it exists
+        % if ~isempty(h_planes{i}) && all(isgraphics(h_planes{i}))
+        %     delete(h_planes{i});
+        % end
+        % 
+        % % Plot current state
+        % h_planes{i} = planeplot_ttr(X(1:3, i)', att_i, tilt_deg);
+       
+
+
         % Update trajectories
         actual_trajectory{i} = [actual_trajectory{i}; X(1:3, i)'];
         desired_trajectory{i} = [desired_trajectory{i}; des_i.pos'];

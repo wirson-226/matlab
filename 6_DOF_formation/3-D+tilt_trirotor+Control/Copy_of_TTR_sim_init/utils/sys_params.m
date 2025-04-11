@@ -122,7 +122,7 @@ params.C_n_delta_a = -0.011;
 params.C_n_delta_r = -0.068; % -0.069固定翼
 
 params.C_ell_0 = 0.0;
-params.C_ell_beta = -0.06;
+params.C_ell_beta = 0; % -0.06;
 params.C_ell_p = -3.51;
 params.C_ell_r = 0.25;
 params.C_ell_delta_a = -0.87;
@@ -304,7 +304,7 @@ params.pitch_rate_sat_limit = 180.0 * pi / 180.0 ; % rad/s
 
 params.yaw_kp = 4;
 params.yaw_ki = 0.0;
-params.yaw_kd = 0.2;
+params.yaw_kd = 0.1;
 params.yaw_rate_sat_limit = 90.0 * pi / 180.0;  % rad/s
 
 % % ---------- attitude rate loop -------------
@@ -409,8 +409,8 @@ params.R_min = params.Va_planner^2 / params.gravity / tan(params.phi_max);
 %%%%% 手动调参
 
 % ----------roll loop-------------
-params.roll_cruise_kp = 0.5;
-params.roll_cruise_kd = 0.012;
+params.roll_cruise_kp = 8.0;
+params.roll_cruise_kd = 0.4;
 
 % ----------course loop-------------
 params.course_kp = 0.3;
@@ -419,20 +419,20 @@ params.course_ki = 0.01;
 % ----------yaw damper-------------
 params.yaw_damper_p_wo = 0.5 ; % (old) 1/0.5
 params.yaw_damper_kr = 0.5; % (old) 0.5
-params.r_damp = 0.12; % 推理差动偏航控制 0.05--0.2
+params.r_damp = 0.012; % 推理差动偏航控制 0.05--0.2
 params.delta_input_limit = 0.05; % 油门偏差 0.05*2 = 0.1,
-params.delta_kp = 0.06 ;
+params.delta_kp = 4.0 ;
 params.delta_ki = 0.01;
-params.delta_kd = 0.01;
+params.delta_kd = 0.3;
 
 % ----------pitch loop-------------
-params.pitch_cruise_kp = 5.0;
-params.pitch_cruise_kd = 0.35;
+params.pitch_cruise_kp = 2.0;
+params.pitch_cruise_kd = 0.4;
 
 % ----------altitude loop-------------
 params.altitude_zone = 10.0;  % moving saturation limit around current altitude
-params.altitude_kp = 1.0;
-params.altitude_ki = 0.05;
+params.altitude_kp = 8.0;
+params.altitude_ki = 0.5;
 
 % ---------airspeed hold using throttle---------------
 params.airspeed_throttle_kp = 0.75;
