@@ -1,5 +1,5 @@
 % modules/plot_trajectory.m
-function plot_trajectory(pos_hist, output_dir)
+function plot_trajectory(pos_hist, ~)
     [N, dim, T] = size(pos_hist);
     figure('Name','Trajectories','Units','centimeters','Position',[5,5,16,12]); hold on;
     for i = 1:N
@@ -8,7 +8,4 @@ function plot_trajectory(pos_hist, output_dir)
         scatter(pos_hist(i,1,end), pos_hist(i,2,end), 60, '*');         % 终点
     end
     title('Agent Trajectories'); axis equal; grid on;
-    saveas(gcf, fullfile(output_dir, 'trajectories.eps'), 'epsc');
-    print(gcf, fullfile(output_dir, 'trajectories'), '-dpdf');
-    print(gcf, fullfile(output_dir, 'trajectories'), '-dpng', '-r300');
 end

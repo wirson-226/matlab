@@ -7,7 +7,4 @@ function plot_group_error(pos_hist, targets, dt, output_dir)
         plot(t, e, 'DisplayName',sprintf('Agent %d',i)); hold on;
     end
     xlabel('Time [s]'); ylabel('||x_i - x_i^*||'); title('Formation Tracking Error'); grid on; legend;
-    saveas(gcf, fullfile(output_dir, 'formation_error.eps'), 'epsc');
-    print(gcf, fullfile(output_dir, 'formation_error'), '-dpdf');
-    print(gcf, fullfile(output_dir, 'formation_error'), '-dpng', '-r300');
 end

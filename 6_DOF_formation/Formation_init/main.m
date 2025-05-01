@@ -57,8 +57,5 @@ if record_video, close(vwriter); end
 
 % ==== 绘图 ====
 output_dir = fullfile(pwd, 'results');
-if ~exist(output_dir, 'dir'), mkdir(output_dir); end
 plot_all_results(state_hist, d_hist, dhat_hist, targets, dt, output_dir);
 
-% plot_disturbance_estimation(d_hist, dhat_hist, dt);
-% save_all_figures();

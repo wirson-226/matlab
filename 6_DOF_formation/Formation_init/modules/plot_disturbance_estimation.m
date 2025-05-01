@@ -1,5 +1,5 @@
 % modules/plot_disturbance_estimation.m（升级版）
-function plot_disturbance_estimation(d_hist, dhat_hist, dt, output_dir)
+function plot_disturbance_estimation(d_hist, dhat_hist, dt, ~)
     [N,~,T] = size(d_hist); t = (0:T-1)*dt;
     figure('Name','Disturbance Estimation','Units','centimeters','Position',[5,5,18,12]);
     for i = 1:N
@@ -12,7 +12,4 @@ function plot_disturbance_estimation(d_hist, dhat_hist, dt, output_dir)
     end
     subplot(2,1,1); title('X Disturbance Estimation'); grid on;
     subplot(2,1,2); title('Y Disturbance Estimation'); xlabel('Time [s]'); grid on;
-    saveas(gcf, fullfile(output_dir, 'disturbance_estimation.eps'), 'epsc');
-    print(gcf, fullfile(output_dir, 'disturbance_estimation'), '-dpdf');
-    print(gcf, fullfile(output_dir, 'disturbance_estimation'), '-dpng', '-r300');
 end
