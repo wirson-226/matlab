@@ -1,0 +1,20 @@
+% function C = group_trajectory(t, num_groups)
+%     % 每组的中心路径可自定义
+%     base = [10*cos(0.5*t), 10*sin(0.5*t)];
+%     shift = 20;  % 每组间隔
+%     C = zeros(num_groups,2);
+%     for i = 1:num_groups
+%         C(i,:) = base + [(i-1)*shift, 0];
+%     end
+% end
+
+
+function C = group_trajectory(t, num_groups)
+    % 每组的中心路径可自定义
+    base = [10*cos(0.5*t), 10*sin(0.5*t)];
+    shift = 20;  % 每组间隔
+    C = zeros(num_groups,2);
+    C(1,:) = base + [(i-1)*shift, 0];
+    C(2,:) = base + [(i-1)*shift, 0];
+
+end

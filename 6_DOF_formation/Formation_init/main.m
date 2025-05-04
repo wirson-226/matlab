@@ -32,7 +32,7 @@ for step = 1:steps
     u_consensus = consensus_control(x, v, d_hat, adjacency, ctrl, u_max);
 
     % ==== 分组目标生成 ====
-    [targets, centers] = generate_targets_grouped(t, group_ids, formation_mode, x, all_obs, obstacle_radius);
+    [targets, centers] = generate_targets_grouped(t, group_ids, formation_mode, x, all_obs, obstacle_radius,dt);
     center_hist(:,:,step) = centers;
 
     % ==== 队形生成控制 ====

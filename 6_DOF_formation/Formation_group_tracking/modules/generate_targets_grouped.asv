@@ -1,0 +1,89 @@
+% function [targets, group_centers] = generate_targets_grouped(t, group_ids, x, mode, all_obs, r_obs)
+%     N = length(group_ids);
+%     targets = zeros(N, 2);
+%     groups = unique(group_ids);
+% 
+%     % 每组分别生成一个中心
+%     group_centers = group_trajectory(t, length(groups));  % <--- 保留作为第二个输出
+% 
+%     for g = 1:length(groups)
+%         idx = find(group_ids == groups(g));
+%         n_group = length(idx);
+%         alpha = 1 + 0.2 * sin(0.1*t);
+%         r = 10; % 半径
+%         R = eye(2);
+%         if strcmp(mode, 'rotating')
+%             omega = 0.5;
+%             R = [cos(omega*t), -sin(omega*t); sin(omega*t), cos(omega*t)];
+%         end
+%         center = group_centers(g,:);
+%         for k = 1:n_group
+%             ang = 2*pi*(k-1)/n_group;
+%             p = alpha * r * [cos(ang), sin(ang)];
+%             targets(idx(k), :) = center + (R * p')';
+%         end
+%     end
+% 
+%     % 避障修正
+%     offset = path_planner_avoidance(targets, all_obs, r_obs);
+%     targets = targets + offset;
+% end
+% 
+
+% modules/generate_targets_grouped_hunting.m
+function [targets, centers] = generate_targets_grouped(t, group_ids,x, mode, all_obs, r_obs)
+    % 获取分组信息
+    N = length(group_ids);
+    unique_groups = unique(group_ids);
+    num_groups = length(unique_groups);
+    targets = zeros(N, 2);
+    centers = zeros(num_groups, 2);
+
+    % ==== 参数设定 ====
+    radius1 = 6;       % 组1半径（外圈）
+    radius2 = 3;       % 组2半径（内圈）
+    omega1 = 0.6;      % 组1旋转角速度
+    omega2 = -0.5;     % 组2旋转角速度
+    kp = 1.2; kv = 0.8;% 组1中心追踪控制增益（PID）
+
+    % ==== 组2中心轨迹（被追踪目标） ====
+    center2 = 8 * [cos(0.1 * t), sin(0.1 * t)];
+    center2_dot = 8 * 0.1 * [-sin(0.1 * t), cos(0.1 * t)];
+
+    % ==== 初始化静态变量（记录组1中心位置） ====
+    persistent center1 center1_dot
+    if isempty(center1)
+        center1 = center2 + [5, 0];  % 初始位于右侧
+        center1_dot = [0, 0];
+    end
+
+    % ==== PID 控制器实现组1中心跟踪组2中心 ====
+    acc1 = kp * (center2 - center1) + kv * (center2_dot - center1_dot);
+    center1_dot = center1_dot + acc1 * 0.1;   % 假设时间步长 dt = 0.1
+    center1 = center1 + center1_dot * 0.1;
+
+    % ==== 更新中心点 ====
+    centers(1,:) = center1;
+    centers(2,:) = center2;
+    for g = 1:length(groups)
+        idx = find(group_ids == groups(g));
+        n_group = length(idx);
+        alpha = 1 + 0.2 * sin(0.1*t);
+        r = 10; % 半径
+        R = eye(2);
+        if strcmp(mode, 'rotating')
+            omega = 0.5;
+            R = [cos(omega*t), -sin(omega*t); sin(omega*t), cos(omega*t)];
+        end
+        center = group_centers(g,:);
+        for k = 1:n_group
+            ang = 2*pi*(k-1)/n_group;
+            p = alpha * r * [cos(ang), sin(ang)];
+            targets(idx(k), :) = center + (R * p')';
+        end
+    end
+    % ==== 避障修正 ====
+    offset = path_planner_avoidance(targets, all_obs, r_obs);
+    targets = targets + offset;
+end
+
