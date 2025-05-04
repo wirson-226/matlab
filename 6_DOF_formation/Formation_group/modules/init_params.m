@@ -9,7 +9,7 @@ function [num_agents, n_dim, dt, T_total, u_max, r_safe, formation_mode, ctrl, g
     d0 = 5;     % APF 激活距离
     r_safe = 10;     % CBF 安全距离
     gamma = 1;    % CBF 避障优化系数
-    comm_radius = 20;  % 通信半径（可调）
+    comm_radius = 80;  % 通信半径（可调）
 
     formation_mode = 'rotating';
     ctrl.kp_formation = 10;
