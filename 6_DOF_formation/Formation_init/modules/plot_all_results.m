@@ -3,7 +3,7 @@ function plot_all_results(state_hist, d_hist, dhat_hist, center_hist, targets, d
     if nargin < 6, output_dir = './results'; end
     if ~exist(output_dir, 'dir'), mkdir(output_dir); end
 
-    plot_trajectory(state_hist.pos, center_hist);
+    plot_trajectory_grouped(state_hist.pos, center_hist);
     plot_velocity_position_time(state_hist, dt, output_dir);
     plot_disturbance_estimation(d_hist, dhat_hist, dt, output_dir);
     % plot_disturbance_error_summary(d_hist, dhat_hist, dt, output_dir);

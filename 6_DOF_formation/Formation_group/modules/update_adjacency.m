@@ -6,7 +6,7 @@ function A = update_adjacency(x, r_comm)
             dist = norm(x(i,:) - x(j,:));
             if dist <= r_comm
                 A(i,j) = 1;
-                A(j,i) = 1;  % 对称通信
+                A(j,i) = 1;  % 双向通信
             end
         end
     end
