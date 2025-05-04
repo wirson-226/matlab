@@ -3,10 +3,11 @@ clear; clc; close all;
 
 addpath('modules');  % 模块目录
 
+% init
 % ==== 参数定义 ====
 [num_agents, n_dim, dt, T_total, u_max, r_safe, formation_mode, ctrl, gamma, eta, d0, comm_radius] = init_params();
 steps = T_total / dt;
-
+center_hist = zeros(steps, n_dim);  % 记录参考轨迹中心
 [x, v, d_hat, d_hist, dhat_hist, state_hist] = init_state(num_agents, n_dim, steps);
 [static_obs, moving_obs, obstacle_radius] = init_obstacles();
 
@@ -28,6 +29,7 @@ for step = 1:steps
     % ==== 队形生成 ====
     % [u_formation, formation_targets] = formation_control(t, num_agents, x, v, formation_mode, ctrl, all_obs,obstacle_radius);
     targets = generate_targets(t, num_agents, formation_mode, all_obs,obstacle_radius);
+    center_hist(step,:) = reference_trajectory(t);  % 记录参考轨迹--绘制
     u_formation = formation_control(x, v, targets, ctrl);
 
     % ==== 实际位置避障修正（实体避障） ====
@@ -62,5 +64,5 @@ if record_video, close(vwriter); end
 
 % ==== 绘图 ====
 output_dir = fullfile(pwd, 'results');
-plot_all_results(state_hist, d_hist, dhat_hist, targets, dt, output_dir);
+plot_all_results(state_hist, d_hist, dhat_hist, center_hist, targets, dt, output_dir);
 

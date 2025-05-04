@@ -3,7 +3,7 @@ function [num_agents, n_dim, dt, T_total, u_max, r_safe, formation_mode, ctrl, g
     num_agents = 6;
     n_dim = 2;
     dt = 0.05;
-    T_total = 10;
+    T_total = 20;
     u_max = 2.0;  % input limit
     eta = 0.005;    % APF 避障增益
     d0 = 5;     % APF 激活距离
