@@ -426,7 +426,7 @@ params.delta_ki = 0.01;
 params.delta_kd = 0.3;
 
 % ----------pitch loop-------------
-params.pitch_cruise_kp = 2.0;
+params.pitch_cruise_kp = 8.0;
 params.pitch_cruise_kd = 0.4;
 
 % ----------altitude loop-------------

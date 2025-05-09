@@ -16,7 +16,7 @@ function [ des_state ] = traj_vtol_cruise(t, state)
         % des_state.pos = [2*t; 2*t; 10];
          des_state.Va = 15;
          % des_state.pos = [20; 20+des_state.Va * t; 10];
-         des_state.pos = [10; 50; 10];
+         des_state.pos = [200; 200; 10];
         
         % des_state.yaw = atan2(des_state.pos(2) - 0, des_state.pos(1) - 20);
         des_state.mode = 3;   

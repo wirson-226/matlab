@@ -283,9 +283,10 @@ end
     s = [state.pos(1),state.pos(2),state.pos(3),state.vel(1),state.vel(2),state.vel(3),0,0,0,0,state.omega(1),state.omega(2),state.omega(3),];
     [force, moment] = all_forces_moments(s, command, params);
     moment(3) = Mz_cmd;
-
+    p_cmd = controller.roll_rate_from_roll.update(roll_cmd, state.rot(1));
+    q_cmd = controller.pitch_rate_from_pitch.update(pitch_cmd, state.rot(2));
     copter_cmd = [force; moment]; % 
-    des_from_ctrl = [Va, des_state.Va, beta, roll_cmd, pitch_cmd, yaw_cmd, 0, 0, r_cmd, moment(1), moment(2), moment(3)];
+    des_from_ctrl = [Va, des_state.Va, beta, roll_cmd, pitch_cmd, yaw_cmd, p_cmd, q_cmd, r_cmd, moment(1), moment(2), moment(3)];
 
     end
     % disp(mode);
