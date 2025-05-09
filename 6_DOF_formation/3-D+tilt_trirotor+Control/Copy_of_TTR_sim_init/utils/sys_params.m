@@ -35,7 +35,7 @@ params.north0 = 0.0;  % initial north position
 params.east0 = 0.0;   % initial east position
 params.up = 0.0;  % initial down position
 params.u0 = 0.0;  % initial velocity along body x-axis
-params.v0 = 15.0;  % initial velocity along body y-axis -- todo--测试cruise
+params.v0 = 0.0;  %15.0;  % initial velocity along body y-axis -- todo--测试cruise
 params.w0 = 0.0;  % initial velocity along body z-axis
 
 params.phi0 = deg2rad(0);  % initial roll angle
