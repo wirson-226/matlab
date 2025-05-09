@@ -412,33 +412,48 @@ for i = 1:num_agents
 end
 legend(legend_3d, 'Location', 'best');
 
-% 调整所有图的大小和位置以便于查看
-for i = 1:length(handles)
-    if ishandle(handles{i})
-        figure(handles{i});
-        set(gcf, 'Position', [100 + (i-1)*50, 100 + (i-1)*50, 800, 600]);
-    end
+output_dir = fullfile(pwd, 'figures');
+if ~exist(output_dir, 'dir')
+    mkdir(output_dir);
 end
 
-% % 调整轨迹图的大小
-% figure('Name', '3D Trajectory');
-% set(gcf, 'Position', [200, 200, 800, 600]);
-% figure('Name', 'Position Error');
-% set(gcf, 'Position', [250, 250, 800, 600]);
-
-% 优化所有图的显示
 for i = 1:length(handles)
     if ishandle(handles{i})
-        figure(handles{i});
-        for j = 1:3
-            subplot(3, 1, j);
-            grid minor;
-            ax = gca;
-            ax.GridAlpha = 0.3;
-            ax.MinorGridAlpha = 0.15;
+        fig = figure(handles{i});
+
+        % 设置窗口大小和位置
+        set(fig, 'Units', 'centimeters', 'Position', [5 + (i-1)*2, 5 + (i-1)*2, 36, 20]);
+
+        % 设置所有子图格式
+        axes_handles = findall(fig, 'Type', 'axes');
+        for ax = axes_handles'
+            set(ax, 'FontName', 'Times New Roman', 'FontSize', 12, 'LineWidth', 0.5);
+            grid(ax, 'on');
+            box(ax, 'on');
+            outerpos = get(ax, 'OuterPosition');
+            ti = get(ax, 'TightInset');  % 防止图被 legend 压缩
+            left = outerpos(1) + ti(1);
+            bottom = outerpos(2) + ti(2);
+            ax_width = outerpos(3) - ti(1) - ti(3);
+            ax_height = outerpos(4) - ti(2) - ti(4);
+            set(ax, 'Position', [left, bottom, ax_width, ax_height]);
         end
+        
+        % 设置 legend 在右侧不压缩图
+        legends = findall(fig, 'Type', 'legend');
+        for lgd = legends'
+             set(lgd, 'FontSize', 9, 'Location', 'northeastoutside', 'Box', 'off', 'Interpreter', 'latex');
+        end
+        
+
+        % 保存为高清 PNG
+        name = sprintf('figure_%02d.png', i);
+        print(fig, fullfile(output_dir, name), '-dpng', '-r900');
     end
 end
+
+disp('✅ 所有图像已格式化并保存完成。');
+
 
 disp('结果绘图完成。');
 end

@@ -232,5 +232,7 @@ for search_num=1:GS.search_num
     f.NextPlot='replacechildren';
     F(search_num)=getframe(f);
 end
+
+
 end
 

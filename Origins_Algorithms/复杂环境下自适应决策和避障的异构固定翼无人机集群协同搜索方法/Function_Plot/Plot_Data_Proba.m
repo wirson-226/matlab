@@ -71,5 +71,16 @@ lgd.NumColumns=1;
 lgd.FontSize=10;
 grid on;
 box on;
+% 定义保存目录
+save_dir = fullfile(pwd, 'figures');  % 当前工作目录下 figures 子文件夹
+if ~exist(save_dir, 'dir')
+    mkdir(save_dir);                  % 若不存在则创建
+end
+
+% 定义文件路径
+save_path = fullfile(save_dir, 'your_figure.png');
+
+% 导出为高分辨率 PNG
+exportgraphics(f, save_path, 'Resolution', 900);
 end
 

@@ -11,11 +11,12 @@ function [ des_state ] = traj_vtol_cruise(t, state)
     t5 = 15;
 
     % 阶段定义
-    if t <= t1 
+    if t <= 100
         % 巡航阶段
         % des_state.pos = [2*t; 2*t; 10];
          des_state.Va = 15;
-         des_state.pos = [0; 20+des_state.Va * t; 10];
+         % des_state.pos = [20; 20+des_state.Va * t; 10];
+         des_state.pos = [10; 50; 10];
         
         % des_state.yaw = atan2(des_state.pos(2) - 0, des_state.pos(1) - 20);
         des_state.mode = 3;   
@@ -25,7 +26,7 @@ function [ des_state ] = traj_vtol_cruise(t, state)
         % 巡航阶段
         % des_state.pos = [2*t; 2*t; 10];
          des_state.Va = 15;
-         des_state.pos = [0; 20+des_state.Va * t; 0];
+         des_state.pos = [20; 20+des_state.Va * t; 0];
         
         % des_state.yaw = atan2(des_state.pos(2) - 0, des_state.pos(1) - 20);
         des_state.mode = 3;  
