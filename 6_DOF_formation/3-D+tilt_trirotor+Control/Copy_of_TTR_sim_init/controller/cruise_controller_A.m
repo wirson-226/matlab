@@ -303,6 +303,3 @@ function angle = wrapToPi(angle)
     angle = mod(angle + pi, 2*pi) - pi;
 end
 
-
-% % moment = [My_cmd; Mx_cmd; 0]; % roll pitch yaw;
-% moment(3) = 0.1*roll_cmd_1;

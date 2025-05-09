@@ -39,10 +39,10 @@ set(gcf, 'Position', [200, 200, 800, 600]);
 axis equal;
 grid on;
 hold on;
-xlabel('X_东_右');
-ylabel('Y_北_前');
-zlabel('Z_上');
-title('TTR-VTOL flight');
+xlabel('X-east-right');
+ylabel('Y-north-forward');
+zlabel('Z-up');
+title('TTR-VTOL Flight');
 scale = 1;
 % x1= -100*scale;
 % x2= 100*scale;
@@ -297,23 +297,63 @@ if(~isempty(err))
     error(err);
 end
 
-% 图像导出
+% % 图像导出
+% save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\Copy_of_TTR_sim_init\Medias\Results';
+% if ~exist(save_dir, 'dir')
+%     mkdir(save_dir);
+% end
+% figHandles = findall(0, 'Type', 'figure');
+% for i = 1:length(figHandles)
+%     figure(figHandles(i));
+%     figName = get(figHandles(i), 'Name');
+%     if isempty(figName)
+%         figName = ['Figure' num2str(figHandles(i).Number)];
+%     end
+%     saveas(figHandles(i), fullfile(save_dir, [figName '.png']));
+% end
+% 
+% disp('Simulation complete.');
+
+% === 图像导出（美观格式 + 高清保存）===
 save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\Copy_of_TTR_sim_init\Medias\Results';
 if ~exist(save_dir, 'dir')
     mkdir(save_dir);
 end
+
 figHandles = findall(0, 'Type', 'figure');
 for i = 1:length(figHandles)
-    figure(figHandles(i));
-    figName = get(figHandles(i), 'Name');
-    if isempty(figName)
-        figName = ['Figure' num2str(figHandles(i).Number)];
+    fig = figHandles(i);
+    figure(fig);  % 激活 figure
+
+    % 设置图窗口属性
+    set(fig, 'Units', 'centimeters', 'Position', [5 + (i-1)*2, 5 + (i-1)*2, 36, 20]);
+
+    % 格式化子图字体/线宽等
+    axes_handles = findall(fig, 'Type', 'axes');
+    for ax = axes_handles'
+        set(ax, 'FontName', 'Times New Roman', 'FontSize', 15, 'LineWidth', 0.8);
+        grid(ax, 'on'); box(ax, 'on');
     end
-    saveas(figHandles(i), fullfile(save_dir, [figName '.png']));
+
+    % legend 样式统一
+    legends = findall(fig, 'Type', 'legend');
+    for lgd = legends'
+        set(lgd, 'FontSize', 18, 'Location', 'eastoutside', 'Box', 'off', 'Interpreter', 'latex');
+    end
+
+    % 获取图名
+    figName = get(fig, 'Name');
+    if isempty(figName)
+        figName = ['Figure' num2str(fig.Number)];
+    end
+
+    % 保存为高清 PNG
+    print(fig, fullfile(save_dir, [figName '.png']), '-dpng', '-r900');
 end
 
-disp('Simulation complete.');
+disp('✅ 所有图像已高清格式导出完毕。');
 
+disp('Simulation complete.');
 end
 
 
