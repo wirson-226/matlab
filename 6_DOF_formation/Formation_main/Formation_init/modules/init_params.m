@@ -1,19 +1,33 @@
-% modules/init_params.m
+%% 修改后的参数初始化
 function [num_agents, n_dim, dt, T_total, u_max, r_safe, formation_mode, ctrl, gamma, eta, d0, comm_radius] = init_params()
-    num_agents = 8;
-    n_dim = 2;
-    dt = 0.05;
+    % 核心修改：固定为4个智能体（1 leader + 3 followers）
+    num_agents = 4;
+    n_dim = 4;       % 每个智能体状态维度：[x, vx, y, vy]
+    dt = 0.01;
     T_total = 20;
-    u_max = 2.0;  % input limit
-    eta = 0.005;    % APF 避障增益
-    d0 = 5;     % APF 激活距离
-    r_safe = 10;     % CBF 安全距离
-    gamma = 1;    % CBF 避障优化系数
-    comm_radius = 80;  % 通信半径（可调）
-
-    formation_mode = 'rotating';
-    ctrl.kp_formation = 10;
-    ctrl.kv_formation = 3;
-    ctrl.beta_consensus = 0.5;
-    ctrl.gamma_observer = 0.1;
+    u_max = 2.0;
+    r_safe = 0.2;
+    formation_mode = 'triangle';
+    
+    % 原编队协议的特定参数
+    ctrl.w = 0.314;
+    ctrl.r = 0.5;
+    ctrl.w_lead = 0.157;
+    ctrl.r_lead = 0.3;
+    ctrl.K1 = [-2, -1.2];
+    ctrl.K_1 = [-1, 0];
+    ctrl.K_2 = [-0.1251, -0.5732]*2;
+    ctrl.c_1 = 0.5*2;
+    ctrl.c_2 = 1*2;
+    
+    % APF参数
+    ctrl.k_rep = 0.1;
+    ctrl.k_rot = 0.2;
+    ctrl.k_damp = 0.5;
+    ctrl.r_safe = r_safe;
+    
+    gamma = 1.0;
+    eta = 0.5;
+    d0 = 0.3;
+    comm_radius = 2.0;
 end

@@ -292,28 +292,6 @@ s_out = xtraj;
 % 数据显示
 plot_results(ttraj, xtraj, desired_struct, actual_struct, actuator_struct);
 
-
-if(~isempty(err))
-    error(err);
-end
-
-% % 图像导出
-% save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\Copy_of_TTR_sim_init\Medias\Results';
-% if ~exist(save_dir, 'dir')
-%     mkdir(save_dir);
-% end
-% figHandles = findall(0, 'Type', 'figure');
-% for i = 1:length(figHandles)
-%     figure(figHandles(i));
-%     figName = get(figHandles(i), 'Name');
-%     if isempty(figName)
-%         figName = ['Figure' num2str(figHandles(i).Number)];
-%     end
-%     saveas(figHandles(i), fullfile(save_dir, [figName '.png']));
-% end
-% 
-% disp('Simulation complete.');
-
 % === 图像导出（美观格式 + 高清保存）===
 save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\Copy_of_TTR_sim_init\Medias\Results';
 if ~exist(save_dir, 'dir')

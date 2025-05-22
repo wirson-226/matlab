@@ -20,27 +20,44 @@
 % 2024-05-16
 %______________________________________________________________________________________________
 
-close all;clear all; clc
-N=30;  
-Function_name='F1'; 
-[lb,ub,dim,fobj]=CEC2017(Function_name); % CEC2017
-MaxFEs=30000;
-[ala_score,ala_pos,ala_curve]=ALA(N,MaxFEs,lb,ub,dim,fobj);
-display(['The best fitness of ALA is: ', num2str(ala_score)]);
-figure('Position',[454   445   694   297]);
-subplot(1,2,1);
+close all; clear all; clc
+
+N = 30;  
+Function_name = 'F1'; 
+[lb, ub, dim, fobj] = CEC2017(Function_name); % CEC2017
+
+MaxFEs = 30000;
+[ala_score, ala_pos, ala_curve] = ALA(N, MaxFEs, lb, ub, dim, fobj);
+
+disp(['The best fitness of ALA is: ', num2str(ala_score)]);
+
+% === 绘图优化 ===
+fig = figure('Name','ALA Result','Units','centimeters','Position',[5, 5, 40, 30]);
+tiledlayout(1,2,'TileSpacing','compact','Padding','compact');
+
+% --- 子图1: 函数形状图 ---
+ax1 = nexttile;
 func_plot_cec2017(Function_name);
-title(Function_name)
-xlabel('x_1');
-ylabel('x_2');
-zlabel([Function_name,'( x_1 , x_2 )'])
-grid on
-subplot(1,2,2);
-semilogy(ala_curve,'Color','r','linewidth',2);
-axis tight
-title(Function_name)
-xlabel('Iteration#')
-ylabel('Best score obtained so far')
-grid on
-legend('ALA')
+title([Function_name], 'Interpreter','latex');
+xlabel('$x_1$', 'Interpreter','latex');
+ylabel('$x_2$', 'Interpreter','latex');
+zlabel(['$', Function_name, '(x_1, x_2)$'], 'Interpreter','latex');
+grid on; box on;
+
+% --- 子图2: 收敛曲线 ---
+ax2 = nexttile;
+semilogy(ala_curve, 'r', 'LineWidth', 2);
+axis tight;
+title(['ALA Convergence on ', Function_name], 'Interpreter','latex');
+xlabel('Iteration', 'Interpreter','latex');
+ylabel('Best Score So Far', 'Interpreter','latex');
+legend('ALA', 'Location','northeast', 'Interpreter','latex', 'Box','off', 'FontSize', 30);
+grid on; box on;
+
+% === 格式统一 ===
+set([ax1, ax2], 'FontName','Times New Roman', 'FontSize', 20, 'LineWidth', 1);
+
+% 可选导出高清图像
+print(fig, ['ALA_', Function_name, '_Result'], '-dpng', '-r1000');
+
 
