@@ -1,5 +1,5 @@
 %% 实时状态可视化函数
-function fig_handle = plot_formation_state(x, obstacles, obs_radius, t, show_legend)
+function fig_handle = plot_formation_state(x, obstacles, obs_radius, t, show_legend, ctrl)
     % 输入:
     % x - 智能体状态 (4×4): [agent×[x,vx,y,vy]]
     % obstacles - 障碍物位置 (N×2)
@@ -76,22 +76,22 @@ function fig_handle = plot_formation_state(x, obstacles, obs_radius, t, show_leg
     triangle_x = [follower_positions(:, 1); follower_positions(1, 1)];
     triangle_y = [follower_positions(:, 2); follower_positions(1, 2)];
     plot(triangle_x, triangle_y, 'k--', 'LineWidth', 1.5, 'Color', [0.5, 0.5, 0.5]);
-    
-    % 计算编队中心
-    formation_center = mean(follower_positions, 1);
-    plot(formation_center(1), formation_center(2), 'ko', 'MarkerSize', 8, ...
-         'MarkerFaceColor', 'yellow', 'MarkerEdgeColor', 'black');
+    % 
+    % % 计算编队中心
+    % formation_center = mean(follower_positions, 1);
+    % plot(formation_center(1), formation_center(2), 'ko', 'MarkerSize', 8, ...
+    %      'MarkerFaceColor', 'yellow', 'MarkerEdgeColor', 'black');
     
     % === 绘制参考轨迹 ===
     % Leader参考轨迹（红色虚线圆）
-    w_lead = 0.157; r_lead = 0.3;
+    w_lead =  ctrl.w_lead ; r_lead =  ctrl.r_lead;
     theta_ref = linspace(0, 2*pi, 100);
     ref_x = r_lead * cos(theta_ref);
     ref_y = r_lead * sin(theta_ref);
     plot(ref_x, ref_y, 'r:', 'LineWidth', 1, 'Color', [1, 0.5, 0.5]);
     
     % Formation参考轨迹（灰色虚线圆）
-    w = 0.314; r = 0.5;
+    w =   ctrl.w ; r = ctrl.r;
     ref_x_form = r * cos(theta_ref);
     ref_y_form = r * sin(theta_ref);
     plot(ref_x_form, ref_y_form, ':', 'LineWidth', 1, 'Color', [0.7, 0.7, 0.7]);
@@ -115,8 +115,8 @@ function fig_handle = plot_formation_state(x, obstacles, obs_radius, t, show_leg
     end
     
     % 添加信息文本框
-    info_text = sprintf('t = %.2f s\nLeader: (%.2f, %.2f)\nFormation Center: (%.2f, %.2f)', ...
-                       t, leader_pos(1), leader_pos(2), formation_center(1), formation_center(2));
+    info_text = sprintf('t = %.2f s\nLeader: (%.2f, %.2f)', ...
+                       t, leader_pos(1), leader_pos(2));
     text(-3.8, 3.5, info_text, 'FontSize', 10, 'BackgroundColor', 'white', ...
          'EdgeColor', 'black', 'VerticalAlignment', 'top');
     

@@ -24,21 +24,6 @@ eig(A+B*K1);
 % 仿真初始位置
 x0=[2;0;0;2;0;0.8;-2;3;-2;1.5;0;1;3.5;-2.4;-2;0.5];
 
-% 实验初始位置
-% x0=[120;0;90;2;-30;0.8;0;3;-135;1.5;60;1;105;-2.4;-60;0.5];
-% x0=[23.2;-1.2;6.5;0.5;-41.9;0.3;63.0;-1;-162.2;-2.5;-2.6;-0.3;-37.2;0.7;-78.2;2.8];
-
-% % 李萨如编队信息
-% % 仿真编队参数
-% % r=2;w=0.314;d=3.5;
-% % 实验编队参数
-% % r=80;w=0.157;d=140;
-% % r=60; d=105; w=0.15;
-% % t=0:l:t_total;
-% % for i=1:n
-% %     h(4*i-3:4*i,:)=[r*sin(w*t)+d*cos(2*pi*(i-1)/n); w*r*cos(w*t); r*sin(2*w*t)+d*sin(2*pi*(i-1)/n); 2*w*r*cos(2*w*t)];
-% % end
-
 %圆形编队
 r=2;w=0.314;
 t=0:l:t_total; % t_total/l should match te_total if t is used for indexing h
@@ -61,14 +46,7 @@ p_obs3=[-1.3,2.5];
 d_safe=0.8;
 d0=1;
 b=4;
-% 实验障碍物数据
-% [xo,yo,zo]=cylinder(10,50);
-% p_obs1=[145,40];
-% p_obs2=[-40,-160];
-% p_obs3=[-60,100];
-% d_safe=1000;
-% d0=1000;
-% b=200;
+
 
 %初始化x矩阵 %以及误差e矩阵 (e matrix for event triggering is removed)
 x=zeros(4*n,te_total+1);
@@ -155,15 +133,6 @@ for k=1:1:te_total
     % e(:,k+1)=kron(eye(n),A^k)*(x0-h(:,1))-(x(:,k+1)-h(:,k+1)); % Removed: This 'e' was for event-triggering
 end
 
-% The entire second 'for' loop for event triggering is removed.
-% Original start of removed event-triggering loop:
-% t1=[];
-% t2=[];
-% t3=[];
-% t4=[];
-% for k=1:1:te_total
-%    ... (event triggering logic) ...
-% end
 
 % Formation error calculation (this part remains relevant)
 z=x'-h'; 
@@ -282,22 +251,6 @@ ylabel('Y-axis/m');
 zlabel('Z-axis/m');
 legend('Agent1','Agent2','Agent3','Agent4');
 
-% Figure 2 for triggering instants is removed as t1, t2, t3, t4 are no longer generated.
-% figure(2)
-% hold on
-% one1=1*ones(1,length(t1));
-% plot(t1,one1,'m.','markersize',10)
-% one2=2*ones(1,length(t2));
-% plot(t2,one2,'g.','markersize',10)
-% one3=3*ones(1,length(t3));
-% plot(t3,one3,'r.','markersize',10)
-% one4=4*ones(1,length(t4));
-% plot(t4,one4,'b.','markersize',10)
-% grid on
-% grid minor
-% xlabel('iteration');
-% ylabel('triggering instants of each agent')
-% legend('Agent1','Agent2','Agent3','Agent4');
 
 figure(3)
 hold on

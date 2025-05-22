@@ -7,21 +7,18 @@ addpath('modules');
 steps = T_total / dt;
 
 % 初始化状态
-[x, v, d_hat, d_hist, dhat_hist, state_hist] = init_state(num_agents, n_dim, steps);
+[x, v, desired_dist, state_hist] = init_state(num_agents, n_dim, steps,ctrl);
 
 % 初始化障碍物
 [static_obs, moving_obs, obstacle_radius] = init_obstacles();
 
-% 记录轨迹中心（用于绘图）
-center_hist = zeros(steps, 2);
-
-% 可视化设置
-record_video = false;  % 可设置为true来录制视频
-if record_video
-    vwriter = VideoWriter('formation_simulation.mp4', 'MPEG-4');
-    vwriter.FrameRate = 30;
-    open(vwriter);
-end
+% % 可视化设置
+% record_video = true;  % 可设置为true来录制视频
+% if record_video
+%     vwriter = VideoWriter('formation_simulation.mp4', 'MPEG-4');
+%     vwriter.FrameRate = 30;
+%     open(vwriter);
+% end
 
 fprintf('开始仿真，总步数: %d\n', steps);
 
@@ -57,31 +54,46 @@ for step = 1:steps
     
     % === 记录数据 ===
     state_hist(step, :, :) = x;
-    center_hist(step, :) = reference_trajectory(t);  % 记录参考轨迹中心
     
     % === 实时可视化 ===
-    if mod(step, 10) == 0 || step == 1  % 每10步或第一步可视化
-        fig_handle = plot_formation_state(x, all_obs, obstacle_radius, t, step == 1);
-        
-        if record_video
-            frame = getframe(fig_handle);
-            writeVideo(vwriter, frame);
-        end
-        
-        % 显示进度
-        if mod(step, 100) == 0
-            fprintf('仿真进度: %.1f%% (步数: %d/%d)\n', step/steps*100, step, steps);
-        end
+    % if mod(step, 10) == 0 || step == 1  % 每10步或第一步可视化
+    %     fig_handle = plot_formation_state(x, all_obs, obstacle_radius, t, step == 1,ctrl);
+    % 
+    %     if record_video
+    %         frame = getframe(fig_handle);
+    %         writeVideo(vwriter, frame);
+    %     end
+    % 
+    %     % 显示进度
+    %     if mod(step, 100) == 0
+    %         fprintf('仿真进度: %.1f%% (步数: %d/%d)\n', step/steps*100, step, steps);
+    %     end
+    % end
+    % 显示进度
+    if mod(step, 100) == 0
+        fprintf('仿真进度: %.1f%% (步数: %d/%d)\n', step/steps*100, step, steps);
     end
 end
 
-% 关闭视频录制
-if record_video
-    close(vwriter);
-    fprintf('视频已保存为: formation_simulation.mp4\n');
+
+
+% % 关闭视频录制
+% if record_video
+%     close(vwriter);
+%     fprintf('视频已保存为: formation_simulation.mp4\n');
+% end
+
+% ==== 数据保存 ====
+output_dir = fullfile(pwd, 'results');
+if ~exist(output_dir, 'dir')
+    mkdir(output_dir);
 end
 
 % === 最终结果分析和绘图 ===
-fprintf('仿真完成，正在生成结果图表...\n');
-plot_simulation_results(state_hist, center_hist, static_obs, dt);
+% fprintf('仿真完成，正在生成结果图表...\n');
+% plot_simulation_results(state_hist,static_obs, dt);
+
+% ==== 结果绘图 ====
+plot_all_results(state_hist,desired_dist,static_obs, dt, output_dir);
+disp(['视频文件已保存至: ' fullfile(output_dir, 'formation_simulation.mp4')]);
 

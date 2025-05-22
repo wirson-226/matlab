@@ -13,7 +13,9 @@ function [static_obs, moving_obs, obstacle_radius] = init_obstacles()
                       -1.0, 1.0];   % 第二个动态障碍物
     moving_obs.vel = [0.1, 0.1;    % 第一个障碍物速度
                       -0.05, 0.08]; % 第二个障碍物速度
-    
+
+    moving_obs.pos = [];   % 第二个动态障碍物
+    moving_obs.vel = []; % 第二个障碍物速度
     % 障碍物半径 - 调整为更合理的大小
     obstacle_radius = 0.3;  % 原来1.5太大，改为0.3
 end

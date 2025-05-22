@@ -1,14 +1,15 @@
-%% 修改后的编队协议主函数
-function y = threeFollowers_IAPF2022_simulation(t, X, ctrl, all_obs)
-    % 从ctrl结构体中提取参数
+function y = optimizedFormationControl(t, X, ctrl, all_obs)
+    % 参数提取
     w = ctrl.w; r = ctrl.r;
     w_lead = ctrl.w_lead; r_lead = ctrl.r_lead;
     K1 = ctrl.K1;
     K_1 = ctrl.K_1; K_2 = ctrl.K_2;
     c_1 = ctrl.c_1; c_2 = ctrl.c_2;
-    k_rep = ctrl.k_rep; k_rot = ctrl.k_rot; k_damp = ctrl.k_damp;
-    r_safe = ctrl.r_safe;
+    k_rep = ctrl.k_rep; k_rot = ctrl.k_rot; 
+    k_damp = ctrl.k_damp; r_safe = ctrl.r_safe;
+    obs_radius = ctrl.obs_radius; % 新增障碍物半径参数
     
+
     % 系统矩阵
     A = [0 1; 0 0]; B = [0; 1];
     H = zeros(3,3); H(1,1) = 2;  % H必须是3×3矩阵
@@ -57,46 +58,61 @@ function y = threeFollowers_IAPF2022_simulation(t, X, ctrl, all_obs)
     % 合成控制
     U_foll = U_term1 + U_term2 - U_term3 + U_term4;
     
-    % === 改进APF避障项 ===
-
-    obstacles = all_obs;
-    U_apf_total = zeros(6,1);
     
+    % ===== 3. 增强型APF避障 =====
+    U_apf = zeros(6,1);
     for i = 1:3
-        % 正确的索引：follower i 对应 X(4*i+1:4*i+4)
-        start_idx = 4*i + 1;
-        pos = [X(start_idx), X(start_idx+2)]';     % [x, y]
-        vel = [X(start_idx+1), X(start_idx+3)]';   % [vx, vy]
+        idx = 4*i + [1,3]; % 提取xy位置索引
+        pos = X(idx)';
+        vel = X(idx+1)';
         
-        F_rep_total = [0; 0];
-        F_rot_total = [0; 0];
+        % 合并静态和动态障碍物
+        [F_rep, F_rot] = deal([0,0]);
+        for j = 1:size(all_obs.static,1)
+            [f_rep, f_rot] = apf_force(pos, all_obs.static(j,:), vel, ...
+                                 k_rep, k_rot, r_safe, obs_radius);
+            F_rep = F_rep + f_rep;
+            F_rot = F_rot + f_rot;
+        end
         
-        num_obs = size(obstacles, 1);
-        if num_obs >= 1
-            for j = 1:num_obs
-                obs = obstacles(j,:)';
-                diff = pos - obs;
-                dist = norm(diff);
-                
-                if dist < r_safe && dist > 1e-3
-                    F_rep = k_rep * (1/dist - 1/r_safe) * (1/dist^3) * diff;
-                    F_rep_total = F_rep_total + F_rep;
-                    
-                    e_z = [0; 0; 1];
-                    rot_dir = cross([diff; 0], e_z);
-                    F_rot = k_rot * (rot_dir(1:2) / (dist^2));
-                    F_rot_total = F_rot_total + F_rot;
-                end
+        % 动态障碍物处理 (需考虑相对速度)
+        if isfield(all_obs, 'moving')
+            for j = 1:size(all_obs.moving.pos,1)
+                obs_pos = all_obs.moving.pos(j,:) + t*all_obs.moving.vel(j,:);
+                [f_rep, f_rot] = apf_force(pos, obs_pos, vel, ...
+                                     k_rep*1.5, k_rot*1.2, r_safe*1.2, obs_radius);
+                F_rep = F_rep + f_rep;
+                F_rot = F_rot + f_rot;
             end
         end
         
+        % 阻尼项和合成控制
         F_damp = -k_damp * vel;
-        U_apf = F_rep_total + F_rot_total + F_damp;
-        U_apf_total(2*i-1:2*i) = U_apf;
+        U_apf(2*i-1:2*i) = F_rep + F_rot + F_damp;
     end
     
-    U_foll = U_foll + U_apf_total;
+    % ===== 4. 最终控制输出 =====
+
+    U_foll = U_foll + U_apf;
     
-    % === Follower动态更新 ===
     y(5:16) = kron(eye(6),A)*X(5:16) + kron(eye(6),B)*U_foll;
+end
+
+%% APF力计算子函数
+function [F_rep, F_rot] = apf_force(pos, obs_pos, vel, k_rep, k_rot, r_safe, obs_radius)
+    diff = pos - obs_pos;
+    dist = norm(diff) - obs_radius; % 考虑障碍物半径
+    
+    F_rep = [0,0];
+    F_rot = [0,0];
+    
+    if dist < r_safe && dist > 0.01
+        % 改进的排斥力模型
+        rep_gain = k_rep * (1/dist - 1/r_safe) / dist^2;
+        F_rep = rep_gain * diff/norm(diff);
+        
+        % 自适应旋绕力
+        rot_dir = [diff(2), -diff(1)]; % 垂直向量
+        F_rot = k_rot * rot_dir / (dist^1.5);
+    end
 end

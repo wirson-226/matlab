@@ -1,5 +1,5 @@
 %% 仿真结果分析函数（更新版）
-function plot_simulation_results(state_hist, center_hist, static_obs, dt)
+function plot_simulation_results(state_hist, static_obs, dt)
     steps = size(state_hist, 1);
     num_agents = size(state_hist, 2);
     time_vec = (0:steps-1) * dt;
@@ -23,7 +23,7 @@ function plot_simulation_results(state_hist, center_hist, static_obs, dt)
         obs_y = static_obs(i, 2) + 0.3 * sin(theta);
         fill(obs_x, obs_y, [0.8, 0.3, 0.3], 'FaceAlpha', 0.5);
     end
-    plot(center_hist(:, 1), center_hist(:, 2), 'k--', 'LineWidth', 1);
+
     axis equal; grid on;
     xlabel('X (m)'); ylabel('Y (m)');
     title('Agent Trajectories');
@@ -33,7 +33,7 @@ function plot_simulation_results(state_hist, center_hist, static_obs, dt)
     formation_error = zeros(steps, 1);
     for step = 1:steps
         d_sum = 0; count = 0;
-        for i = 1:num_agents
+        for i = 2:num_agents
             for j = i+1:num_agents
                 pos_i = squeeze(state_hist(step, i, [1, 3]));
                 pos_j = squeeze(state_hist(step, j, [1, 3]));

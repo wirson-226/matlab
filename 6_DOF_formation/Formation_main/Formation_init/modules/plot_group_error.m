@@ -1,38 +1,32 @@
-% modules/plot_group_error.m
-% function plot_group_error(pos_hist, targets, dt, ~)
-%     [N, ~, T] = size(pos_hist); t = (0:T-1)*dt;
-%     figure('Name','Group Formation Error','Units','centimeters','Position',[5,5,18,10]);
-%     for i = 1:N
-%         e = squeeze(vecnorm(pos_hist(i,:,:) - reshape(targets(i,:),[1,2,1]), 2, 2));
-%         plot(t, e, 'DisplayName',sprintf('Agent %d',i)); hold on;
-%     end
-%     xlabel('Time [s]'); ylabel('||x_i - x_i^*||'); title('Formation Tracking Error'); grid on; legend;
-% end
+function plot_group_error(state_hist, dt, desired_dist)
+    % 输入:
+    %   state_hist: [T × N × D] 状态历史
+    %   dt: 时间步长
+    %   desired_dist: 编队中理想距离
 
-function plot_group_error(pos_hist, targets, dt, ~)
-    [N, ~, T] = size(pos_hist); t = (0:T-1)*dt;
-    figure('Name','Group Formation Error','Units','centimeters','Position',[5,5,18,10]);
+    [T, N, D] = size(state_hist);
+    t = (0:T-1) * dt;
+    error_hist = zeros(1, T);
 
-    total_error = zeros(1, T);  % 误差总和曲线
-
-    for i = 1:N
-        pos = squeeze(pos_hist(i,:,:))';  % T×2
-        if ndims(targets) == 2
-            target = repmat(targets(i,:), T, 1);  % 静态目标
-        else
-            target = squeeze(targets(i,:,:))';    % 动态目标
+    for k = 1:T
+        err = 0;
+        count = 0;
+        for i = 1:N
+            for j = i+1:N
+                xi = squeeze(state_hist(k,i,[1,3]));  % 取出 x, y
+                xj = squeeze(state_hist(k,j,[1,3]));
+                dist = norm(xi - xj);
+                err = err + (dist - desired_dist)^2;
+                count = count + 1;
+            end
         end
-        e = vecnorm(pos - target, 2, 2);  % T×1
-        total_error = total_error + e';   % 误差累加
-        plot(t, e, 'DisplayName', sprintf('Agent %d', i)); hold on;
+        error_hist(k) = sqrt(err / count);  % RMSE
     end
 
-    % 可选择“总误差”或“平均误差”
-    % plot(t, total_error, 'k-', 'LineWidth', 2, 'DisplayName', 'Total Error');
-    plot(t, total_error / N, 'r--', 'LineWidth', 2, 'DisplayName', 'Avg Error');
-
+    figure('Name','Formation Shape Error','Units','centimeters','Position',[6,6,16,9]);
+    plot(t, error_hist, 'b-', 'LineWidth', 2);
     xlabel('Time [s]');
-    ylabel('||x_i - x_i^*||');
-    title('Formation Tracking Error (with Total)');
-    grid on; legend;
+    ylabel('Shape Error (RMSE)');
+    title('Formation Geometry Error Over Time');
+    grid on;
 end
