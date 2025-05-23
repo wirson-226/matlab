@@ -12,13 +12,13 @@ steps = T_total / dt;
 % 初始化障碍物
 [static_obs, moving_obs, obstacle_radius] = init_obstacles();
 
-% % 可视化设置
-% record_video = true;  % 可设置为true来录制视频
-% if record_video
-%     vwriter = VideoWriter('formation_simulation.mp4', 'MPEG-4');
-%     vwriter.FrameRate = 30;
-%     open(vwriter);
-% end
+% 可视化设置
+record_video = true;  % 可设置为true来录制视频
+if record_video
+    vwriter = VideoWriter('formation_simulation.mp4', 'MPEG-4');
+    vwriter.FrameRate = 30;
+    open(vwriter);
+end
 
 fprintf('开始仿真，总步数: %d\n', steps);
 
@@ -35,12 +35,8 @@ for step = 1:steps
     adjacency = update_adjacency(x, comm_radius);
     
     % === 核心控制：使用三无人机编队协议 ===
-    u_total = threeFollowers_control(t, x, ctrl, all_obs);
-    
-    % === 可选：添加额外的安全约束（CBF）===
-    % 如果需要额外的安全保证，可以取消注释下面这行
-    % u_total = cbf_safety_filter(x, u_total, all_obs, obstacle_radius, r_safe, u_max);
-    
+    u_total = Tracking_IAPF_control(t, x, ctrl, all_obs);
+
     % === 状态更新 ===
     x_next = x;
     for i = 1:num_agents
@@ -56,19 +52,19 @@ for step = 1:steps
     state_hist(step, :, :) = x;
     
     % === 实时可视化 ===
-    % if mod(step, 10) == 0 || step == 1  % 每10步或第一步可视化
-    %     fig_handle = plot_formation_state(x, all_obs, obstacle_radius, t, step == 1,ctrl);
-    % 
-    %     if record_video
-    %         frame = getframe(fig_handle);
-    %         writeVideo(vwriter, frame);
-    %     end
-    % 
-    %     % 显示进度
-    %     if mod(step, 100) == 0
-    %         fprintf('仿真进度: %.1f%% (步数: %d/%d)\n', step/steps*100, step, steps);
-    %     end
-    % end
+    if mod(step, 10) == 0 || step == 1  % 每10步或第一步可视化
+        fig_handle = plot_formation_state(x, all_obs, obstacle_radius, t, step == 1,ctrl);
+
+        if record_video
+            frame = getframe(fig_handle);
+            writeVideo(vwriter, frame);
+        end
+
+        % 显示进度
+        if mod(step, 100) == 0
+            fprintf('仿真进度: %.1f%% (步数: %d/%d)\n', step/steps*100, step, steps);
+        end
+    end
     % 显示进度
     if mod(step, 100) == 0
         fprintf('仿真进度: %.1f%% (步数: %d/%d)\n', step/steps*100, step, steps);
@@ -77,11 +73,11 @@ end
 
 
 
-% % 关闭视频录制
-% if record_video
-%     close(vwriter);
-%     fprintf('视频已保存为: formation_simulation.mp4\n');
-% end
+% 关闭视频录制
+if record_video
+    close(vwriter);
+    fprintf('视频已保存为: formation_simulation.mp4\n');
+end
 
 % ==== 数据保存 ====
 output_dir = fullfile(pwd, 'results');

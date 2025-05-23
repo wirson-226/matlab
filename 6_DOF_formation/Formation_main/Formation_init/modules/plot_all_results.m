@@ -7,5 +7,5 @@ function plot_all_results(state_hist, desired_dist, static_obs, dt, output_dir)
     plot_velocity_position_time(state_hist, dt, output_dir);
     plot_group_error(state_hist, dt, desired_dist);
 
-    % save_all_figures(output_dir);
+    save_all_figures(output_dir);
 end
