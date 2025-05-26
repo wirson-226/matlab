@@ -4,11 +4,10 @@ function [num_agents, n_dim, dt, T_total, u_max, r_safe, formation_mode, ctrl, g
     num_agents = 4;
     n_dim = 4;       % 每个智能体状态维度：[x, vx, y, vy]
     dt = 0.01;
-    T_total = 1;
+    T_total = 60;
     u_max = 2.0;
     r_safe = 0.7;
-    formation_mode = 'quad';
-    ctrl.v = 0.1; % 编队平移速度
+    formation_mode = 'triangle';
     
     % 原编队协议的特定参数
     ctrl.w = 0.314; %角速度

@@ -1,4 +1,4 @@
-% 修改后的主控制接口函数
+%% 修改后的主控制接口函数
 function u_total = Tracking_IAPF_control(t, x, ctrl, all_obs)
     % 输入：
     % t - 时间

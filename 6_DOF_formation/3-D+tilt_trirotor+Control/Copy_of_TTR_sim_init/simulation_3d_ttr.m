@@ -290,7 +290,7 @@ t_out = ttraj;
 s_out = xtraj;
 
 % 数据显示
-plot_results(ttraj, xtraj, desired_struct, actual_struct, actuator_struct);
+% plot_results(ttraj, xtraj, desired_struct, actual_struct, actuator_struct);
 
 % === 图像导出（美观格式 + 高清保存）===
 save_dir = 'D:\Codes\Matlab_Xuan\matlab\6_DOF_formation\3-D+tilt_trirotor+Control\Copy_of_TTR_sim_init\Medias\Results';

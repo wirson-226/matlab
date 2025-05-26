@@ -13,7 +13,7 @@ function plot_group_error(state_hist, dt, desired_dist, ctrl)
     for k = 1:T
         err = 0;
         count = 0;
-        for i = 1:N
+        for i = 2:N
             for j = i+1:N
                 xi = squeeze(state_hist(k,i,[1,3])); % 提取x,y坐标
                 xj = squeeze(state_hist(k,j,[1,3]));

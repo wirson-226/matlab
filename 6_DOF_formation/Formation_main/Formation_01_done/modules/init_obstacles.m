@@ -1,11 +1,11 @@
-%% modules/init_obstacles.m (直线时变测试版)
+%% modules/init_obstacles.m (修改版)
 function [static_obs, moving_obs, obstacle_radius] = init_obstacles()
     % 静态障碍物 - 调整位置以适应编队任务
     % 原来的障碍物距离太远，调整到编队活动区域内
-    static_obs = [2, 0.5;     % 右上区域
-                  -1.5, 1;    % 左上区域  
-                  1, -1.7;      % 下方区域
-                  0, 0;    % 右下区域
+    static_obs = [1.5, 1.5;     % 右上区域
+                  -1.5, 1.5;    % 左上区域  
+                  0, -2.0;      % 下方区域
+                  2.0, -1.0;    % 右下区域
                   -2.5, -0.5];  % 左侧区域
     
     % 动态障碍物 - 初始位置和速度

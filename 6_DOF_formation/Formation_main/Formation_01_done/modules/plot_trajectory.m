@@ -17,7 +17,7 @@ function plot_trajectory(state_hist, static_obs)
     hold(ax, 'on');
     
     % 绘制跟随者轨迹、起点、终点
-    for i = 1:num_agents
+    for i = 2:num_agents
         color = colororder(i,:);
         
         % 提取第i个智能体的轨迹
@@ -61,6 +61,22 @@ function plot_trajectory(state_hist, static_obs)
     end
 
     
+    % 绘制领导者轨迹（智能体1）
+    leader_x = pos_hist(:, 1, 1); % 领导者x坐标
+    leader_y = pos_hist(:, 1, 2); % 领导者y坐标
+    
+    plot(ax, leader_x, leader_y, 'k--', 'LineWidth', 1.5, ...
+        'DisplayName', 'Leader Path');
+    
+    % 领导者起点
+    scatter(ax, leader_x(1), leader_y(1), 400, 'p', ...
+        'MarkerEdgeColor','k', 'MarkerFaceColor','none', ...
+        'DisplayName', 'Leader Start');
+    
+    % 领导者终点
+    scatter(ax, leader_x(end), leader_y(end), 500, 'p', ...
+        'MarkerEdgeColor','k', 'MarkerFaceColor','y', ...
+        'DisplayName', 'Leader End');
     
     % 设置图形属性
     xlabel(ax, 'X [m]'); 
